@@ -62,6 +62,13 @@
         }
         .inp:focus { border-color: #0072ff; }
 
+        /* नया लिंक दिखने वाला बॉक्स */
+        .link-display {
+            background: #000; border: 1px dashed #0072ff; color: #00c6ff;
+            padding: 10px; width: 90%; border-radius: 8px; font-size: 12px;
+            margin-bottom: 15px; display: none; word-break: break-all;
+        }
+
         .copy-btn {
             background: white; color: black; width: 100%; padding: 15px; border: none;
             border-radius: 50px; font-weight: 900; font-size: 16px; cursor: pointer;
@@ -77,7 +84,7 @@
     </div>
 
     <div class="container" id="cardList">
-        <p style="text-align:center; color:#555;">Loading Offer...</p>
+        <p style="text-align:center; color:#555;">Loading Offers...</p>
     </div>
 
     <div class="modal-overlay" id="modal">
@@ -88,6 +95,9 @@
 
             <input type="text" id="myUpi" class="inp" placeholder="Enter Your UPI ID (Payment)">
             <input type="text" id="myTg" class="inp" placeholder="Your Telegram Link (Optional)">
+            
+            <input type="text" id="showLink" class="link-display" readonly placeholder="Link will appear here">
+
             <button class="copy-btn" onclick="generateLink()">COPY LINK 🔗</button>
         </div>
     </div>
@@ -121,6 +131,7 @@
         function openModal(id, title) {
             currentOfferId = id;
             document.getElementById('mTitle').innerText = title;
+            document.getElementById('showLink').style.display = 'none'; // Pehle link chupa rahega
             document.getElementById('modal').style.display = 'flex';
         }
 
@@ -131,6 +142,7 @@
         function generateLink() {
             let upi = document.getElementById('myUpi').value.trim();
             let tg = document.getElementById('myTg').value.trim();
+            let linkBox = document.getElementById('showLink');
 
             if(!upi) { alert("⚠️ Bhai, Payment ke liye UPI to daalo!"); return; }
 
@@ -138,9 +150,13 @@
             let link = `https://${window.location.hostname}/user.html?id=${currentOfferId}&ref=${secretUpi}`;
             if(tg) { link += `&tg=${encodeURIComponent(tg)}`; }
 
+            // Link ko box me dikhana
+            linkBox.value = link;
+            linkBox.style.display = 'block';
+
+            // Copy karna
             navigator.clipboard.writeText(link);
-            alert("✅ Link Copied!\nAb share karo.");
-            closeModal();
+            alert("✅ Link Copied Successfully!");
         }
     </script>
 </body>
