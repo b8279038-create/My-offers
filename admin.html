@@ -2,353 +2,163 @@
 <html>
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>⚡ Ultimate Admin Panel</title>
+    <title>👑 Admin Pro - Safe Sync</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&display=swap" rel="stylesheet">
     <style>
-        body { margin: 0; padding: 0; background-color: #050505; font-family: 'Poppins', sans-serif; color: white; padding-bottom: 80px; }
+        body { margin: 0; background: #050505; font-family: 'Poppins', sans-serif; color: white; padding-bottom: 80px; }
         .container { max-width: 600px; margin: auto; padding: 10px; }
-
-        /* HEADER */
-        .header { 
-            background: #111; padding: 15px; border-radius: 15px; border: 1px solid #333;
-            display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;
-            position: sticky; top: 10px; z-index: 100; box-shadow: 0 10px 30px rgba(0,0,0,0.8);
-        }
-        .title { font-size: 16px; font-weight: 900; color:white; letter-spacing: 1px; }
+        .header { background: #111; padding: 15px; border-radius: 15px; border: 1px solid #333; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 10px; z-index: 100; }
         .status-dot { height: 10px; width: 10px; background: #00ff00; border-radius: 50%; display: inline-block; box-shadow: 0 0 10px #00ff00; }
-
-        /* TABS (3 SECTIONS) */
-        .tabs { display: flex; gap: 5px; margin-bottom: 15px; background: #1a1a1a; padding: 5px; border-radius: 12px; }
-        .tab-btn { 
-            flex: 1; padding: 10px; border: none; background: none; color: #888; 
-            font-weight: 700; font-size: 12px; border-radius: 8px; cursor: pointer; transition: 0.3s;
-        }
-        .tab-btn.active { background: #0072ff; color: white; box-shadow: 0 4px 10px rgba(0, 114, 255, 0.4); }
-
-        /* SEARCH */
-        .search-inp { 
-            width: 93%; background: #111; border: 1px solid #333; color: white; padding: 12px; 
-            border-radius: 10px; outline: none; font-weight: bold; margin-bottom: 15px;
-        }
-        .search-inp:focus { border-color: #0072ff; }
-
-        /* CARDS */
-        .card { 
-            background: #111; padding: 15px; border-radius: 16px; margin-bottom: 10px; 
-            border: 1px solid #222; position: relative;
-        }
-        
-        /* TASK CARD STYLE */
+        .tabs { display: flex; gap: 5px; margin: 15px 0; background: #1a1a1a; padding: 5px; border-radius: 12px; }
+        .tab-btn { flex: 1; padding: 10px; border: none; background: none; color: #888; font-weight: 700; font-size: 11px; border-radius: 8px; cursor: pointer; }
+        .tab-btn.active { background: #0072ff; color: white; }
+        .card { background: #111; padding: 15px; border-radius: 16px; margin-bottom: 10px; border: 1px solid #222; }
         .card-task { border-left: 4px solid #00c6ff; }
-        /* REFER CARD STYLE */
         .card-ref { border-left: 4px solid #ffd700; }
-        /* PAID CARD STYLE */
-        .card-paid { opacity: 0.6; border-left: 4px solid #00c851; background: #0a0a0a; }
-
-        .row { display: flex; justify-content: space-between; align-items: center; }
-        .upi { font-size: 14px; font-weight: 700; color: #eee; letter-spacing: 0.5px; }
+        .card-history { opacity: 0.7; border-left: 4px solid #00c851; }
+        .upi { font-size: 14px; font-weight: 700; color: #eee; }
         .sub-txt { font-size: 10px; color: #888; margin-top: 3px; }
-        
-        .amt-tag { font-size: 18px; font-weight: 900; color: #fff; }
-        
-        /* BUTTONS */
-        .pay-btn { 
-            background: linear-gradient(90deg, #fff, #ddd); color: black; border: none; padding: 8px 15px; 
-            border-radius: 50px; font-weight: 900; cursor: pointer; font-size: 11px;
-            box-shadow: 0 0 10px rgba(255,255,255,0.2);
-        }
-        .bulk-btn {
-            background: linear-gradient(90deg, #ffd700, #ffaa00); color: black; width: 100%;
-            margin-top: 10px; padding: 10px; border-radius: 8px; font-weight: 800; border: none;
-            cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 5px;
-        }
-
-        /* EXPANDABLE SECTION */
-        .expand-list { display: none; margin-top: 10px; padding-top: 10px; border-top: 1px dashed #333; }
-        .mini-item { display: flex; justify-content: space-between; padding: 5px 0; font-size: 11px; color: #aaa; }
-        .toggle-btn { background: none; border: none; color: #0072ff; font-size: 10px; font-weight: bold; cursor: pointer; float: right; }
-
+        .amt-tag { font-size: 18px; font-weight: 900; }
+        .pay-btn { background: #fff; color: #000; border: none; padding: 8px 15px; border-radius: 50px; font-weight: 900; font-size: 11px; cursor: pointer; }
+        .bulk-btn { background: linear-gradient(90deg, #ffd700, #ffaa00); color: black; width: 100%; margin-top: 10px; padding: 10px; border-radius: 8px; font-weight: 800; border: none; }
+        .details-box { display: none; margin-top: 10px; padding-top: 10px; border-top: 1px dashed #333; font-size: 11px; color: #aaa; }
         .loader { text-align: center; color: #0072ff; margin-top: 50px; font-weight: bold; }
         .hidden { display: none; }
     </style>
 </head>
 <body>
-
     <div class="container">
         <div class="header">
-            <div class="title"><span class="status-dot"></span> ADMIN PANEL</div>
-            <div id="status" style="font-size:10px; color:#666;">Syncing...</div>
+            <div style="font-weight:900;">ADMIN PANEL</div>
+            <div id="status" style="font-size:10px; color:#666;"><span class="status-dot"></span> LIVE SYNC</div>
         </div>
-
-        <input type="text" id="searchBox" class="search-inp" placeholder="🔍 Search UPI / Number..." onkeyup="handleSearch()">
-
         <div class="tabs">
-            <button class="tab-btn active" onclick="switchTab('tasks')">MY TASKS (<span id="cTask">0</span>)</button>
+            <button class="tab-btn active" onclick="switchTab('tasks')">TASKS (<span id="cTask">0</span>)</button>
             <button class="tab-btn" onclick="switchTab('referrals')">REFERRALS (<span id="cRef">0</span>)</button>
             <button class="tab-btn" onclick="switchTab('history')">HISTORY</button>
         </div>
-
-        <div id="loader" class="loader">🔄 Fetching Live Data...</div>
-        
+        <div id="loader" class="loader">🔄 Loading Secure Data...</div>
         <div id="tasks-area"></div>
         <div id="referrals-area" class="hidden"></div>
         <div id="history-area" class="hidden"></div>
     </div>
 
     <script>
-        // ✅ YOUR DEPLOYED SCRIPT URL (Don't Change)
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwfjyg_o0a_BUgiC0Iuoit3OTtzBHhkvVf8kg6XeI0DaCKVpBsbljCbpK-Tbb7uk-Dqvg/exec";
-
-        let paidSet = new Set();
-        let rawLeads = [];
-        let offerMap = {};
+        let paidSet = new Set(), rawLeads = [], offerMap = {};
 
         async function init() {
-            // Password Protection
             if(!sessionStorage.getItem('adminLogged')) {
-                let p = prompt("🔐 Enter Admin Password:");
-                if(p !== "Pathak123") { document.body.innerHTML = "<h2 style='text-align:center;color:white;margin-top:50px;'>⛔ WRONG PASSWORD</h2>"; return; }
+                let p = prompt("🔐 Password:");
+                if(p !== "Pathak123") return;
                 sessionStorage.setItem('adminLogged', 'true');
             }
-
             try {
-                // 1. Fetch Paid Data (Instant from Google Script)
                 await fetchPaidHistory();
-
-                // 2. Fetch Offer Prices
                 let oRes = await fetch('offers.json');
                 let oData = await oRes.json();
                 oData.forEach(o => {
                     let uP = parseInt(o.user_payout.replace(/[^0-9]/g, '')) || 0;
                     let rP = parseInt(o.refer_payout.replace(/[^0-9]/g, '')) || 0;
-                    if(o.cid) offerMap[o.cid] = { t: o.title, u: uP, r: rP };
-                    if(o.id) offerMap[o.id] = { t: o.title, u: uP, r: rP };
+                    offerMap[o.cid || o.id] = { t: o.title, u: uP, r: rP };
                 });
-
-                // 3. Fetch Live Leads (Multi-Proxy)
                 await fetchLiveLeads();
-
-            } catch(e) { alert("System Error: " + e.message); }
+            } catch(e) { alert("Error: " + e.message); }
         }
 
         async function fetchPaidHistory() {
-            try {
-                let res = await fetch(SCRIPT_URL);
-                let data = await res.json();
-                data.forEach(k => paidSet.add(k));
-                document.getElementById('status').innerText = "🟢 Online";
-                document.getElementById('status').style.color = "#00ff00";
-            } catch(e) { console.warn("History Sync Failed"); }
+            let res = await fetch(SCRIPT_URL);
+            let data = await res.json();
+            data.forEach(k => paidSet.add(k));
         }
 
         async function fetchLiveLeads() {
-            const apiKey = "8df0570da65f3a1798408c942b82839a";
-            const target = `https://panel.visioncamp.in/api.php?auth-token=${apiKey}&report=1`;
-            // Redundant Proxies
-            const proxies = [
-                `https://api.allorigins.win/raw?url=${encodeURIComponent(target)}`,
-                `https://corsproxy.io/?${encodeURIComponent(target)}`,
-                `https://thingproxy.freeboard.io/fetch/${target}`
-            ];
-
-            let success = false;
-            for(let proxy of proxies) {
-                try {
-                    let res = await fetch(proxy);
-                    let json = await res.json();
-                    rawLeads = json.contents ? JSON.parse(json.contents).data : (json.data || json);
-                    if(!Array.isArray(rawLeads)) rawLeads = [];
-                    success = true;
-                    break;
-                } catch(e) { continue; }
-            }
-            
-            if(!success) { document.getElementById('loader').innerText = "⚠️ API Error. Refresh Page."; return; }
+            const target = `https://panel.visioncamp.in/api.php?auth-token=8df0570da65f3a1798408c942b82839a&report=1`;
+            const proxy = `https://api.allorigins.win/raw?url=${encodeURIComponent(target)}`;
+            let res = await fetch(proxy);
+            let json = await res.json();
+            rawLeads = json.contents ? JSON.parse(json.contents).data : (json.data || json);
             processData();
         }
 
         function processData() {
-            // Clear Views
-            document.getElementById('tasks-area').innerHTML = '';
-            document.getElementById('referrals-area').innerHTML = '';
-            document.getElementById('history-area').innerHTML = '';
-
-            let tasksHTML = '';
-            let historyHTML = '';
-            
-            // For Referrals Grouping
-            let refGroups = {}; // { 'upi': { total: 0, items: [] } }
-
-            let taskCount = 0;
-            let refCount = 0;
+            let tArea = document.getElementById('tasks-area'), rArea = document.getElementById('referrals-area'), hArea = document.getElementById('history-area');
+            tArea.innerHTML = ''; rArea.innerHTML = ''; hArea.innerHTML = '';
+            let refGroups = {}, tCount = 0, rCount = 0;
 
             rawLeads.reverse().forEach(lead => {
                 if(lead.status.toLowerCase() !== 'approved') return;
+                let o = offerMap[lead.offerid] || { t: `Offer #${lead.offerid}`, u: 0, r: 0 };
+                let selfKey = `${lead.p1}_${lead.offerid}_SELF`, refKey = `${lead.p2}_${lead.offerid}_REF`;
 
-                let oInfo = offerMap[lead.offerid] || { t: `Offer #${lead.offerid}`, u: 0, r: 0 };
-                let date = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-
-                // --- 1. SELF TASK ---
-                let selfKey = `${lead.p1}_${lead.offerid}_SELF`;
-                if(paidSet.has(selfKey)) {
-                    // Paid History
-                    historyHTML += createPaidCard(lead.p1, oInfo.t, oInfo.u, "SELF TASK", date);
-                } else {
-                    // Active Task
-                    taskCount++;
-                    tasksHTML += `
-                    <div class="card card-task" data-search="${lead.p1}">
-                        <div class="row">
-                            <div>
-                                <div class="upi">${lead.p1}</div>
-                                <div class="sub-txt">${oInfo.t} • ${date}</div>
-                            </div>
-                            <div style="text-align:right;">
-                                <div class="amt-tag">₹${oInfo.u}</div>
-                                <button class="pay-btn" onclick="paySingle('${lead.p1}', ${oInfo.u}, '${selfKey}', this)">PAY NOW</button>
-                            </div>
+                if(paidSet.has(selfKey)) hArea.innerHTML += createCard(lead.p1, o.t, o.u, "TASK", "card-history", true);
+                else {
+                    tCount++;
+                    tArea.innerHTML += `
+                    <div class="card card-task">
+                        <div style="display:flex;justify-content:space-between">
+                            <div><div class="upi">${lead.p1}</div><div class="sub-txt">${o.t}</div></div>
+                            <div style="text-align:right"><div class="amt-tag">₹${o.u}</div>
+                            <button class="pay-btn" onclick="paySingle('${lead.p1}','${selfKey}',this)">PAY</button></div>
                         </div>
                     </div>`;
                 }
 
-                // --- 2. REFERRALS (Grouping Logic) ---
                 if(lead.p2 && lead.p2.length > 5 && lead.p2 !== lead.p1) {
-                    let refKey = `${lead.p2}_${lead.offerid}_REF`; // P2 is Referrer
-                    
-                    if(paidSet.has(refKey)) {
-                        historyHTML += createPaidCard(lead.p2, `${oInfo.t} (Ref)`, oInfo.r, "REFERRAL", date);
-                    } else {
-                        // Grouping Process
-                        if(!refGroups[lead.p2]) refGroups[lead.p2] = { total: 0, count: 0, items: [] };
-                        refGroups[lead.p2].total += oInfo.r;
-                        refGroups[lead.p2].count++;
-                        refGroups[lead.p2].items.push({ 
-                            title: oInfo.t, 
-                            amt: oInfo.r, 
-                            key: refKey 
-                        });
+                    if(paidSet.has(refKey)) hArea.innerHTML += createCard(lead.p2, o.t, o.r, "REFER", "card-history", true);
+                    else {
+                        if(!refGroups[lead.p2]) refGroups[lead.p2] = { total: 0, items: [] };
+                        refGroups[lead.p2].total += o.r;
+                        refGroups[lead.p2].items.push({ t: o.t, r: o.r, k: refKey });
                     }
                 }
             });
 
-            // --- RENDER REFERRALS (Grouped) ---
-            let refsHTML = '';
             for (let [upi, data] of Object.entries(refGroups)) {
-                refCount++;
-                let itemsList = data.items.map(i => 
-                    `<div class="mini-item"><span>${i.title}</span> <span>₹${i.amt}</span></div>`
-                ).join('');
-
-                // Encode all keys for bulk payment
-                let allKeys = JSON.stringify(data.items.map(i => i.key));
-
-                refsHTML += `
-                <div class="card card-ref" data-search="${upi}">
-                    <div class="row">
-                        <div>
-                            <div class="upi">${upi}</div>
-                            <div class="sub-txt">${data.count} Referrals Pending</div>
-                        </div>
+                rCount++;
+                let keys = JSON.stringify(data.items.map(i => i.k)), details = data.items.map(i => `<div>${i.t}: ₹${i.r}</div>`).join('');
+                rArea.innerHTML += `
+                <div class="card card-ref">
+                    <div style="display:flex;justify-content:space-between">
+                        <div><div class="upi">${upi}</div><div class="sub-txt">${data.items.length} Refs Pending</div></div>
                         <div class="amt-tag">₹${data.total}</div>
                     </div>
-                    
-                    <button class="bulk-btn" onclick='payBulk("${upi}", ${data.total}, ${allKeys}, this)'>
-                        PAY ALL ₹${data.total} ⚡
-                    </button>
-
-                    <button class="toggle-btn" onclick="this.parentElement.querySelector('.expand-list').style.display='block'">View Details ⌄</button>
-                    <div class="expand-list">
-                        ${itemsList}
-                        <div style="text-align:center; margin-top:5px; font-size:10px; color:#666;">
-                            (Click Pay All to clear list)
-                        </div>
-                    </div>
+                    <button class="bulk-btn" onclick='payBulk("${upi}",${keys},this)'>PAY ALL ₹${data.total}</button>
+                    <button style="background:none;border:none;color:#0072ff;font-size:10px;margin-top:5px" onclick="this.nextElementSibling.style.display='block'">View History ⌄</button>
+                    <div class="details-box">${details}</div>
                 </div>`;
             }
-
-            document.getElementById('tasks-area').innerHTML = tasksHTML || '<div style="text-align:center;color:#444;margin-top:20px;">No Pending Tasks</div>';
-            document.getElementById('referrals-area').innerHTML = refsHTML || '<div style="text-align:center;color:#444;margin-top:20px;">No Pending Referrals</div>';
-            document.getElementById('history-area').innerHTML = historyHTML || '<div style="text-align:center;color:#444;margin-top:20px;">History Empty</div>';
-
-            document.getElementById('cTask').innerText = taskCount;
-            document.getElementById('cRef').innerText = refCount;
+            document.getElementById('cTask').innerText = tCount; document.getElementById('cRef').innerText = rCount;
             document.getElementById('loader').style.display = 'none';
         }
 
-        function createPaidCard(upi, title, amt, type, date) {
-            return `
-            <div class="card card-paid" data-search="${upi}">
-                <div class="row">
-                    <div>
-                        <div class="upi" style="text-decoration:line-through; color:#888;">${upi}</div>
-                        <div class="sub-txt">${type} • ${title}</div>
-                    </div>
-                    <div style="text-align:right;">
-                        <div class="amt-tag" style="color:#00c851;">₹${amt}</div>
-                        <div style="font-size:10px; color:#00c851; font-weight:bold;">PAID ✅</div>
-                    </div>
-                </div>
-            </div>`;
+        function createCard(upi, t, a, type, cls, paid) {
+            return `<div class="card ${cls}"><div style="display:flex;justify-content:space-between"><div><div class="upi">${upi}</div><div class="sub-txt">${type}: ${t}</div></div><div class="amt-tag" style="color:#00c851">₹${a}</div></div></div>`;
         }
 
-        // --- PAYMENT LOGIC (SECURE) ---
-        
-        // 1. Single Payment
-        window.paySingle = function(upi, amt, key, btn) {
-            // Random Note for security
-            let note = "P" + Math.floor(Math.random() * 9000 + 1000); 
-            window.location.href = `upi://pay?pa=${upi}&pn=User&am=${amt}&cu=INR&tn=${note}`;
-            
+        window.paySingle = function(upi, key, btn) {
+            navigator.clipboard.writeText(upi);
+            window.location.href = `upi://pay?pa=${upi}&pn=Admin&cu=INR&tn=TaskID_${Math.floor(Math.random()*999)}`;
             btn.innerText = "SAVING...";
-            // Update Server
-            fetch(SCRIPT_URL + `?action=pay&key=${encodeURIComponent(key)}&amount=${amt}`, { mode: 'no-cors' })
-            .then(() => {
-                setTimeout(() => { btn.closest('.card').style.display = 'none'; checkRefresh(); }, 1500);
-            });
+            fetch(SCRIPT_URL + `?action=pay&key=${encodeURIComponent(key)}`, { mode: 'no-cors' }).then(() => { setTimeout(()=>location.reload(), 2000); });
         }
 
-        // 2. BULK PAYMENT (Referrals)
-        window.payBulk = function(upi, totalAmt, keysArray, btn) {
-            let note = "BULK" + Math.floor(Math.random() * 9000 + 1000);
-            // Open UPI once for TOTAL amount
-            window.location.href = `upi://pay?pa=${upi}&pn=User&am=${totalAmt}&cu=INR&tn=${note}`;
-
+        window.payBulk = function(upi, keys, btn) {
+            navigator.clipboard.writeText(upi);
+            window.location.href = `upi://pay?pa=${upi}&pn=Admin&cu=INR&tn=BulkRef_${Math.floor(Math.random()*999)}`;
             btn.innerText = "PROCESSING...";
-            btn.style.background = "#555";
-
-            // Loop and save all keys in background
-            keysArray.forEach((k, i) => {
-                setTimeout(() => {
-                    fetch(SCRIPT_URL + `?action=pay&key=${encodeURIComponent(k)}&amount=Bulk`, { mode: 'no-cors' });
-                }, i * 300); // Thoda gap taaki Google block na kare
-            });
-
-            setTimeout(() => {
-                btn.closest('.card').style.display = 'none';
-                alert("✅ Payment Record Updated!");
-            }, 2000);
+            keys.forEach((k, i) => { setTimeout(() => fetch(SCRIPT_URL + `?action=pay&key=${encodeURIComponent(k)}`, { mode: 'no-cors' }), i * 400); });
+            setTimeout(()=>location.reload(), 3000);
         }
 
-        // TABS & SEARCH
-        window.switchTab = function(tab) {
+        window.switchTab = function(t) {
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            document.querySelectorAll('div[id$="-area"]').forEach(d => d.classList.add('hidden'));
-            
             event.target.classList.add('active');
-            document.getElementById(tab + '-area').classList.remove('hidden');
+            document.getElementById('tasks-area').classList.add('hidden');
+            document.getElementById('referrals-area').classList.add('hidden');
+            document.getElementById('history-area').classList.add('hidden');
+            document.getElementById(t + '-area').classList.remove('hidden');
         }
-
-        window.handleSearch = function() {
-            let term = document.getElementById('searchBox').value.toLowerCase();
-            document.querySelectorAll('.card').forEach(c => {
-                c.style.display = c.getAttribute('data-search').toLowerCase().includes(term) ? 'block' : 'none';
-            });
-        }
-
-        function checkRefresh() {
-             // Optional: Auto refresh logic if needed
-        }
-
         init();
     </script>
 </body>
