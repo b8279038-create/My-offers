@@ -2,239 +2,299 @@
 <html>
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>👑 Admin Panel</title>
+    <title>👑 Master Admin Panel</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
-        body { margin: 0; padding: 0; background-color: #000; font-family: 'Poppins', sans-serif; color: white; }
+        body { margin: 0; padding: 0; background-color: #050505; font-family: 'Poppins', sans-serif; color: white; padding-bottom: 50px; }
         .container { max-width: 600px; margin: auto; padding: 15px; }
 
-        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; padding-bottom: 15px; margin-bottom: 15px; }
-        .title { font-size: 20px; font-weight: 900; color: #ffd700; text-transform: uppercase; }
-        
-        /* DATA CONTROLS */
-        .controls { display: flex; gap: 10px; margin-bottom: 20px; }
-        .c-btn { flex: 1; padding: 10px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 12px; }
-        .btn-down { background: #0072ff; color: white; }
-        .btn-up { background: #333; color: #ccc; }
-
-        /* TABS */
-        .stats-box { display: flex; gap: 10px; margin-bottom: 20px; }
-        .stat { background: #1a1a1a; flex: 1; padding: 15px; border-radius: 10px; text-align: center; border: 1px solid #333; }
-        .num { font-size: 24px; font-weight: 800; }
-        .lbl { font-size: 10px; color: #888; text-transform: uppercase; }
-
-        /* LIST */
-        .section-title { color: #888; font-size: 12px; font-weight: bold; margin: 20px 0 10px; letter-spacing: 1px; }
-        
-        .user-card { 
-            background: #111; padding: 15px; border-radius: 12px; margin-bottom: 10px; 
-            border-left: 5px solid #555; display: flex; justify-content: space-between; align-items: center;
+        /* HEADER */
+        .header { 
+            background: rgba(20, 20, 20, 0.95); padding: 15px; border-radius: 15px; border: 1px solid #333;
+            display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;
+            position: sticky; top: 10px; z-index: 100; backdrop-filter: blur(10px);
         }
-        .user-card.pending { border-left-color: #ff4444; }
-        .user-card.paid { border-left-color: #00c851; opacity: 0.6; }
+        .title { font-size: 16px; font-weight: 900; color: #fff; text-transform: uppercase; letter-spacing: 1px; }
+        .live-dot { height: 8px; width: 8px; background: #00ff00; border-radius: 50%; display: inline-block; margin-right: 5px; box-shadow: 0 0 10px #00ff00; }
+        .status-txt { font-size: 10px; color: #888; }
 
-        .u-info { font-size: 14px; font-weight: 600; }
-        .u-offer { font-size: 11px; color: #888; margin-top: 3px; }
+        /* SEARCH */
+        .search-box { width: 100%; margin-bottom: 15px; }
+        .inp { 
+            width: 93%; background: #111; border: 1px solid #333; color: white; padding: 12px; 
+            border-radius: 10px; outline: none; font-weight: bold; font-family: inherit;
+        }
+        .inp:focus { border-color: #0072ff; }
+
+        /* METER */
+        .stats { display: flex; gap: 10px; margin-bottom: 20px; }
+        .stat-box { background: #111; flex: 1; padding: 10px; border-radius: 10px; text-align: center; border: 1px solid #333; }
+        .s-val { font-size: 20px; font-weight: 800; }
+        .s-lbl { font-size: 10px; color: #666; text-transform: uppercase; }
+
+        /* CARDS */
+        .card { 
+            background: #111; padding: 15px; border-radius: 12px; margin-bottom: 10px; 
+            border-left: 4px solid #555; position: relative; transition: 0.3s;
+        }
+        .card.pending { border-left-color: #ff4444; }
+        .card.paid { border-left-color: #00c851; opacity: 0.5; }
+
+        .row { display: flex; justify-content: space-between; align-items: center; }
         
+        .upi-txt { font-size: 14px; font-weight: 700; color: white; letter-spacing: 0.5px; margin-bottom: 4px; }
+        .offer-txt { font-size: 11px; color: #888; }
+        .date-txt { font-size: 10px; color: #555; margin-top: 2px; }
+
+        .tag { font-size: 9px; padding: 3px 6px; border-radius: 4px; font-weight: 800; margin-right: 5px; text-transform: uppercase; }
+        .tag-self { background: rgba(0, 198, 255, 0.15); color: #00c6ff; }
+        .tag-ref { background: rgba(255, 215, 0, 0.15); color: #ffd700; }
+
+        /* BUTTONS */
         .pay-btn { 
-            background: #ff4444; color: white; border: none; padding: 8px 15px; 
-            border-radius: 50px; font-weight: bold; cursor: pointer; font-size: 12px; 
+            background: linear-gradient(135deg, #ff4444, #d32f2f); color: white; border: none; 
+            padding: 8px 15px; border-radius: 50px; font-weight: 700; cursor: pointer; 
+            font-size: 12px; display: flex; align-items: center; gap: 5px; box-shadow: 0 4px 10px rgba(255, 68, 68, 0.3);
         }
         .paid-badge { color: #00c851; font-weight: 800; font-size: 12px; display: none; }
 
-        .loading { text-align: center; margin-top: 50px; color: #0072ff; font-weight: bold; }
-        
-        /* HIDDEN FILE INPUT */
-        #fileInput { display: none; }
+        /* LOADER */
+        .loader { text-align: center; margin-top: 50px; font-size: 12px; color: #0072ff; font-weight: bold; }
     </style>
 </head>
 <body>
 
     <div class="container">
         <div class="header">
-            <div class="title">Admin Zone 🔒</div>
-            <button onclick="logout()" style="background:none; border:none; color:#555; font-size:20px;">🚪</button>
+            <div class="title"><span class="live-dot"></span> Admin Panel</div>
+            <div class="status-txt" id="status">Connecting...</div>
         </div>
 
-        <div class="controls">
-            <button class="c-btn btn-down" onclick="downloadBackup()">⬇️ Backup Data</button>
-            <button class="c-btn btn-up" onclick="document.getElementById('fileInput').click()">⬆️ Restore Data</button>
-            <input type="file" id="fileInput" accept=".json" onchange="uploadBackup(this)">
+        <div class="search-box">
+            <input type="text" id="searchInput" class="inp" placeholder="🔍 Search UPI ID..." onkeyup="filterList()">
         </div>
 
-        <div class="stats-box">
-            <div class="stat">
-                <div class="num" id="countPending" style="color: #ff4444;">0</div>
-                <div class="lbl">Pending Payment</div>
+        <div class="stats">
+            <div class="stat-box">
+                <div class="s-val" id="pCount" style="color:#ff4444;">0</div>
+                <div class="s-lbl">Pending</div>
             </div>
-            <div class="stat">
-                <div class="num" id="countPaid" style="color: #00c851;">0</div>
-                <div class="lbl">Paid Users</div>
+            <div class="stat-box">
+                <div class="s-val" id="dCount" style="color:#00c851;">0</div>
+                <div class="s-lbl">Paid</div>
             </div>
         </div>
 
-        <div id="loader" class="loading">Fetching Live Data...</div>
-
-        <div id="contentArea" style="display:none;">
-            <div class="section-title">🔴 PENDING PAYMENTS (Abhi Dena Hai)</div>
-            <div id="pendingList"></div>
-
-            <div class="section-title">🟢 PAYMENT HISTORY (De Diya)</div>
-            <div id="paidList"></div>
-        </div>
-
+        <div id="loader" class="loader">🔄 Fetching Live Data...</div>
+        <div id="listArea"></div>
     </div>
 
     <script>
-        // PASSWORD PROTECTION
-        let pass = prompt("Enter Admin Password:");
-        if(pass !== "Pathak123") { // Yahan Apna Password Set Kar Lena
-            document.body.innerHTML = "<h2 style='color:white;text-align:center;margin-top:50px;'>⛔ Access Denied</h2>";
-            throw new Error("Wrong Password");
-        }
+        // ================= CONFIGURATION (DO NOT CHANGE) =================
+        // Ye aapke links hain jo aapne bheje the
+        const FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLSey891Fma_ZVh30EqVzmypxIp6bNn0pxYFMzSN2GJbBvslQpQ/formResponse";
+        const ENTRY_ID = "entry.1285085795";
+        const SHEET_ID = "1fv5jJ32MjEVI976q9mxverORoF4Zfnmj2yScxRpcBmk"; 
+        const SHEET_CSV = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv`;
+        // =================================================================
 
-        // --- LOCAL STORAGE MANAGER ---
-        // Hum data ko 'paidUPIs' naam se save karenge. Refresh karne par ye nahi udega.
-        let paidDb = JSON.parse(localStorage.getItem('paidDb')) || {}; 
-        // Structure: { "UPI_ID+OfferID": "DateString" }
+        let paidHistory = new Set();
+        let allItems = [];
 
         async function init() {
+            // Password Check
+            if(!sessionStorage.getItem('isLogged')) {
+                let p = prompt("🔐 Enter Admin Password:");
+                if(p !== "Pathak123") { // Password Change kar sakte ho
+                    document.body.innerHTML = "<h2 style='color:white;text-align:center;padding:50px;'>⛔ Wrong Password</h2>"; 
+                    return;
+                }
+                sessionStorage.setItem('isLogged', 'true');
+            }
+
             try {
-                // 1. Get Offer Names
-                let offersRes = await fetch('offers.json');
-                let offersData = await offersRes.json();
-                let nameMap = {};
-                offersData.forEach(o => {
-                     if(o.cid) nameMap[o.cid] = o.title;
-                     if(o.id) nameMap[o.id] = o.title;
-                });
-
-                // 2. Get Live Leads (Multi-Proxy)
-                const apiKey = "8df0570da65f3a1798408c942b82839a"; 
-                const targetUrl = `https://panel.visioncamp.in/api.php?auth-token=${apiKey}&report=1`;
-                let leads = await fetchWithFailover(targetUrl);
-
-                renderLists(leads, nameMap);
-
-            } catch (err) {
-                alert("Error: " + err.message);
+                await fetchPaidHistory(); // 1. Check Sheet Data
+                await fetchLiveLeads();   // 2. Check Live API Data
+            } catch(e) {
+                alert("Error: " + e.message);
             }
         }
 
-        function renderLists(leads, nameMap) {
-            let pendingHTML = '';
-            let paidHTML = '';
-            let pCount = 0;
-            let dCount = 0;
+        // --- 1. SHEET HISTORY (Proxy se CSV padhna) ---
+        async function fetchPaidHistory() {
+            // Use AllOrigins as Proxy
+            let url = `https://api.allorigins.win/raw?url=${encodeURIComponent(SHEET_CSV)}`;
+            try {
+                let res = await fetch(url);
+                let txt = await res.text();
+                // Check rows for our unique ID format (UPI_OFFERID_TYPE)
+                txt.split('\n').forEach(row => {
+                    if(row.includes('|')) {
+                        let key = row.split('|')[0].trim(); // Key nikal lo
+                        paidHistory.add(key);
+                    }
+                });
+            } catch(e) { console.warn("Sheet Read Error (Shayad Empty hai)", e); }
+        }
 
-            // Leads ko sort karo (Latest first)
+        // --- 2. LIVE LEADS (Multi-Proxy) ---
+        async function fetchLiveLeads() {
+            const apiKey = "8df0570da65f3a1798408c942b82839a";
+            const target = `https://panel.visioncamp.in/api.php?auth-token=${apiKey}&report=1`;
+            
+            document.getElementById('status').innerText = "Fetching Leads...";
+            
+            let leads = [];
+            // 3 Backup Proxies
+            const proxies = [
+                `https://api.allorigins.win/raw?url=${encodeURIComponent(target)}`,
+                `https://corsproxy.io/?${encodeURIComponent(target)}`,
+                `https://thingproxy.freeboard.io/fetch/${target}`
+            ];
+
+            for(let proxy of proxies) {
+                try {
+                    let res = await fetch(proxy);
+                    if(!res.ok) throw new Error("Fail");
+                    let json = await res.json();
+                    
+                    if(json.contents) leads = JSON.parse(json.contents).data || [];
+                    else if(json.data) leads = json.data;
+                    else leads = json;
+                    
+                    document.getElementById('status').innerText = "🟢 Online";
+                    document.getElementById('status').style.color = "#00ff00";
+                    break; // Mil gaya data, loop roko
+                } catch(e) { continue; }
+            }
+
+            // Get Offer Names
+            let offerMap = {};
+            try {
+                let oRes = await fetch('offers.json');
+                let oData = await oRes.json();
+                oData.forEach(o => { 
+                    if(o.cid) offerMap[o.cid] = o.title;
+                    if(o.id) offerMap[o.id] = o.title;
+                });
+            } catch(e) {}
+
+            renderList(leads, offerMap);
+        }
+
+        // --- 3. DISPLAY LIST ---
+        function renderList(leads, offerMap) {
+            let html = '';
+            let pending = 0;
+            let paid = 0;
+            allItems = []; // Clear old
+
+            // Newest first
             leads.reverse();
 
             leads.forEach(lead => {
                 if(lead.status.toLowerCase() !== 'approved') return;
 
-                // Unique Key (UPI + OfferID) taaki user alag-alag offer ke paise le sake
-                let uniqueKey = `${lead.p1}_${lead.offerid}`;
-                let offerName = nameMap[lead.offerid] || `Offer #${lead.offerid}`;
+                let oName = offerMap[lead.offerid] || `Offer #${lead.offerid}`;
+                let date = new Date().toLocaleDateString();
+
+                // ITEM 1: Self Task (Jo user ne kiya)
+                let selfKey = `${lead.p1}_${lead.offerid}_SELF`;
+                let isSelfPaid = paidHistory.has(selfKey);
                 
-                // Check if already paid
-                let isPaid = paidDb.hasOwnProperty(uniqueKey);
+                // Add to list
+                createItem(lead.p1, oName, "SELF TASK", "tag-self", selfKey, isSelfPaid, date);
 
-                let card = `
-                <div class="user-card ${isPaid ? 'paid' : 'pending'}" id="card-${uniqueKey}">
-                    <div>
-                        <div class="u-info">${lead.p1}</div>
-                        <div class="u-offer">${offerName} | ₹Payout Check Karo</div>
-                    </div>
-                    <div>
-                        ${isPaid 
-                            ? `<span class="paid-badge" style="display:block;">PAID ✅</span>` 
-                            : `<button class="pay-btn" onclick="markPaid('${uniqueKey}')">PAY NOW</button>`
-                        }
-                    </div>
-                </div>`;
-
-                if(isPaid) {
-                    paidHTML += card;
-                    dCount++;
-                } else {
-                    pendingHTML += card;
-                    pCount++;
+                // ITEM 2: Referral (Agar kisi ne refer kiya tha)
+                if(lead.p2 && lead.p2.length > 5 && lead.p2 !== lead.p1) {
+                    let refKey = `${lead.p2}_${lead.offerid}_REF`; // Note: P2 is ID
+                    let isRefPaid = paidHistory.has(refKey);
+                    createItem(lead.p2, `${oName} (Ref by User)`, "REFERRAL BONUS", "tag-ref", refKey, isRefPaid, date);
                 }
             });
 
-            document.getElementById('pendingList').innerHTML = pendingHTML || '<p style="text-align:center; color:#555;">No Pending Payments</p>';
-            document.getElementById('paidList').innerHTML = paidHTML || '<p style="text-align:center; color:#555;">History Empty</p>';
-            
-            document.getElementById('countPending').innerText = pCount;
-            document.getElementById('countPaid').innerText = dCount;
-            
-            document.getElementById('loader').style.display = 'none';
-            document.getElementById('contentArea').style.display = 'block';
-        }
-
-        // --- ACTION: MARK AS PAID ---
-        window.markPaid = function(key) {
-            if(confirm("Kya payment kar diya?")) {
-                // 1. Save to Memory
-                paidDb[key] = new Date().toISOString();
-                localStorage.setItem('paidDb', JSON.stringify(paidDb));
+            function createItem(upi, title, tagText, tagClass, key, isPaid, date) {
+                if(!isPaid) pending++; else paid++;
                 
-                // 2. Instant UI Update (Reload ki zarurat nahi)
-                location.reload(); 
+                allItems.push({ upi, html: '' }); // Placeholder for search
+                let index = allItems.length - 1;
+
+                let btn = isPaid 
+                    ? `<span class="paid-badge" style="display:block;">PAID ✅</span>`
+                    : `<button class="pay-btn" onclick="payNow('${upi}', '${key}', this)">PAY NOW <span style="font-size:10px;">➜</span></button>`;
+                
+                let cardClass = isPaid ? 'paid' : 'pending';
+
+                let itemHtml = `
+                <div class="card ${cardClass}" id="card-${index}">
+                    <div class="row">
+                        <div style="width:70%;">
+                            <span class="tag ${tagClass}">${tagText}</span> 
+                            <span class="date-txt">${date}</span>
+                            <div class="upi-txt">${upi}</div>
+                            <div class="offer-txt">${title}</div>
+                        </div>
+                        <div style="text-align:right;">
+                            ${btn}
+                        </div>
+                    </div>
+                </div>`;
+                
+                allItems[index].html = itemHtml;
+                html += itemHtml;
             }
+
+            document.getElementById('listArea').innerHTML = html;
+            document.getElementById('loader').style.display = 'none';
+            document.getElementById('pCount').innerText = pending;
+            document.getElementById('dCount').innerText = paid;
         }
 
-        // --- BACKUP SYSTEMS ---
-        window.downloadBackup = function() {
-            let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(paidDb));
-            let downloadAnchorNode = document.createElement('a');
-            downloadAnchorNode.setAttribute("href", dataStr);
-            downloadAnchorNode.setAttribute("download", "payment_backup_" + new Date().toISOString().slice(0,10) + ".json");
-            document.body.appendChild(downloadAnchorNode); // required for firefox
-            downloadAnchorNode.click();
-            downloadAnchorNode.remove();
+        // --- 4. PAY & SAVE LOGIC ---
+        window.payNow = function(upi, key, btnElem) {
+            let amount = prompt("Enter Amount (₹):", "10");
+            if(!amount) return;
+
+            // 1. Open UPI App
+            let upiLink = `upi://pay?pa=${upi}&pn=User&am=${amount}&cu=INR`;
+            window.location.href = upiLink;
+
+            // 2. Background Save to Google Sheet
+            btnElem.innerHTML = "SAVING...";
+            btnElem.style.background = "#555";
+            
+            // Format: KEY | Status | Date
+            let dataVal = `${key} | Paid | ${new Date().toISOString()}`;
+            
+            // Send to Google Form (Hidden)
+            fetch(FORM_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `${ENTRY_ID}=${encodeURIComponent(dataVal)}`
+            }).then(() => {
+                // Success UI Update
+                setTimeout(() => {
+                    let card = btnElem.closest('.card');
+                    card.classList.remove('pending');
+                    card.classList.add('paid');
+                    card.style.borderLeftColor = "#00c851";
+                    btnElem.parentNode.innerHTML = `<span class="paid-badge" style="display:block;">PAID ✅</span>`;
+                    
+                    // Update Counters
+                    document.getElementById('pCount').innerText = parseInt(document.getElementById('pCount').innerText) - 1;
+                    document.getElementById('dCount').innerText = parseInt(document.getElementById('dCount').innerText) + 1;
+                }, 2000);
+            }).catch(err => alert("Sheet Update Failed! Net check karo."));
         }
 
-        window.uploadBackup = function(input) {
-            let file = input.files[0];
-            let reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    let oldData = JSON.parse(e.target.result);
-                    // Merge old data with current data
-                    paidDb = { ...paidDb, ...oldData };
-                    localStorage.setItem('paidDb', JSON.stringify(paidDb));
-                    alert("✅ Data Restored Successfully!");
-                    location.reload();
-                } catch(err) {
-                    alert("❌ Galat File Hai!");
-                }
-            };
-            reader.readAsText(file);
-        }
-
-        function logout() {
-            window.location.href = "index.html";
-        }
-
-        // --- PROXY HELPER (Same as Tracker) ---
-        async function fetchWithFailover(targetUrl) {
-            const proxies = [
-                `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`,
-                `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`
-            ];
-            for (let proxy of proxies) {
-                try {
-                    let response = await fetch(proxy);
-                    if (!response.ok) throw new Error("Fail");
-                    let data = await response.json();
-                    if (data.contents) return JSON.parse(data.contents).data || [];
-                    else if (data.data) return data.data;
-                    else return data;
-                } catch (err) { continue; }
-            }
-            throw new Error("Network Busy");
+        // Search Filter
+        window.filterList = function() {
+            let term = document.getElementById('searchInput').value.toLowerCase();
+            allItems.forEach((item, idx) => {
+                let el = document.getElementById(`card-${idx}`);
+                if(el) el.style.display = item.upi.toLowerCase().includes(term) ? 'block' : 'none';
+            });
         }
 
         init();
