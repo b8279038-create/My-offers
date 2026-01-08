@@ -62,7 +62,7 @@
         }
         .inp:focus { border-color: #0072ff; }
 
-        /* नया लिंक दिखने वाला बॉक्स */
+        /* Link Display Box */
         .link-display {
             background: #000; border: 1px dashed #0072ff; color: #00c6ff;
             padding: 10px; width: 90%; border-radius: 8px; font-size: 12px;
@@ -131,7 +131,7 @@
         function openModal(id, title) {
             currentOfferId = id;
             document.getElementById('mTitle').innerText = title;
-            document.getElementById('showLink').style.display = 'none'; // Pehle link chupa rahega
+            document.getElementById('showLink').style.display = 'none';
             document.getElementById('modal').style.display = 'flex';
         }
 
@@ -144,19 +144,26 @@
             let tg = document.getElementById('myTg').value.trim();
             let linkBox = document.getElementById('showLink');
 
-            if(!upi) { alert("⚠️ Bhai, Payment ke liye UPI to daalo!"); return; }
+            if(!upi) { alert("⚠️r, Type UPI!"); return; }
 
+            // --- MAIN FIX START ---
+            // Ab ye poora URL uthayega (Folder ke saath)
+            // Example: https://name.github.io/My-offer
+            let baseUrl = window.location.href.substring(0, window.location.href.lastIndexOf('/'));
+            
             let secretUpi = btoa(upi);
-            let link = `https://${window.location.hostname}/user.html?id=${currentOfferId}&ref=${secretUpi}`;
+            let link = `${baseUrl}/user.html?id=${currentOfferId}&ref=${secretUpi}`;
+            // --- MAIN FIX END ---
+
             if(tg) { link += `&tg=${encodeURIComponent(tg)}`; }
 
-            // Link ko box me dikhana
+            // Link dikhana
             linkBox.value = link;
             linkBox.style.display = 'block';
 
             // Copy karna
             navigator.clipboard.writeText(link);
-            alert("✅ Link Copied Successfully!");
+            alert("✅ Link Copied! Ab 404 Error nahi aayega.");
         }
     </script>
 </body>
