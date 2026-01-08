@@ -6,10 +6,11 @@
     "refer_payout": "₹4",
     "cid": "123",
     "uid": "229",
+    "image": "ff.jpg",
     "steps": [
       "✅Step 1 : Ragistere Connect whatsapp",
       "✅Step 2 : Logout Instant you whatsapp",
-      "✅Step 3 : Check Tracking <a href='track.html' style='color:blue; text-decoration:underline;'>Click Here</a>",
+      "✅Step 3 : Check Tracking <a href='track.html' style='color:blue;'>Click Here</a> if tracking done",
       "🎁Done : Rs. 6 Receive you with in 6 hours"
     ]
   }
