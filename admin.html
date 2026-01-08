@@ -2,39 +2,47 @@
 <html>
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>💎 Elite Admin - Full Sync</title>
+    <title>⚡ Elite Admin Dashboard</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         body { margin: 0; background: #000; font-family: 'Poppins', sans-serif; color: white; padding-bottom: 60px; }
         .container { max-width: 600px; margin: auto; padding: 12px; }
         .header { background: #111; padding: 18px; border-bottom: 1px solid #222; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 99; }
         .tabs { display: flex; gap: 6px; margin: 15px 0; background: #1a1a1a; padding: 5px; border-radius: 12px; }
-        .tab-btn { flex: 1; padding: 12px; border: none; background: none; color: #777; font-weight: 700; font-size: 11px; border-radius: 9px; cursor: pointer; }
+        .tab-btn { flex: 1; padding: 12px; border: none; background: none; color: #777; font-weight: 700; font-size: 11px; border-radius: 9px; cursor: pointer; transition: 0.3s; }
         .tab-btn.active { background: #0072ff; color: #fff; }
-        .card { background: #111; padding: 16px; border-radius: 18px; margin-bottom: 12px; border: 1px solid #222; }
+        .card { background: #111; padding: 16px; border-radius: 18px; margin-bottom: 12px; border: 1px solid #222; animation: fadeIn 0.5s; }
         .upi-txt { font-size: 14px; font-weight: 700; color: #00c6ff; word-break: break-all; }
         .amt-txt { font-size: 20px; font-weight: 900; }
         .btn-main { background: #fff; color: #000; border: none; padding: 12px; border-radius: 12px; font-weight: 900; width: 100%; margin-top: 12px; cursor: pointer; }
         .loader { text-align: center; margin-top: 100px; color: #0072ff; font-weight: 900; }
         .hidden { display: none; }
-        .card-history { opacity: 0.35; }
+        .card-history { opacity: 0.35; filter: grayscale(1); }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="header"><div style="font-weight:900;">ELITE ADMIN</div><div id="status" style="font-size:10px; color:#00ff00;">● SYSTEM LIVE</div></div>
+        <div class="header">
+            <div style="font-weight:900; letter-spacing: 1px;">ELITE ADMIN</div>
+            <div id="status" style="font-size:10px; color:#00ff00;">● SYSTEM LIVE</div>
+        </div>
+        
         <div class="tabs">
             <button class="tab-btn active" onclick="switchTab('tasks')">TASKS (<span id="count-t">0</span>)</button>
             <button class="tab-btn" onclick="switchTab('referrals')">REFS (<span id="count-r">0</span>)</button>
             <button class="tab-btn" onclick="switchTab('history')">HISTORY</button>
         </div>
-        <div id="loader" class="loader">⚙️ DATA SYNC IN PROGRESS...</div>
+
+        <div id="loader" class="loader">⚙️ CONNECTING GOOGLE SCRIPT...</div>
+        
         <div id="tasks-area"></div>
         <div id="referrals-area" class="hidden"></div>
         <div id="history-area" class="hidden"></div>
     </div>
 
     <script>
+        // आपके ओरिजिनल लिंक्स - कोई बदलाव नहीं
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwfjyg_o0a_BUgiC0Iuoit3OTtzBHhkvVf8kg6XeI0DaCKVpBsbljCbpK-Tbb7uk-Dqvg/exec";
         const API_URL = "https://panel.visioncamp.in/api.php?auth-token=8df0570da65f3a1798408c942b82839a&report=1";
         
@@ -42,90 +50,112 @@
 
         async function init() {
             try {
-                const [rSheet, rOffer] = await Promise.all([fetch(SCRIPT_URL), fetch('offers.json')]);
-                const [dSheet, dOffer] = await Promise.all([rSheet.json(), rOffer.json()]);
+                // गूगल शीट और ऑफर्स लोड करना
+                const [rSheet, rOffer] = await Promise.all([
+                    fetch(SCRIPT_URL),
+                    fetch('offers.json')
+                ]);
+                const dSheet = await rSheet.json();
+                const dOffer = await rOffer.json();
+                
                 dSheet.forEach(k => paidSet.add(k));
-                dOffer.forEach(o => offers[o.cid || o.id] = { t: o.title, u: parseInt(o.user_payout.replace(/\D/g,'')) || 0, r: parseInt(o.refer_payout.replace(/\D/g,'')) || 0 });
-                await fetchLeads();
-            } catch(e) { console.error(e); }
+                dOffer.forEach(o => {
+                    offers[o.cid || o.id] = { 
+                        t: o.title, 
+                        u: parseInt(o.user_payout.replace(/\D/g,'')) || 0, 
+                        r: parseInt(o.refer_payout.replace(/\D/g,'')) || 0 
+                    };
+                });
+                
+                await fetchWithSpeed();
+            } catch(e) { 
+                console.error(e); 
+                document.getElementById('loader').innerText = "⚠️ GOOGLE SCRIPT ERROR";
+            }
         }
 
-        async function fetchLeads() {
-            const paths = [
-                `https://api.allorigins.win/raw?url=${encodeURIComponent(API_URL)}&v=${Date.now()}`,
-                `https://corsproxy.io/?${encodeURIComponent(API_URL)}`
-            ];
-            for(let p of paths) {
-                try {
-                    const r = await fetch(p);
-                    const j = await r.json();
-                    leads = j.data || j;
-                    if(Array.isArray(leads)) { render(); return; }
-                } catch(e) { continue; }
+        async function fetchWithSpeed() {
+            // 3.5 सेकंड वाला प्रॉक्सी सिस्टम
+            const proxy = `https://api.allorigins.win/raw?url=${encodeURIComponent(API_URL)}&v=${Date.now()}`;
+            try {
+                const r = await fetch(proxy);
+                const j = await r.json();
+                leads = j.data || j;
+                if (Array.isArray(leads)) render();
+            } catch (e) {
+                document.getElementById('loader').innerText = "⚠️ API CONNECTION FAILED";
             }
-            document.getElementById('loader').innerText = "⚠️ REFRESH PAGE";
         }
 
         function render() {
-            let tA = document.getElementById('tasks-area'), rA = document.getElementById('referrals-area'), hA = document.getElementById('history-area');
+            let tA = document.getElementById('tasks-area'), 
+                rA = document.getElementById('referrals-area'), 
+                hA = document.getElementById('history-area');
             let rG = {}, tc = 0, rc = 0;
+            
             tA.innerHTML = ''; rA.innerHTML = ''; hA.innerHTML = '';
 
             leads.reverse().forEach(l => {
                 if(l.status.toLowerCase() !== 'approved') return;
+                
                 let o = offers[l.offerid] || { t: `Offer #${l.offerid}`, u: 0, r: 0 };
-                let sk = `${l.p1}_${l.offerid}_SELF`, rk = `${l.p2}_${l.offerid}_REF`;
+                let sk = `${l.p1}_${l.offerid}_SELF`;
+                let rk = `${l.p2}_${l.offerid}_REF`;
 
                 // Self Tasks Logic
-                if(paidSet.has(sk)) hA.innerHTML += createCard(l.p1, o.t, o.u, "TASK");
-                else {
+                if(paidSet.has(sk)) {
+                    hA.innerHTML += createCard(l.p1, o.t, o.u, "TASK (PAID)");
+                } else {
                     tc++;
                     tA.innerHTML += `<div class="card">
                         <div style="display:flex;justify-content:space-between">
                             <div><div class="upi-txt">${l.p1}</div><div style="font-size:10px;color:#555">${o.t}</div></div>
                             <div class="amt-txt">₹${o.u}</div>
                         </div>
-                        <button class="btn-main" onclick="copyOnly('${l.p1}','${sk}',this)">COPY ID & MARK PAID</button>
+                        <button class="btn-main" onclick="copyAndPaid('${l.p1}','${sk}',this)">COPY & MARK PAID</button>
                     </div>`;
                 }
 
-                // Updated Referral Logic (No Strict Filter)
+                // Referral Logic (Deep Pull - No Filter)
                 if(l.p2 && l.p2.trim() !== "" && l.p2 !== "null") {
-                    if(paidSet.has(rk)) hA.innerHTML += createCard(l.p2, o.t, o.r, "REF");
-                    else {
+                    if(paidSet.has(rk)) {
+                        hA.innerHTML += createCard(l.p2, o.t, o.r, "REF (PAID)");
+                    } else {
                         if(!rG[l.p2]) rG[l.p2] = { total: 0, items: [] };
-                        rG[l.p2].total += o.r; rG[l.p2].items.push({ t: o.t, r: o.r, k: rk });
+                        rG[l.p2].total += o.r;
+                        rG[l.p2].items.push({ t: o.t, r: o.r, k: rk });
                     }
                 }
             });
 
+            // Referrals Render
             for (let [upi, d] of Object.entries(rG)) {
                 rc++;
-                let ks = JSON.stringify(d.items.map(i => i.k)), details = d.items.map(i => `<div>• ${i.t}: ₹${i.r}</div>`).join('');
+                let ks = JSON.stringify(d.items.map(i => i.k));
                 rA.innerHTML += `<div class="card">
                     <div style="display:flex;justify-content:space-between">
-                        <div><div class="upi-txt">${upi}</div><div style="font-size:10px;color:#555">${d.items.length} Pending</div></div>
+                        <div><div class="upi-txt">${upi}</div><div style="font-size:10px;color:#555">${d.items.length} Pending Refs</div></div>
                         <div class="amt-txt" style="color:#ffd700">₹${d.total}</div>
                     </div>
-                    <button class="btn-main" style="background:#ffd700" onclick='copyOnly("${upi}",${ks},this)'>COPY ID & MARK PAID</button>
-                    <button style="background:none;border:none;color:#0072ff;font-size:10px;margin-top:8px;cursor:pointer" onclick="this.nextElementSibling.style.display='block'">View Details ⌄</button>
-                    <div class="hidden" style="margin-top:10px; padding-top:10px; border-top:1px dashed #333; font-size:11px; color:#888;">${details}</div>
+                    <button class="btn-main" style="background:#ffd700" onclick='copyAndPaid("${upi}",${ks},this)'>COPY & MARK PAID ALL</button>
                 </div>`;
             }
-            document.getElementById('count-t').innerText = tc; document.getElementById('count-r').innerText = rc;
+
+            document.getElementById('count-t').innerText = tc;
+            document.getElementById('count-r').innerText = rc;
             document.getElementById('loader').style.display = 'none';
         }
 
         function createCard(u, t, a, type) {
-            return `<div class="card card-history"><div style="display:flex;justify-content:space-between"><div><div class="upi-txt" style="color:#666">${u}</div><div style="font-size:10px;color:#444">${type}: ${t}</div></div><div style="font-weight:900;color:#00c851">₹${a} PAID</div></div></div>`;
+            return `<div class="card card-history"><div style="display:flex;justify-content:space-between"><div><div class="upi-txt" style="color:#666">${u}</div><div style="font-size:10px;color:#444">${type}: ${t}</div></div><div style="font-weight:900;color:#00c851">₹${a} DONE</div></div></div>`;
         }
 
-        window.copyOnly = function(upi, keys, btn) {
+        window.copyAndPaid = function(upi, keys, btn) {
             navigator.clipboard.writeText(upi);
-            alert("✅ UPI ID Copied!\n\nPay Manually in any App and return here.");
-            btn.innerText = "UPDATING...";
+            alert("✅ UPI Copied!\n\nPay manually and return to refresh.");
+            btn.innerText = "SAVING TO GOOGLE SHEET...";
             const kArr = Array.isArray(keys) ? keys : [keys];
-            kArr.forEach((k, i) => setTimeout(() => fetch(SCRIPT_URL + `?action=pay&key=${encodeURIComponent(k)}`, { mode: 'no-cors' }), i * 350));
+            kArr.forEach((k, i) => setTimeout(() => fetch(SCRIPT_URL + `?action=pay&key=${encodeURIComponent(k)}`, { mode: 'no-cors' }), i * 400));
             setTimeout(() => location.reload(), 2500);
         }
 
