@@ -2,39 +2,94 @@
 <html>
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cashback Campaign</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+    <title>Get Cashback</title>
     <style>
-        body { margin: 0; padding: 0; background-color: #050505; font-family: 'Poppins', sans-serif; color: white; padding-bottom: 50px; }
+        body { font-family: 'Arial', sans-serif; background-color: #9cf016; text-align: center; padding: 20px; margin: 0; }
         
-        /* HEADER */
-        .header {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 15px 20px; background: rgba(20, 20, 20, 0.95);
-            border-bottom: 1px solid #333; position: sticky; top: 0; z-index: 100;
-        }
-        .logo { font-size: 16px; font-weight: 800; background: linear-gradient(to right, #00c6ff, #0072ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .tg-btn { 
-            background: linear-gradient(45deg, #0088cc, #005f8d); color: white; 
-            text-decoration: none; padding: 8px 15px; border-radius: 20px; 
-            font-size: 12px; font-weight: bold; box-shadow: 0 4px 10px rgba(0,136,204,0.4); 
+        .card { 
+            background: white; max-width: 380px; margin: 20px auto; 
+            border-radius: 25px; border: 4px solid black; 
+            box-shadow: 10px 10px 0px black; padding: 25px; position: relative;
         }
 
-        /* UPI BOX */
-        .input-area { text-align: center; padding: 20px; }
-        .upi-box {
-            background: #1a1a1a; border: 1px solid #333; color: white;
-            padding: 12px; width: 85%; border-radius: 12px; font-family: 'Poppins', sans-serif;
-            text-align: center; font-size: 16px; outline: none; margin-bottom: 10px;
+        h1 { font-size: 28px; margin: 0; text-transform: uppercase; font-weight: 900; }
+        .sub { font-size: 14px; font-weight: bold; margin-bottom: 20px; color: #555; }
+        
+        input { 
+            width: 85%; padding: 15px; font-size: 18px; text-align: center; 
+            border: 3px solid black; border-radius: 15px; font-weight: bold; outline: none; margin-bottom: 15px;
         }
 
-        /* CARD DESIGN (HEAVY LOOK) */
-        .container { padding: 10px; max-width: 450px; margin: auto; }
-        .card {
-            background: #121212; border-radius: 20px; padding: 20px; margin-bottom: 25px;
-            border: 1px solid #222; box-shadow: 0 10px 30px rgba(0,0,0,0.8);
-            text-align: center; position: relative;
+        .btn { 
+            background: #9cf016; color: black; width: 100%; padding: 18px; 
+            font-size: 22px; font-weight: 900; border: 3px solid black; 
+            border-radius: 50px; cursor: pointer; box-shadow: 4px 4px 0px black;
         }
+        .btn:active { transform: translateY(4px); box-shadow: none; }
+
+        .tg-icon {
+            display: none; position: absolute; top: -20px; right: -10px;
+            width: 50px; height: 50px; background: #0088cc; color: white;
+            border-radius: 50%; border: 3px solid black; line-height: 50px; 
+            font-size: 24px; text-decoration: none; box-shadow: 3px 3px 0px black;
+            animation: bounce 2s infinite;
+        }
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+
+        .steps-area { text-align: left; margin-top: 20px; padding: 15px; background: #f9f9f9; border-radius: 15px; border: 2px solid #eee; font-size: 15px; line-height: 1.6; }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <h1 id="title">Loading...</h1>
+        <div class="sub">INSTANT UPI CASHBACK 💰</div>
+
+        <input type="text" id="userUpi" placeholder="Enter Your UPI ID">
+        <button class="btn" onclick="go()">CLAIM NOW 🚀</button>
+        
+        <div class="steps-area">
+            <a id="tgBtn" href="#" target="_blank" class="tg-icon">✈️</a>
+            <b>STEPS:</b><br>
+            <div id="steps">Loading...</div>
+        </div>
+    </div>
+
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const id = params.get('id');
+        const encryptedRef = params.get('ref');
+        const tg = params.get('tg');
+
+        if(tg) {
+            const btn = document.getElementById('tgBtn');
+            btn.href = tg;
+            btn.style.display = "block";
+        }
+
+        fetch('offers.json').then(res => res.json()).then(data => {
+            const offer = data.find(o => o.id === id);
+            if(offer) {
+                document.getElementById('title').innerText = "GET " + offer.user_payout + " FREE";
+                document.getElementById('steps').innerHTML = offer.steps.join("<br>");
+            }
+        });
+
+        function go() {
+            const userUpi = document.getElementById('userUpi').value;
+            if(!userUpi) { alert("UPI daalo bhai!"); return; }
+            
+            let refUpi = "";
+            try { refUpi = atob(encryptedRef); } catch(e) { refUpi = encryptedRef; }
+
+            fetch('offers.json').then(res => res.json()).then(data => {
+                const offer = data.find(o => o.id === id);
+                window.location.href = `https://panel.visioncamp.in/go?cid=${offer.cid}&uid=${offer.uid}&p1=${userUpi}&p2=${refUpi}`;
+            });
+        }
+    </script>
+</body>
+</html>        }
         
         /* Image Setting */
         .card img { 
