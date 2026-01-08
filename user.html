@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Get Reward</title>
+    <style>
+        body { font-family: sans-serif; background: #e0f7fa; text-align: center; padding: 20px; }
+        .box { background: white; border: 2px solid black; border-radius: 15px; padding: 20px; max-width: 400px; margin: auto; }
+        input { width: 90%; padding: 10px; border: 1px solid black; border-radius: 5px; margin-bottom: 10px; font-size: 16px; }
+        .btn { background: black; color: white; padding: 12px 30px; border-radius: 50px; text-decoration: none; font-weight: bold; display: block; margin: 10px auto; width: 80%; }
+        .tg-btn { background: #0088cc; display: none; } /* टेलीग्राम बटन पहले छिपा रहेगा */
+        .green { color: green; font-weight: 900; font-size: 20px; }
+    </style>
+</head>
+<body>
+    <div class="box">
+        <h2 id="title">Loading...</h2>
+        <p class="green" id="reward">Wait...</p>
+        
+        <input type="text" id="userUpi" placeholder="Enter Your UPI ID">
+        
+        <button class="btn" onclick="go()">CLAIM NOW 🚀</button>
+
+        <a id="tgBtn" href="#" class="btn tg-btn">✈️ Join Telegram Channel</a>
+
+        <div id="steps" style="text-align:left; margin-top:15px; font-size:14px;"></div>
+    </div>
+
+    <script>
+        // लिंक से जानकारी निकालना
+        const params = new URLSearchParams(window.location.search);
+        const id = params.get('id');
+        const ref = params.get('ref');
+        const tg = params.get('tg');
+
+        // अगर टेलीग्राम लिंक है, तो बटन दिखाओ
+        if(tg) {
+            document.getElementById('tgBtn').href = tg;
+            document.getElementById('tgBtn').style.display = "block";
+        }
+
+        // ऑफर की जानकारी लाना
+        fetch('offers.json').then(res => res.json()).then(data => {
+            const offer = data.find(o => o.id === id);
+            if(offer) {
+                document.getElementById('title').innerText = offer.title;
+                document.getElementById('reward').innerText = "Get " + offer.user_payout + " Free";
+                document.getElementById('steps').innerHTML = "<b>Steps:</b><br>" + offer.steps.join("<br>");
+            }
+        });
+
+        function go() {
+            const upi = document.getElementById('userUpi').value;
+            if(!upi) { alert("UPI daalo bhai!"); return; }
+            
+            fetch('offers.json').then(res => res.json()).then(data => {
+                const offer = data.find(o => o.id === id);
+                // फाइनल लिंक: P1 = User UPI, P2 = Refer UPI
+                window.location.href = `https://panel.visioncamp.in/go?cid=${offer.cid}&uid=${offer.uid}&p1=${upi}&p2=${ref}`;
+            });
+        }
+    </script>
+</body>
+</html>
