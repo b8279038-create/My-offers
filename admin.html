@@ -2,56 +2,148 @@
 <html>
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🔒 Manual Only Admin</title>
+    <title>💎 Admin Final - Ultra Secure</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
-        body { margin: 0; background: #000; font-family: sans-serif; color: white; padding: 15px; }
-        .card { background: #111; padding: 15px; border-radius: 12px; margin-bottom: 10px; border: 1px solid #333; }
-        .upi { color: #00c6ff; font-weight: bold; font-size: 14px; }
-        .amt { font-size: 20px; font-weight: 900; float: right; }
-        .btn { background: #fff; color: #000; border: none; padding: 12px; border-radius: 8px; font-weight: 900; width: 100%; margin-top: 10px; cursor: pointer; }
-        .loader { text-align: center; margin-top: 50px; color: #0072ff; }
+        body { margin: 0; background: #000; font-family: 'Poppins', sans-serif; color: white; padding-bottom: 60px; }
+        .container { max-width: 600px; margin: auto; padding: 12px; }
+        .header { background: #111; padding: 18px; border-bottom: 1px solid #222; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 99; }
+        .tabs { display: flex; gap: 6px; margin: 15px 0; background: #1a1a1a; padding: 5px; border-radius: 12px; }
+        .tab-btn { flex: 1; padding: 12px; border: none; background: none; color: #777; font-weight: 700; font-size: 11px; border-radius: 9px; cursor: pointer; }
+        .tab-btn.active { background: #0072ff; color: #fff; }
+        .card { background: #111; padding: 16px; border-radius: 18px; margin-bottom: 12px; border: 1px solid #222; }
+        .upi-txt { font-size: 14px; font-weight: 700; color: #00c6ff; word-break: break-all; }
+        .amt-txt { font-size: 20px; font-weight: 900; }
+        .btn-main { background: #fff; color: #000; border: none; padding: 12px; border-radius: 12px; font-weight: 900; width: 100%; margin-top: 12px; cursor: pointer; }
+        .loader { text-align: center; margin-top: 100px; color: #0072ff; font-weight: 900; }
+        .hidden { display: none; }
+        .card-history { opacity: 0.35; }
     </style>
 </head>
 <body>
-    <div id="loading" class="loader">⚙️ LOADING LIVE DATA...</div>
-    <div id="content"></div>
+    <div class="container">
+        <div class="header"><div style="font-weight:900;">SECURE ADMIN</div><div id="status" style="font-size:10px; color:#00ff00;">● SYSTEM LIVE</div></div>
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('tasks')">TASKS (<span id="count-t">0</span>)</button>
+            <button class="tab-btn" onclick="switchTab('referrals')">REFS (<span id="count-r">0</span>)</button>
+            <button class="tab-btn" onclick="switchTab('history')">HISTORY</button>
+        </div>
+        <div id="loader" class="loader">⚙️ DATA SYNC IN PROGRESS...</div>
+        <div id="tasks-area"></div>
+        <div id="referrals-area" class="hidden"></div>
+        <div id="history-area" class="hidden"></div>
+    </div>
 
     <script>
-        const API = "https://panel.visioncamp.in/api.php?auth-token=8df0570da65f3a1798408c942b82839a&report=1";
+        // --- 100% CHECKED CONFIGURATION ---
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwfjyg_o0a_BUgiC0Iuoit3OTtzBHhkvVf8kg6XeI0DaCKVpBsbljCbpK-Tbb7uk-Dqvg/exec";
+        const API_URL = "https://panel.visioncamp.in/api.php?auth-token=8df0570da65f3a1798408c942b82839a&report=1";
         
-        async function load() {
+        let paidSet = new Set(), leads = [], offers = {};
+
+        async function init() {
             try {
-                // High-Security Proxy
-                const res = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(API)}&v=${Date.now()}`);
-                const json = await res.json();
-                const data = json.data || json;
+                // Fetch Sheets & Offers First
+                const [rSheet, rOffer] = await Promise.all([fetch(SCRIPT_URL), fetch('offers.json')]);
+                const [dSheet, dOffer] = await Promise.all([rSheet.json(), rOffer.json()]);
+                dSheet.forEach(k => paidSet.add(k));
+                dOffer.forEach(o => offers[o.cid || o.id] = { t: o.title, u: parseInt(o.user_payout.replace(/\D/g,'')) || 0, r: parseInt(o.refer_payout.replace(/\D/g,'')) || 0 });
                 
-                let html = '';
-                data.reverse().forEach(lead => {
-                    if(lead.status.toLowerCase() === 'approved') {
-                        html += `
-                        <div class="card">
-                            <span class="amt">₹...</span>
-                            <div class="upi">${lead.p1}</div>
-                            <button class="btn" onclick="copyAndOpen('${lead.p1}')">COPY ID & OPEN APPS</button>
-                        </div>`;
+                await fetchLeads();
+            } catch(e) { console.error("Initialization failed", e); }
+        }
+
+        async function fetchLeads() {
+            // Multi-Path Fetching for 100% Success
+            const paths = [
+                `https://api.allorigins.win/raw?url=${encodeURIComponent(API_URL)}&v=${Date.now()}`,
+                `https://corsproxy.io/?${encodeURIComponent(API_URL)}`
+            ];
+            for(let p of paths) {
+                try {
+                    const r = await fetch(p);
+                    const j = await r.json();
+                    leads = j.data || j;
+                    if(Array.isArray(leads)) { render(); return; }
+                } catch(e) { continue; }
+            }
+            document.getElementById('loader').innerText = "⚠️ DATA BUSY - REFRESH";
+        }
+
+        function render() {
+            let tA = document.getElementById('tasks-area'), rA = document.getElementById('referrals-area'), hA = document.getElementById('history-area');
+            let rG = {}, tc = 0, rc = 0;
+            tA.innerHTML = ''; rA.innerHTML = ''; hA.innerHTML = '';
+
+            leads.reverse().forEach(l => {
+                if(l.status.toLowerCase() !== 'approved') return;
+                let o = offers[l.offerid] || { t: `Offer #${l.offerid}`, u: 0, r: 0 };
+                let sk = `${l.p1}_${l.offerid}_SELF`, rk = `${l.p2}_${l.offerid}_REF`;
+
+                if(paidSet.has(sk)) hA.innerHTML += createCard(l.p1, o.t, o.u, "TASK");
+                else {
+                    tc++;
+                    tA.innerHTML += `<div class="card">
+                        <div style="display:flex;justify-content:space-between">
+                            <div><div class="upi-txt">${l.p1}</div><div style="font-size:10px;color:#555">${o.t}</div></div>
+                            <div class="amt-txt">₹${o.u}</div>
+                        </div>
+                        <button class="btn-main" onclick="safePay('${l.p1}','${sk}',this)">COPY & OPEN APPS</button>
+                    </div>`;
+                }
+
+                if(l.p2 && l.p2.length > 5 && l.p2 !== l.p1) {
+                    if(paidSet.has(rk)) hA.innerHTML += createCard(l.p2, o.t, o.r, "REF");
+                    else {
+                        if(!rG[l.p2]) rG[l.p2] = { total: 0, items: [] };
+                        rG[l.p2].total += o.r; rG[l.p2].items.push({ t: o.t, r: o.r, k: rk });
                     }
-                });
-                document.getElementById('content').innerHTML = html;
-                document.getElementById('loading').style.display = 'none';
-            } catch(e) { document.getElementById('loading').innerText = "❌ Connection Error"; }
+                }
+            });
+
+            for (let [upi, d] of Object.entries(rG)) {
+                rc++;
+                let ks = JSON.stringify(d.items.map(i => i.k)), details = d.items.map(i => `<div>• ${i.t}: ₹${i.r}</div>`).join('');
+                rA.innerHTML += `<div class="card">
+                    <div style="display:flex;justify-content:space-between">
+                        <div><div class="upi-txt">${upi}</div><div style="font-size:10px;color:#555">${d.items.length} Pending</div></div>
+                        <div class="amt-txt" style="color:#ffd700">₹${d.total}</div>
+                    </div>
+                    <button class="btn-main" style="background:#ffd700" onclick='safePay("${upi}",${ks},this)'>COPY & PAY ALL</button>
+                    <button style="background:none;border:none;color:#0072ff;font-size:10px;margin-top:8px;cursor:pointer" onclick="this.nextElementSibling.style.display='block'">View Details ⌄</button>
+                    <div class="hidden" style="margin-top:10px; padding-top:10px; border-top:1px dashed #333; font-size:11px; color:#888;">${details}</div>
+                </div>`;
+            }
+            document.getElementById('count-t').innerText = tc; document.getElementById('count-r').innerText = rc;
+            document.getElementById('loader').style.display = 'none';
         }
 
-        window.copyAndOpen = function(id) {
-            // 1. Sirf Copy Hoga
-            navigator.clipboard.writeText(id);
-            alert("✅ ID Copied! Ab apna app select karein aur khud paste karein.");
+        function createCard(u, t, a, type) {
+            return `<div class="card card-history"><div style="display:flex;justify-content:space-between"><div><div class="upi-txt" style="color:#666">${u}</div><div style="font-size:10px;color:#444">${type}: ${t}</div></div><div style="font-weight:900;color:#00c851">₹${a} PAID</div></div></div>`;
+        }
 
-            // 2. Sirf App Chooser khulega, koi data nahi jayega
+        window.safePay = function(upi, keys, btn) {
+            // Step 1: Secure Copy
+            navigator.clipboard.writeText(upi);
+            alert("✅ ID Copied! Select App and Paste Manually.");
+            
+            // Step 2: Clean Launch (NO DATA SENT TO APP)
             window.location.href = "upi://pay"; 
+            
+            // Step 3: Google Sync
+            btn.innerText = "UPDATING...";
+            const kArr = Array.isArray(keys) ? keys : [keys];
+            kArr.forEach((k, i) => setTimeout(() => fetch(SCRIPT_URL + `?action=pay&key=${encodeURIComponent(k)}`, { mode: 'no-cors' }), i * 350));
+            setTimeout(() => location.reload(), 2500);
         }
 
-        load();
+        window.switchTab = function(t) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+            ['tasks-area','referrals-area','history-area'].forEach(id => document.getElementById(id).classList.add('hidden'));
+            document.getElementById(t + '-area').classList.remove('hidden');
+        }
+        init();
     </script>
 </body>
 </html>
