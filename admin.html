@@ -137,7 +137,6 @@
                 let offersData = await offersRes.json();
                 let offerMap = {};
                 offersData.forEach(o => {
-                    // Price cleanup (remove '₹' sign to calculate)
                     let userP = parseInt(o.user_payout.replace(/[^0-9]/g, '')) || 0;
                     let refP = parseInt(o.refer_payout.replace(/[^0-9]/g, '')) || 0;
                     
@@ -208,7 +207,6 @@
             let countP = 0;
             allCards = [];
 
-            // Sort: Latest First
             leads.reverse();
 
             leads.forEach(lead => {
@@ -217,21 +215,20 @@
                 let info = offerMap[lead.offerid] || { title: `Offer #${lead.offerid}`, userPrice: 0, refPrice: 0 };
                 let dateStr = new Date().toLocaleDateString() + " " + new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
 
-                // 1. SELF TASK (User Payout)
-                // Key format: UPI_OFFERID_SELF
-                processItem(lead.p1, info.title, "SELF TASK", info.userPrice, `${lead.p1}_${lead.offerid}_SELF`, 'task');
+                // 1. SELF TASK
+                // Pass dateStr here explicitly
+                processItem(lead.p1, info.title, "SELF TASK", info.userPrice, `${lead.p1}_${lead.offerid}_SELF`, 'task', dateStr);
 
-                // 2. REFERRAL (Referrer Payout)
-                // Key format: P2_OFFERID_REF
+                // 2. REFERRAL
                 if(lead.p2 && lead.p2.length > 5 && lead.p2 !== lead.p1) {
-                    processItem(lead.p2, `${info.title} (Refer Bonus)`, "REFERRAL", info.refPrice, `${lead.p2}_${lead.offerid}_REF`, 'ref');
+                    processItem(lead.p2, `${info.title} (Refer Bonus)`, "REFERRAL", info.refPrice, `${lead.p2}_${lead.offerid}_REF`, 'ref', dateStr);
                 }
             });
 
-            function processItem(upi, title, type, price, key, cat) {
+            // Added dateStr to arguments below
+            function processItem(upi, title, type, price, key, cat, dateStr) {
                 let isPaid = paidSet.has(key);
                 
-                // Stats update
                 if(isPaid) {
                     countP++;
                 } else {
@@ -245,7 +242,6 @@
                 let badgeClass = cat === 'task' ? 'b-task' : 'b-ref';
                 let cardClass = isPaid ? 'card paid' : 'card';
                 
-                // Pay Button Logic
                 let btnHtml = isPaid 
                     ? `<span style="color:#00c851; font-weight:900; font-size:12px;">PAID ✅</span>`
                     : `<button class="pay-btn" onclick="payNow('${upi}', ${price}, '${key}', this)">
@@ -277,7 +273,6 @@
             document.getElementById('listArea').innerHTML = html;
             document.getElementById('loader').style.display = 'none';
 
-            // Update Top Meter
             document.getElementById('totalPending').innerText = "₹" + totalPendingMoney;
             document.getElementById('countTasks').innerText = countT;
             document.getElementById('countRefs').innerText = countR;
@@ -286,11 +281,9 @@
 
         // --- PAYMENT FUNCTION ---
         window.payNow = function(upi, amount, key, btn) {
-            // 1. Open UPI App directly with amount
             let link = `upi://pay?pa=${upi}&pn=Earner&am=${amount}&cu=INR`;
             window.location.href = link;
 
-            // 2. Update Sheet
             btn.innerHTML = "Saving...";
             btn.style.opacity = "0.7";
 
@@ -303,14 +296,12 @@
                 body: `${ENTRY_ID}=${encodeURIComponent(dataStr)}`
             }).then(() => {
                 setTimeout(() => {
-                    // Update UI instantly without reload
                     let card = btn.closest('.card');
                     card.classList.add('paid');
                     card.querySelector('.amt-tag').style.color = "#00c851";
                     card.querySelector('.amt-tag').style.textDecoration = "line-through";
                     btn.parentNode.innerHTML = `<span style="color:#00c851; font-weight:900; font-size:12px;">PAID ✅</span>`;
                     
-                    // Decrease Pending Amount from Top Meter
                     let currTotal = parseInt(document.getElementById('totalPending').innerText.replace('₹',''));
                     document.getElementById('totalPending').innerText = "₹" + (currTotal - amount);
                 }, 2000);
