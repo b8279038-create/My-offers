@@ -6,52 +6,17 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
         body { margin: 0; padding: 0; background-color: #050505; font-family: 'Poppins', sans-serif; color: white; text-align: center; }
-        
         .container { max-width: 400px; margin: 30px auto; padding: 20px; }
-
         .logo { font-size: 20px; font-weight: 800; background: linear-gradient(to right, #00c6ff, #0072ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 20px; }
-
-        /* Input Area */
-        .inp {
-            background: #1a1a1a; border: 1px solid #333; color: white;
-            padding: 15px; width: 85%; border-radius: 12px; 
-            font-size: 16px; outline: none; margin-bottom: 15px; text-align: center;
-        }
-        .btn {
-            background: white; color: black; border: none; padding: 12px 30px; 
-            border-radius: 50px; font-weight: 900; cursor: pointer; width: 60%;
-        }
-
-        /* Loader */
-        .loader {
-            display: none; border: 5px solid #1a1a1a; border-top: 5px solid #00c6ff;
-            border-radius: 50%; width: 40px; height: 40px;
-            animation: spin 1s linear infinite; margin: 20px auto;
-        }
+        .inp { background: #1a1a1a; border: 1px solid #333; color: white; padding: 15px; width: 85%; border-radius: 12px; font-size: 16px; outline: none; margin-bottom: 15px; text-align: center; }
+        .btn { background: white; color: black; border: none; padding: 12px 30px; border-radius: 50px; font-weight: 900; cursor: pointer; width: 60%; }
+        .loader { display: none; border: 5px solid #1a1a1a; border-top: 5px solid #00c6ff; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 20px auto; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-        /* Result Section */
-        .result-card {
-            display: none; background: #121212; border-radius: 20px; 
-            padding: 20px; margin-top: 20px; border: 1px solid #333; text-align: left;
-        }
-
-        /* Task List Item */
-        .task-item {
-            background: rgba(0, 200, 81, 0.1); border: 1px solid #00c851;
-            padding: 10px; border-radius: 10px; margin-bottom: 10px;
-            display: flex; align-items: center; justify-content: space-between;
-        }
+        .result-card { display: none; background: #121212; border-radius: 20px; padding: 20px; margin-top: 20px; border: 1px solid #333; text-align: left; }
+        .task-item { background: rgba(0, 200, 81, 0.1); border: 1px solid #00c851; padding: 10px; border-radius: 10px; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; }
         .task-name { font-weight: bold; font-size: 14px; color: white; }
         .task-status { font-size: 12px; color: #00c851; font-weight: 800; }
-
-        /* No Data */
-        .no-data {
-            text-align: center; color: #ff4444; font-weight: bold; padding: 20px;
-            border: 1px dashed #ff4444; border-radius: 10px; background: rgba(255, 68, 68, 0.1);
-        }
-
-        /* Footer Note */
+        .no-data { text-align: center; color: #ff4444; font-weight: bold; padding: 20px; border: 1px dashed #ff4444; border-radius: 10px; background: rgba(255, 68, 68, 0.1); }
         .note { font-size: 11px; color: #888; margin-top: 15px; text-align: center; }
         .ref-section { margin-top: 15px; border-top: 1px solid #333; padding-top: 10px; text-align: center;}
     </style>
@@ -60,9 +25,7 @@
 
     <div class="container">
         <div class="logo">Daily Tracker 📅</div>
-        
         <p style="color:#888; font-size:12px;">Enter UPI to check Today's Approved Tasks</p>
-        
         <input type="text" id="trackUpi" class="inp" placeholder="Enter Your UPI ID">
         <button class="btn" onclick="checkStatus()">SEARCH</button>
 
@@ -70,23 +33,15 @@
 
         <div class="result-card" id="resultArea">
             <h4 style="margin: 0 0 15px 0; text-align: center; color: #aaa;">MY COMPLETED OFFERS</h4>
-            
             <div id="taskList"></div>
-
             <div id="noDataMsg" class="no-data" style="display:none;">
-                ❌ No Data Found<br>
-                <span style="font-size:10px; color:#aaa; font-weight:normal;">(Aaj koi Approved task nahi mila)</span>
+                ❌ No Data Found<br><span style="font-size:10px; color:#aaa; font-weight:normal;">(Aaj koi Approved task nahi mila)</span>
             </div>
-
             <div class="ref-section">
                 <span style="font-size:12px; color:#aaa;">Today's Referrals:</span>
                 <span id="refCount" style="font-size:16px; font-weight:bold; color:white;">0</span>
             </div>
-
-            <div class="note">
-                💰 Payment will be received within 24 Hours.<br>
-                Only "Approved" tasks are shown here.
-            </div>
+            <div class="note">💰 Payment will be received within 24 Hours.<br>Only "Approved" tasks are shown here.</div>
         </div>
     </div>
 
@@ -101,15 +56,20 @@
             document.getElementById('noDataMsg').style.display = 'none';
 
             try {
-                // 1. Pehle Offers ke NAAM laate hain (offers.json se)
+                // 1. JSON se Data lana
                 let offersRes = await fetch('offers.json');
                 let offersData = await offersRes.json();
                 
-                // ID se Name dhoondne ke liye Dictionary banana
+                // --- MAGIC FIX HERE ---
+                // Hum 'id' nahi, balki 'cid' (Panel ID) use karenge naam dhundne ke liye
                 let offerMap = {};
-                offersData.forEach(o => { offerMap[o.id] = o.title; });
+                offersData.forEach(o => { 
+                    // Agar 'cid' hai to use karo, nahi to 'id' use karo
+                    let key = o.cid ? o.cid : o.id; 
+                    offerMap[key] = o.title; 
+                });
 
-                // 2. Ab Panel API se Data laate hain (Report=1 matlab TODAY)
+                // 2. API Call
                 const apiKey = "8df0570da65f3a1798408c942b82839a"; 
                 const apiUrl = `https://panel.visioncamp.in/api.php?auth-token=${apiKey}&report=1`; 
                 const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(apiUrl)}`;
@@ -121,21 +81,16 @@
                 let realData = JSON.parse(apiJson.contents);
                 let leads = realData.data || [];
 
-                // 3. Filter Data (Approved Only)
-                // Mere Tasks (p1 matched)
+                // 3. Filtering
                 let myApprovedTasks = leads.filter(item => item.p1 === upi && item.status === 'approved');
-                
-                // Mere Referrals (p2 matched)
                 let myRefersCount = leads.filter(item => item.p2 === upi && item.status === 'approved').length;
 
-                // 4. UI Update karna
+                // 4. Result Show karna
                 let listHtml = '';
-
                 if (myApprovedTasks.length > 0) {
                     myApprovedTasks.forEach(task => {
-                        // Offer ID se Naam nikalo, agar nahi mila to 'Unknown Offer'
+                        // Ab ye CID (122) match karega aur sahi naam dikhayega
                         let offerName = offerMap[task.offerid] || ("Offer #" + task.offerid);
-                        
                         listHtml += `
                         <div class="task-item">
                             <span class="task-name">${offerName}</span>
@@ -147,10 +102,8 @@
                     document.getElementById('noDataMsg').style.display = 'block';
                 }
 
-                // Referral Count set karna
-                let refEl = document.getElementById('refCount');
-                refEl.innerText = myRefersCount;
-                if(myRefersCount > 0) refEl.style.color = "#00c6ff";
+                document.getElementById('refCount').innerText = myRefersCount;
+                if(myRefersCount > 0) document.getElementById('refCount').style.color = "#00c6ff";
 
                 document.getElementById('loading').style.display = 'none';
                 document.getElementById('resultArea').style.display = 'block';
