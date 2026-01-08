@@ -1,38 +1,62 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Offers Dashboard</title>
+    <title>Link Generator</title>
     <style>
-        body { font-family: sans-serif; background: #96d100; margin: 0; padding: 15px; }
-        .card { background: white; border: 4px solid #000; border-radius: 25px; padding: 20px; margin-bottom: 20px; box-shadow: 8px 8px 0 #000; }
-        h2 { margin: 0; font-size: 24px; font-weight: 900; }
-        .btn { display: block; background: #000; color: #fff; padding: 15px; border-radius: 50px; text-decoration: none; font-weight: bold; margin-top: 15px; text-align: center; }
-        .steps { text-align: left; font-size: 14px; margin-top: 10px; font-weight: bold; }
+        body { font-family: sans-serif; background: #f4f4f4; text-align: center; padding: 15px; }
+        .card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 5px 10px rgba(0,0,0,0.1); max-width: 400px; margin: auto; }
+        input { width: 90%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 5px; font-size: 16px; }
+        .btn { background: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; width: 100%; font-size: 16px; font-weight: bold; margin-top: 5px; }
+        .offer-box { border-top: 1px solid #eee; margin-top: 15px; padding-top: 15px; text-align: left; }
+        .green { color: green; font-weight: bold; }
     </style>
 </head>
 <body>
-    <h1 style="text-align:center; font-weight:900;">LIVE OFFERS</h1>
-    <div id="offerList">Loading offers...</div>
+    <div class="card">
+        <h2>🔥 Link Generator</h2>
+        <p>Apna Link Banao aur Kamao!</p>
+        
+        <input type="text" id="myUpi" placeholder="Enter Your UPI ID">
+        
+        <input type="text" id="myTg" placeholder="Your Telegram Link (Optional)">
+        
+        <div id="list">Loading Offers...</div>
+    </div>
 
     <script>
-        // आपकी JSON फाइल से डेटा खींचना
-        fetch('offers.json')
-            .then(res => res.json())
-            .then(data => {
-                let html = '';
-                data.forEach(off => {
-                    html += `
-                        <div class="card">
-                            <h2>${off.title}</h2>
-                            <p style="color:green; font-weight:900;">Reward: ${off.payout}</p>
-                            <div class="steps"><b>Steps:</b><br>${off.steps.join('<br>')}</div>
-                            <a href="https://panel.visioncamp.in/go?cid=${off.cid}&uid=${off.uid}" class="btn">CLAIM NOW 🚀</a>
-                        </div>
-                    `;
-                });
-                document.getElementById('offerList').innerHTML = html;
+        fetch('offers.json').then(res => res.json()).then(data => {
+            let html = '';
+            data.forEach(o => {
+                html += `
+                <div class="offer-box">
+                    <h3>${o.title}</h3>
+                    <p>User: <span class="green">${o.user_payout}</span> | You: <span class="green">${o.refer_payout}</span></p>
+                    <button class="btn" onclick="makeLink('${o.id}')">Copy Link 🔗</button>
+                </div>`;
             });
+            document.getElementById('list').innerHTML = html;
+        });
+
+        function makeLink(id) {
+            let upi = document.getElementById('myUpi').value.trim();
+            let tg = document.getElementById('myTg').value.trim();
+
+            if(!upi) { alert("Pahle UPI to daalo boss!"); return; }
+
+            // लिंक तैयार करना
+            let link = `https://${window.location.hostname}/user.html?id=${id}&ref=${upi}`;
+            
+            // अगर टेलीग्राम लिंक डाला है, तो उसे भी जोड़ दो
+            if(tg) {
+                link += `&tg=${encodeURIComponent(tg)}`;
+            }
+
+            // कॉपी करना
+            navigator.clipboard.writeText(link);
+            alert("Link Copy Ho Gaya! \nAb ise share karo.");
+        }
     </script>
 </body>
 </html>
+
