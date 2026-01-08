@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>👑 Admin Panel</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        body { margin: 0; padding: 0; background-color: #000; font-family: 'Poppins', sans-serif; color: white; }
+        .container { max-width: 600px; margin: auto; padding: 15px; }
+
+        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; padding-bottom: 15px; margin-bottom: 15px; }
+        .title { font-size: 20px; font-weight: 900; color: #ffd700; text-transform: uppercase; }
+        
+        /* DATA CONTROLS */
+        .controls { display: flex; gap: 10px; margin-bottom: 20px; }
+        .c-btn { flex: 1; padding: 10px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 12px; }
+        .btn-down { background: #0072ff; color: white; }
+        .btn-up { background: #333; color: #ccc; }
+
+        /* TABS */
+        .stats-box { display: flex; gap: 10px; margin-bottom: 20px; }
+        .stat { background: #1a1a1a; flex: 1; padding: 15px; border-radius: 10px; text-align: center; border: 1px solid #333; }
+        .num { font-size: 24px; font-weight: 800; }
+        .lbl { font-size: 10px; color: #888; text-transform: uppercase; }
+
+        /* LIST */
+        .section-title { color: #888; font-size: 12px; font-weight: bold; margin: 20px 0 10px; letter-spacing: 1px; }
+        
+        .user-card { 
+            background: #111; padding: 15px; border-radius: 12px; margin-bottom: 10px; 
+            border-left: 5px solid #555; display: flex; justify-content: space-between; align-items: center;
+        }
+        .user-card.pending { border-left-color: #ff4444; }
+        .user-card.paid { border-left-color: #00c851; opacity: 0.6; }
+
+        .u-info { font-size: 14px; font-weight: 600; }
+        .u-offer { font-size: 11px; color: #888; margin-top: 3px; }
+        
+        .pay-btn { 
+            background: #ff4444; color: white; border: none; padding: 8px 15px; 
+            border-radius: 50px; font-weight: bold; cursor: pointer; font-size: 12px; 
+        }
+        .paid-badge { color: #00c851; font-weight: 800; font-size: 12px; display: none; }
+
+        .loading { text-align: center; margin-top: 50px; color: #0072ff; font-weight: bold; }
+        
+        /* HIDDEN FILE INPUT */
+        #fileInput { display: none; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header">
+            <div class="title">Admin Zone 🔒</div>
+            <button onclick="logout()" style="background:none; border:none; color:#555; font-size:20px;">🚪</button>
+        </div>
+
+        <div class="controls">
+            <button class="c-btn btn-down" onclick="downloadBackup()">⬇️ Backup Data</button>
+            <button class="c-btn btn-up" onclick="document.getElementById('fileInput').click()">⬆️ Restore Data</button>
+            <input type="file" id="fileInput" accept=".json" onchange="uploadBackup(this)">
+        </div>
+
+        <div class="stats-box">
+            <div class="stat">
+                <div class="num" id="countPending" style="color: #ff4444;">0</div>
+                <div class="lbl">Pending Payment</div>
+            </div>
+            <div class="stat">
+                <div class="num" id="countPaid" style="color: #00c851;">0</div>
+                <div class="lbl">Paid Users</div>
+            </div>
+        </div>
+
+        <div id="loader" class="loading">Fetching Live Data...</div>
+
+        <div id="contentArea" style="display:none;">
+            <div class="section-title">🔴 PENDING PAYMENTS (Abhi Dena Hai)</div>
+            <div id="pendingList"></div>
+
+            <div class="section-title">🟢 PAYMENT HISTORY (De Diya)</div>
+            <div id="paidList"></div>
+        </div>
+
+    </div>
+
+    <script>
+        // PASSWORD PROTECTION
+        let pass = prompt("Enter Admin Password:");
+        if(pass !== "Pathak123") { // Yahan Apna Password Set Kar Lena
+            document.body.innerHTML = "<h2 style='color:white;text-align:center;margin-top:50px;'>⛔ Access Denied</h2>";
+            throw new Error("Wrong Password");
+        }
+
+        // --- LOCAL STORAGE MANAGER ---
+        // Hum data ko 'paidUPIs' naam se save karenge. Refresh karne par ye nahi udega.
+        let paidDb = JSON.parse(localStorage.getItem('paidDb')) || {}; 
+        // Structure: { "UPI_ID+OfferID": "DateString" }
+
+        async function init() {
+            try {
+                // 1. Get Offer Names
+                let offersRes = await fetch('offers.json');
+                let offersData = await offersRes.json();
+                let nameMap = {};
+                offersData.forEach(o => {
+                     if(o.cid) nameMap[o.cid] = o.title;
+                     if(o.id) nameMap[o.id] = o.title;
+                });
+
+                // 2. Get Live Leads (Multi-Proxy)
+                const apiKey = "8df0570da65f3a1798408c942b82839a"; 
+                const targetUrl = `https://panel.visioncamp.in/api.php?auth-token=${apiKey}&report=1`;
+                let leads = await fetchWithFailover(targetUrl);
+
+                renderLists(leads, nameMap);
+
+            } catch (err) {
+                alert("Error: " + err.message);
+            }
+        }
+
+        function renderLists(leads, nameMap) {
+            let pendingHTML = '';
+            let paidHTML = '';
+            let pCount = 0;
+            let dCount = 0;
+
+            // Leads ko sort karo (Latest first)
+            leads.reverse();
+
+            leads.forEach(lead => {
+                if(lead.status.toLowerCase() !== 'approved') return;
+
+                // Unique Key (UPI + OfferID) taaki user alag-alag offer ke paise le sake
+                let uniqueKey = `${lead.p1}_${lead.offerid}`;
+                let offerName = nameMap[lead.offerid] || `Offer #${lead.offerid}`;
+                
+                // Check if already paid
+                let isPaid = paidDb.hasOwnProperty(uniqueKey);
+
+                let card = `
+                <div class="user-card ${isPaid ? 'paid' : 'pending'}" id="card-${uniqueKey}">
+                    <div>
+                        <div class="u-info">${lead.p1}</div>
+                        <div class="u-offer">${offerName} | ₹Payout Check Karo</div>
+                    </div>
+                    <div>
+                        ${isPaid 
+                            ? `<span class="paid-badge" style="display:block;">PAID ✅</span>` 
+                            : `<button class="pay-btn" onclick="markPaid('${uniqueKey}')">PAY NOW</button>`
+                        }
+                    </div>
+                </div>`;
+
+                if(isPaid) {
+                    paidHTML += card;
+                    dCount++;
+                } else {
+                    pendingHTML += card;
+                    pCount++;
+                }
+            });
+
+            document.getElementById('pendingList').innerHTML = pendingHTML || '<p style="text-align:center; color:#555;">No Pending Payments</p>';
+            document.getElementById('paidList').innerHTML = paidHTML || '<p style="text-align:center; color:#555;">History Empty</p>';
+            
+            document.getElementById('countPending').innerText = pCount;
+            document.getElementById('countPaid').innerText = dCount;
+            
+            document.getElementById('loader').style.display = 'none';
+            document.getElementById('contentArea').style.display = 'block';
+        }
+
+        // --- ACTION: MARK AS PAID ---
+        window.markPaid = function(key) {
+            if(confirm("Kya payment kar diya?")) {
+                // 1. Save to Memory
+                paidDb[key] = new Date().toISOString();
+                localStorage.setItem('paidDb', JSON.stringify(paidDb));
+                
+                // 2. Instant UI Update (Reload ki zarurat nahi)
+                location.reload(); 
+            }
+        }
+
+        // --- BACKUP SYSTEMS ---
+        window.downloadBackup = function() {
+            let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(paidDb));
+            let downloadAnchorNode = document.createElement('a');
+            downloadAnchorNode.setAttribute("href", dataStr);
+            downloadAnchorNode.setAttribute("download", "payment_backup_" + new Date().toISOString().slice(0,10) + ".json");
+            document.body.appendChild(downloadAnchorNode); // required for firefox
+            downloadAnchorNode.click();
+            downloadAnchorNode.remove();
+        }
+
+        window.uploadBackup = function(input) {
+            let file = input.files[0];
+            let reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    let oldData = JSON.parse(e.target.result);
+                    // Merge old data with current data
+                    paidDb = { ...paidDb, ...oldData };
+                    localStorage.setItem('paidDb', JSON.stringify(paidDb));
+                    alert("✅ Data Restored Successfully!");
+                    location.reload();
+                } catch(err) {
+                    alert("❌ Galat File Hai!");
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function logout() {
+            window.location.href = "index.html";
+        }
+
+        // --- PROXY HELPER (Same as Tracker) ---
+        async function fetchWithFailover(targetUrl) {
+            const proxies = [
+                `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`,
+                `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`
+            ];
+            for (let proxy of proxies) {
+                try {
+                    let response = await fetch(proxy);
+                    if (!response.ok) throw new Error("Fail");
+                    let data = await response.json();
+                    if (data.contents) return JSON.parse(data.contents).data || [];
+                    else if (data.data) return data.data;
+                    else return data;
+                } catch (err) { continue; }
+            }
+            throw new Error("Network Busy");
+        }
+
+        init();
+    </script>
+</body>
+</html>
