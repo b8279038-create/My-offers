@@ -2,161 +2,56 @@
 <html>
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>⚡ Admin Pro - Ultra Sync</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <title>🔒 Manual Only Admin</title>
     <style>
-        body { margin: 0; background: #000; font-family: 'Poppins', sans-serif; color: white; padding-bottom: 60px; }
-        .container { max-width: 600px; margin: auto; padding: 12px; }
-        .header { background: #111; padding: 18px; border-bottom: 1px solid #222; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 99; }
-        .tabs { display: flex; gap: 6px; margin: 15px 0; background: #1a1a1a; padding: 5px; border-radius: 12px; }
-        .tab-btn { flex: 1; padding: 12px; border: none; background: none; color: #777; font-weight: 700; font-size: 11px; border-radius: 9px; cursor: pointer; transition: 0.2s; }
-        .tab-btn.active { background: #0072ff; color: #fff; box-shadow: 0 4px 12px rgba(0,114,255,0.3); }
-        .card { background: #111; padding: 16px; border-radius: 18px; margin-bottom: 12px; border: 1px solid #222; }
-        .upi-txt { font-size: 14px; font-weight: 700; color: #eee; word-break: break-all; }
-        .amt-tag { font-size: 20px; font-weight: 900; color: #00ff00; }
-        .action-btn { background: #fff; color: #000; border: none; padding: 12px; border-radius: 12px; font-weight: 900; width: 100%; margin-top: 12px; cursor: pointer; font-size: 13px; }
-        .loader { text-align: center; margin-top: 100px; color: #0072ff; font-weight: 900; font-size: 14px; }
-        .hidden { display: none; }
-        .card-history { opacity: 0.4; border-left: 4px solid #444; }
+        body { margin: 0; background: #000; font-family: sans-serif; color: white; padding: 15px; }
+        .card { background: #111; padding: 15px; border-radius: 12px; margin-bottom: 10px; border: 1px solid #333; }
+        .upi { color: #00c6ff; font-weight: bold; font-size: 14px; }
+        .amt { font-size: 20px; font-weight: 900; float: right; }
+        .btn { background: #fff; color: #000; border: none; padding: 12px; border-radius: 8px; font-weight: 900; width: 100%; margin-top: 10px; cursor: pointer; }
+        .loader { text-align: center; margin-top: 50px; color: #0072ff; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <div style="font-weight:900; font-size:18px;">ELITE ADMIN</div>
-            <div id="sync-status" style="font-size:10px; color:#00ff00;">● SYNCING...</div>
-        </div>
-        <div class="tabs">
-            <button class="tab-btn active" onclick="switchTab('tasks')">TASKS (<span id="count-t">0</span>)</button>
-            <button class="tab-btn" onclick="switchTab('referrals')">REFS (<span id="count-r">0</span>)</button>
-            <button class="tab-btn" onclick="switchTab('history')">HISTORY</button>
-        </div>
-        <div id="main-loader" class="loader">⚙️ ESTABLISHING SECURE CONNECTION...</div>
-        <div id="tasks-area"></div>
-        <div id="referrals-area" class="hidden"></div>
-        <div id="history-area" class="hidden"></div>
-    </div>
+    <div id="loading" class="loader">⚙️ LOADING LIVE DATA...</div>
+    <div id="content"></div>
 
     <script>
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwfjyg_o0a_BUgiC0Iuoit3OTtzBHhkvVf8kg6XeI0DaCKVpBsbljCbpK-Tbb7uk-Dqvg/exec";
-        const LEAD_API = "https://panel.visioncamp.in/api.php?auth-token=8df0570da65f3a1798408c942b82839a&report=1";
+        const API = "https://panel.visioncamp.in/api.php?auth-token=8df0570da65f3a1798408c942b82839a&report=1";
         
-        let paidSet = new Set(), rawLeads = [], offerMap = {};
-
-        async function init() {
-            if(!sessionStorage.getItem('adminLogged')) {
-                let p = prompt("🔐 Enter Password:");
-                if(p !== "Pathak123") return;
-                sessionStorage.setItem('adminLogged', 'true');
-            }
+        async function load() {
             try {
-                // 1. Load Sheets History
-                const resS = await fetch(SCRIPT_URL);
-                const dataS = await resS.json();
-                dataS.forEach(k => paidSet.add(k));
-
-                // 2. Load Offers
-                const resO = await fetch('offers.json');
-                const dataO = await resO.json();
-                dataO.forEach(o => offerMap[o.cid || o.id] = { t: o.title, u: parseInt(o.user_payout.replace(/\D/g,'')) || 0, r: parseInt(o.refer_payout.replace(/\D/g,'')) || 0 });
-
-                // 3. Ultra Data Fetch
-                await forceFetchLeads();
-            } catch(e) { console.error(e); document.getElementById('main-loader').innerText = "❌ Connection Refused"; }
-        }
-
-        async function forceFetchLeads() {
-            const proxies = [
-                `https://api.allorigins.win/raw?url=${encodeURIComponent(LEAD_API)}&timestamp=${Date.now()}`,
-                `https://corsproxy.io/?${encodeURIComponent(LEAD_API)}`,
-                `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(LEAD_API)}`
-            ];
-
-            for(let url of proxies) {
-                try {
-                    const response = await fetch(url);
-                    const json = await response.json();
-                    rawLeads = json.data || json;
-                    if(Array.isArray(rawLeads)) { 
-                        document.getElementById('sync-status').innerText = "● LIVE";
-                        render(); 
-                        return; 
+                // High-Security Proxy
+                const res = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(API)}&v=${Date.now()}`);
+                const json = await res.json();
+                const data = json.data || json;
+                
+                let html = '';
+                data.reverse().forEach(lead => {
+                    if(lead.status.toLowerCase() === 'approved') {
+                        html += `
+                        <div class="card">
+                            <span class="amt">₹...</span>
+                            <div class="upi">${lead.p1}</div>
+                            <button class="btn" onclick="copyAndOpen('${lead.p1}')">COPY ID & OPEN APPS</button>
+                        </div>`;
                     }
-                } catch(e) { console.log("Trying next bypass..."); }
-            }
-            document.getElementById('main-loader').innerText = "❌ API TIMEOUT - REFRESH PAGE";
+                });
+                document.getElementById('content').innerHTML = html;
+                document.getElementById('loading').style.display = 'none';
+            } catch(e) { document.getElementById('loading').innerText = "❌ Connection Error"; }
         }
 
-        function render() {
-            let tArea = document.getElementById('tasks-area'), rArea = document.getElementById('referrals-area'), hArea = document.getElementById('history-area');
-            let refGroups = {}, tCount = 0, rCount = 0;
-            tArea.innerHTML = ''; rArea.innerHTML = ''; hArea.innerHTML = '';
+        window.copyAndOpen = function(id) {
+            // 1. Sirf Copy Hoga
+            navigator.clipboard.writeText(id);
+            alert("✅ ID Copied! Ab apna app select karein aur khud paste karein.");
 
-            rawLeads.reverse().forEach(lead => {
-                if(lead.status.toLowerCase() !== 'approved') return;
-                let o = offerMap[lead.offerid] || { t: `Offer #${lead.offerid}`, u: 0, r: 0 };
-                let sKey = `${lead.p1}_${lead.offerid}_SELF`, rKey = `${lead.p2}_${lead.offerid}_REF`;
-
-                if(paidSet.has(sKey)) hArea.innerHTML += createHistoryCard(lead.p1, o.t, o.u, "TASK");
-                else {
-                    tCount++;
-                    tArea.innerHTML += `
-                    <div class="card" style="border-left:5px solid #0072ff">
-                        <div style="display:flex;justify-content:space-between">
-                            <div><div class="upi-txt">${lead.p1}</div><div style="font-size:10px;color:#666">${o.t}</div></div>
-                            <div class="amt-tag">₹${o.u}</div>
-                        </div>
-                        <button class="action-btn" onclick="payNow('${lead.p1}','${sKey}',this)">COPY ID & OPEN APP</button>
-                    </div>`;
-                }
-
-                if(lead.p2 && lead.p2.length > 5 && lead.p2 !== lead.p1) {
-                    if(paidSet.has(rKey)) hArea.innerHTML += createHistoryCard(lead.p2, o.t, o.r, "REFER");
-                    else {
-                        if(!refGroups[lead.p2]) refGroups[lead.p2] = { total: 0, items: [] };
-                        refGroups[lead.p2].total += o.r;
-                        refGroups[lead.p2].items.push({ t: o.t, r: o.r, k: rKey });
-                    }
-                }
-            });
-
-            for (let [upi, data] of Object.entries(refGroups)) {
-                rCount++;
-                let keys = JSON.stringify(data.items.map(i => i.k));
-                rArea.innerHTML += `
-                <div class="card" style="border-left:5px solid #ffd700">
-                    <div style="display:flex;justify-content:space-between">
-                        <div><div class="upi-txt">${upi}</div><div style="font-size:10px;color:#666">${data.items.length} Pending Referrals</div></div>
-                        <div class="amt-tag" style="color:#ffd700">₹${data.total}</div>
-                    </div>
-                    <button class="action-btn" style="background:#ffd700" onclick='payNow("${upi}",${keys},this)'>COPY ID & PAY TOTAL</button>
-                </div>`;
-            }
-            document.getElementById('count-t').innerText = tCount; document.getElementById('count-r').innerText = rCount;
-            document.getElementById('main-loader').style.display = 'none';
-        }
-
-        function createHistoryCard(u, t, a, type) {
-            return `<div class="card card-history"><div style="display:flex;justify-content:space-between"><div><div class="upi-txt">${u}</div><div style="font-size:10px">${type}: ${t}</div></div><div style="color:#888;font-weight:900">₹${a} PAID</div></div></div>`;
-        }
-
-        window.payNow = function(upi, keys, btn) {
-            navigator.clipboard.writeText(upi);
-            alert("✅ UPI ID Copied!\nOpen Payment App, Paste & Pay.");
+            // 2. Sirf App Chooser khulega, koi data nahi jayega
             window.location.href = "upi://pay"; 
-            btn.innerText = "UPDATING...";
-            const kArr = Array.isArray(keys) ? keys : [keys];
-            kArr.forEach((k, i) => setTimeout(() => fetch(SCRIPT_URL + `?action=pay&key=${encodeURIComponent(k)}`, { mode: 'no-cors' }), i * 350));
-            setTimeout(() => location.reload(), 2500);
         }
 
-        window.switchTab = function(t) {
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            event.target.classList.add('active');
-            ['tasks-area','referrals-area','history-area'].forEach(id => document.getElementById(id).classList.add('hidden'));
-            document.getElementById(t + '-area').classList.remove('hidden');
-        }
-        init();
+        load();
     </script>
 </body>
 </html>
