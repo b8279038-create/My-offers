@@ -2,12 +2,13 @@
 <html>
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cashback Campaign</title>
+    <title>Promoter Panel</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
+        /* 1. पूरा डार्क थीम */
         body { margin: 0; padding: 0; background-color: #050505; font-family: 'Poppins', sans-serif; color: white; padding-bottom: 50px; }
         
-        /* HEADER */
+        /* 2. Header (Telegram Button के साथ) */
         .header {
             display: flex; justify-content: space-between; align-items: center;
             padding: 15px 20px; background: rgba(20, 20, 20, 0.95);
@@ -20,15 +21,16 @@
             font-size: 12px; font-weight: bold; box-shadow: 0 4px 10px rgba(0,136,204,0.4); 
         }
 
-        /* UPI BOX */
+        /* 3. UPI और लिंक बनाने वाला हिस्सा */
         .input-area { text-align: center; padding: 20px; }
         .upi-box {
             background: #1a1a1a; border: 1px solid #333; color: white;
-            padding: 12px; width: 85%; border-radius: 12px; font-family: 'Poppins', sans-serif;
+            padding: 15px; width: 85%; border-radius: 12px; font-family: 'Poppins', sans-serif;
             text-align: center; font-size: 16px; outline: none; margin-bottom: 10px;
         }
+        .upi-box:focus { border-color: #0072ff; }
 
-        /* CARD DESIGN (HEAVY LOOK) */
+        /* 4. कार्ड डिजाइन (Cashcamps जैसा) */
         .container { padding: 10px; max-width: 450px; margin: auto; }
         .card {
             background: #121212; border-radius: 20px; padding: 20px; margin-bottom: 25px;
@@ -36,13 +38,12 @@
             text-align: center; position: relative;
         }
         
-        /* Image Setting */
         .card img { 
             width: 100%; height: 180px; object-fit: cover; border-radius: 15px; 
             margin-bottom: 15px; border: 1px solid #333;
         }
         
-        .card h3 { margin: 0; font-size: 22px; font-weight: 800; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px;}
+        .card h3 { margin: 0; font-size: 20px; font-weight: 800; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px; color: white;}
 
         /* Rates Row */
         .rates-row { display: flex; gap: 10px; justify-content: center; margin-bottom: 20px; }
@@ -51,7 +52,7 @@
             display: flex; flex-direction: column; align-items: center; border: 1px solid #333;
         }
         .lbl { font-size: 10px; color: #888; text-transform: uppercase; margin-bottom: 5px; }
-        .price-user { font-size: 20px; font-weight: 800; color: #a450ff; text-shadow: 0 0 15px rgba(164, 80, 255, 0.3); }
+        .price-user { font-size: 20px; font-weight: 800; color: #a450ff; text-shadow: 0 0 15px rgba(164, 80, 255, 0.3); } /* User का पैसा चमकता हुआ */
         .price-ref { font-size: 20px; font-weight: 800; color: #ffffff; }
 
         .action-btn {
@@ -65,11 +66,12 @@
 
     <div class="header">
         <div class="logo">Cashback Campaign 🔥</div>
-        <a href="https://t.me/cashbackcampingn" class="tg-btn">✈️ Join Telegram</a>
+        <a href="https://t.me/cashbackcampingn" class="tg-btn" target="_blank">✈️ Join Telegram</a>
     </div>
 
     <div class="input-area">
-        <input type="text" id="myUpi" class="upi-box" placeholder="Enter Your UPI ID First...">
+        <input type="text" id="myUpi" class="upi-box" placeholder="Enter Your UPI ID (Payment)">
+        <input type="text" id="myTg" class="upi-box" placeholder="Your Telegram Channel Link (Optional)">
     </div>
 
     <div class="container" id="cardList">
@@ -102,40 +104,24 @@
 
         function makeLink(id) {
             let upi = document.getElementById('myUpi').value.trim();
-            if(!upi) { alert("⚠️ Pehle upar apni UPI ID daalo!"); return; }
-
-            let secretUpi = btoa(upi);
-            let link = `https://${window.location.hostname}/user.html?id=${id}&ref=${secretUpi}`;
-            link += `&tg=https://t.me/cashbackcampingn`; 
-
-            navigator.clipboard.writeText(link);
-            alert("✅ Link Copied Successfully!");
-        }
-    </script>
-</body>
-</html>            });
-            document.getElementById('list').innerHTML = html;
-        });
-
-        function makeLink(id) {
-            let upi = document.getElementById('myUpi').value.trim();
             let tg = document.getElementById('myTg').value.trim();
 
-            if(!upi) { alert("Pahle UPI to daalo boss!"); return; }
+            if(!upi) { alert("⚠️ Bhai, pehle upar apni UPI ID daalo!"); return; }
 
-            // लिंक तैयार करना
-            let link = `https://${window.location.hostname}/user.html?id=${id}&ref=${upi}`;
+            // 1. UPI Encrypt (Hide) karna
+            let secretUpi = btoa(upi);
+
+            // 2. Link banana
+            let link = `https://${window.location.hostname}/user.html?id=${id}&ref=${secretUpi}`;
             
-            // अगर टेलीग्राम लिंक डाला है, तो उसे भी जोड़ दो
+            // 3. Agar Telegram link dala hai, to use bhi jodo
             if(tg) {
                 link += `&tg=${encodeURIComponent(tg)}`;
             }
 
-            // कॉपी करना
             navigator.clipboard.writeText(link);
-            alert("Link Copy Ho Gaya! \nAb ise share karo.");
+            alert("✅ Link Copy Ho Gaya!\n\n(UPI Hidden Hai par System me aa jayegi)");
         }
     </script>
 </body>
 </html>
-
