@@ -5,10 +5,8 @@
     <title>Get Cashback</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
-        /* 1. वही हरा बैकग्राउंड */
         body { font-family: 'Poppins', sans-serif; background-color: #9cf016; text-align: center; padding: 20px; margin: 0; }
         
-        /* 2. कार्ड (Safed) */
         .card { 
             background: white; max-width: 380px; margin: 20px auto; 
             border-radius: 25px; border: 4px solid black; 
@@ -18,21 +16,18 @@
         h1 { font-size: 28px; margin: 0; text-transform: uppercase; font-weight: 900; }
         .sub { font-size: 14px; font-weight: bold; margin-bottom: 20px; color: #555; }
         
-        /* 3. UPI Input */
         input { 
             width: 85%; padding: 15px; font-size: 18px; text-align: center; 
             border: 3px solid black; border-radius: 15px; font-weight: bold; outline: none; margin-bottom: 15px;
         }
 
-        /* 4. CLAIM BUTTON (Mota Hara) */
         .btn { 
             background: #9cf016; color: black; width: 100%; padding: 18px; 
             font-size: 22px; font-weight: 900; border: 3px solid black; 
-            border-radius: 50px; cursor: pointer; box-shadow: 4px 4px 0px black; margin-bottom: 15px;
+            border-radius: 50px; cursor: pointer; box-shadow: 4px 4px 0px black;
         }
         .btn:active { transform: translateY(4px); box-shadow: none; }
 
-        /* 5. Telegram Icon (Gool Wala) */
         .tg-icon {
             display: none; position: absolute; top: -20px; right: -10px;
             width: 50px; height: 50px; background: #0088cc; color: white;
@@ -42,7 +37,6 @@
         }
         @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
 
-        /* Steps Area */
         .steps-area { text-align: left; margin-top: 20px; padding: 15px; background: #f9f9f9; border-radius: 15px; border: 2px solid #eee; font-size: 14px; line-height: 1.6; position: relative;}
     </style>
 </head>
@@ -57,7 +51,6 @@
         
         <div class="steps-area">
             <a id="tgBtn" href="#" target="_blank" class="tg-icon">✈️</a>
-            
             <b>STEPS:</b><br>
             <div id="steps">Loading...</div>
         </div>
@@ -69,7 +62,6 @@
         const encryptedRef = params.get('ref');
         const tg = params.get('tg');
 
-        // Agar Telegram Link hai, to button dikhao
         if(tg) {
             const btn = document.getElementById('tgBtn');
             btn.href = tg;
@@ -88,19 +80,16 @@
             const userUpi = document.getElementById('userUpi').value.trim();
             if(!userUpi) { alert("Paisa lene ke liye UPI daalo!"); return; }
             
-            // Decrypt: Code ko wapas UPI banana
             let refUpi = "";
             try { 
                 refUpi = atob(encryptedRef); 
             } catch(e) { 
-                refUpi = encryptedRef; // Agar decrypt nahi hua to waisa hi bhej dega
+                refUpi = encryptedRef; 
             }
 
             fetch('offers.json').then(res => res.json()).then(data => {
                 const offer = data.find(o => o.id === id);
-                // TRACKING: p1 = User, p2 = Promoter
-                const finalLink = `https://panel.visioncamp.in/go?cid=${offer.cid}&uid=${offer.uid}&p1=${userUpi}&p2=${refUpi}`;
-                window.location.href = finalLink;
+                window.location.href = `https://panel.visioncamp.in/go?cid=${offer.cid}&uid=${offer.uid}&p1=${userUpi}&p2=${refUpi}`;
             });
         }
     </script>
