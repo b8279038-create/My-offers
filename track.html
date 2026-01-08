@@ -2,63 +2,29 @@
 <html>
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Live Payment Tracker</title>
+    <title>⚡ Live Payment Tracker - Pro</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
         body { margin: 0; padding: 0; background-color: #000000; font-family: 'Poppins', sans-serif; color: white; text-align: center; }
         .container { max-width: 450px; margin: 20px auto; padding: 15px; }
-        
         .logo { font-size: 22px; font-weight: 900; color: #fff; text-transform: uppercase; margin-bottom: 5px; letter-spacing: 1px; }
         .sub-txt { color: #888; font-size: 12px; margin-bottom: 20px; }
-
-        /* INPUT BOX */
-        .search-box {
-            background: #111; border: 1px solid #333; padding: 5px;
-            border-radius: 50px; display: flex; align-items: center; margin-bottom: 25px;
-        }
-        .inp { 
-            background: transparent; border: none; color: white; padding: 10px 15px; 
-            width: 100%; outline: none; font-size: 15px; font-weight: 600;
-        }
-        .btn { 
-            background: #0072ff; color: white; border: none; padding: 10px 25px; 
-            border-radius: 40px; font-weight: 800; cursor: pointer; font-size: 14px;
-        }
-
-        /* RESULTS AREA */
+        .search-box { background: #111; border: 1px solid #333; padding: 5px; border-radius: 50px; display: flex; align-items: center; margin-bottom: 25px; }
+        .inp { background: transparent; border: none; color: white; padding: 10px 15px; width: 100%; outline: none; font-size: 15px; font-weight: 600; }
+        .btn { background: #0072ff; color: white; border: none; padding: 10px 25px; border-radius: 40px; font-weight: 800; cursor: pointer; font-size: 14px; }
         .result-area { display: none; text-align: left; }
-        .sec-title { 
-            font-size: 12px; color: #888; font-weight: 800; letter-spacing: 1px; 
-            margin: 20px 0 10px 0; border-bottom: 1px solid #222; padding-bottom: 5px;
-        }
-
-        /* TASKS CARD */
-        .task-card { 
-            background: rgba(0, 255, 0, 0.05); border: 1px solid #00ff00; 
-            padding: 12px; border-radius: 12px; margin-bottom: 10px; 
-            display: flex; justify-content: space-between; align-items: center;
-        }
+        .sec-title { font-size: 12px; color: #888; font-weight: 800; letter-spacing: 1px; margin: 20px 0 10px 0; border-bottom: 1px solid #222; padding-bottom: 5px; }
+        .task-card { background: rgba(0, 255, 0, 0.05); border: 1px solid #00ff00; padding: 12px; border-radius: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
         .t-name { font-weight: 700; font-size: 14px; }
         .t-status { background: #00ff00; color: black; padding: 2px 8px; border-radius: 5px; font-size: 10px; font-weight: 900; }
-
-        /* REFERRAL CARD */
-        .ref-summary-box {
-            background: #121212; border: 1px solid #333; border-radius: 15px; padding: 15px;
-            margin-bottom: 10px; text-align: center;
-        }
+        .ref-summary-box { background: #121212; border: 1px solid #333; border-radius: 15px; padding: 15px; margin-bottom: 10px; text-align: center; }
         .ref-total { font-size: 32px; font-weight: 900; color: #00c6ff; }
         .ref-label { font-size: 12px; color: #888; margin-bottom: 15px; }
-
-        .ref-item { 
-            display: flex; justify-content: space-between; padding: 10px 0; 
-            border-bottom: 1px dashed #333; font-size: 13px; 
-        }
+        .ref-item { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px dashed #333; font-size: 13px; }
         .ref-item:last-child { border-bottom: none; }
         .ref-count { font-weight: 800; color: #ffd700; }
-
         .loader { display: none; width: 30px; height: 30px; border: 3px solid #333; border-top: 3px solid #0072ff; border-radius: 50%; animation: spin 1s infinite; margin: 20px auto; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        
         .error-msg { color: #ff4444; font-size: 12px; display: none; margin-top: 10px; text-align: center;}
     </style>
 </head>
@@ -94,135 +60,74 @@
     </div>
 
     <script>
-        // --- 1. MULTI-PROXY SYSTEM (Jugaad x 3) ---
+        // --- POWER PROXY SYSTEM ---
         async function fetchWithFailover(targetUrl) {
-            // Ye 3 alag-alag raste hain. Ek band hua to dusra chalega.
             const proxies = [
                 `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`,
                 `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`,
+                `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(targetUrl)}`,
                 `https://thingproxy.freeboard.io/fetch/${targetUrl}`
             ];
 
             for (let proxy of proxies) {
                 try {
-                    console.log("Trying proxy:", proxy);
                     let response = await fetch(proxy);
-                    if (!response.ok) throw new Error("Proxy failed");
+                    if (!response.ok) continue;
                     let data = await response.json();
-                    
-                    // VisionCamp ka data kabhi 'contents' me hota hai kabhi direct
-                    if (data.contents) {
-                        return JSON.parse(data.contents).data || [];
-                    } else if (data.data) {
-                        return data.data;
-                    } else {
-                        return data; // Direct array
-                    }
-                } catch (err) {
-                    console.warn("Backup proxy switching...", err);
-                    // Agar fail hua to loop agle proxy par jayega
-                    continue; 
-                }
+                    let finalData = data.data || data;
+                    if (Array.isArray(finalData)) return finalData;
+                } catch (err) { continue; }
             }
-            throw new Error("All connections failed. Please try later.");
+            throw new Error("Connection failed");
         }
 
         async function startTracking() {
             let upi = document.getElementById('upi').value.trim();
-            if(!upi) { alert("Please enter UPI ID"); return; }
+            if(!upi) return;
 
             document.getElementById('loader').style.display = 'block';
             document.getElementById('results').style.display = 'none';
             document.getElementById('errMsg').style.display = 'none';
 
             try {
-                // Step A: Offer Names Lana
                 let offersRes = await fetch('offers.json');
-                if(!offersRes.ok) throw new Error("offers.json file missing");
                 let offersData = await offersRes.json();
-                
                 let nameMap = {};
-                offersData.forEach(o => {
-                    if(o.cid) nameMap[o.cid] = o.title;
-                    if(o.id) nameMap[o.id] = o.title;
-                });
+                offersData.forEach(o => nameMap[o.cid || o.id] = o.title);
 
-                // Step B: API Data Lana (Using Tagda Solution)
                 const apiKey = "8df0570da65f3a1798408c942b82839a"; 
                 const targetUrl = `https://panel.visioncamp.in/api.php?auth-token=${apiKey}&report=1`;
                 
                 let leads = await fetchWithFailover(targetUrl);
 
-                // Step C: Filter Data
-                if(!Array.isArray(leads)) leads = []; // Safety check
+                let myTasks = [], myRefers = {}, totalRefCount = 0;
 
-                let myTasks = [];
-                let myRefers = {}; 
-                let totalRefCount = 0;
-
-                leads.forEach(lead => {
+                leads.reverse().forEach(lead => {
                     if(lead.status.toLowerCase() !== 'approved') return;
-
-                    // My Task
-                    if(lead.p1 === upi) {
-                        myTasks.push({
-                            id: lead.offerid,
-                            name: nameMap[lead.offerid] || `Offer #${lead.offerid}`
-                        });
-                    }
-
-                    // Referral
+                    if(lead.p1 === upi) myTasks.push({ name: nameMap[lead.offerid] || `Offer #${lead.offerid}` });
                     if(lead.p2 === upi) {
-                        let oid = lead.offerid;
-                        if(!myRefers[oid]) myRefers[oid] = 0;
-                        myRefers[oid]++;
+                        myRefers[lead.offerid] = (myRefers[lead.offerid] || 0) + 1;
                         totalRefCount++;
                     }
                 });
 
-                // Step D: Show Results
-                
-                // 1. Tasks
-                let taskHtml = '';
-                if(myTasks.length === 0) {
-                    taskHtml = '<div style="color:#555; font-size:12px; text-align:center; padding:10px;">No completed tasks found.</div>';
-                } else {
-                    myTasks.forEach(t => {
-                        taskHtml += `
-                        <div class="task-card">
-                            <span class="t-name">${t.name}</span>
-                            <span class="t-status">PASSED</span>
-                        </div>`;
-                    });
-                }
-                document.getElementById('myTaskList').innerHTML = taskHtml;
+                document.getElementById('myTaskList').innerHTML = myTasks.length ? myTasks.map(t => `<div class="task-card"><span class="t-name">${t.name}</span><span class="t-status">PASSED</span></div>`).join('') : '<div style="color:#555; font-size:12px; text-align:center; padding:10px;">No completed tasks.</div>';
 
-                // 2. Referrals
                 document.getElementById('totalRefs').innerText = totalRefCount;
-                
                 let refHtml = '';
-                if(totalRefCount === 0) {
-                    refHtml = '<div style="color:#555; font-size:11px;">No referrals yet.</div>';
-                } else {
-                    for (let [oid, count] of Object.entries(myRefers)) {
-                        let oName = nameMap[oid] || `Offer #${oid}`;
-                        refHtml += `
-                        <div class="ref-item">
-                            <span>${oName}</span>
-                            <span class="ref-count">${count} Leads ✅</span>
-                        </div>`;
-                    }
+                for (let [oid, count] of Object.entries(myRefers)) {
+                    refHtml += `<div class="ref-item"><span>${nameMap[oid] || `Offer #${oid}`}</span><span class="ref-count">${count} Leads ✅</span></div>`;
                 }
-                document.getElementById('refBreakdown').innerHTML = refHtml;
+                document.getElementById('refBreakdown').innerHTML = refHtml || '<div style="color:#555; font-size:11px;">No referrals.</div>';
 
                 document.getElementById('loader').style.display = 'none';
                 document.getElementById('results').style.display = 'block';
 
             } catch (err) {
-                console.error(err);
                 document.getElementById('loader').style.display = 'none';
                 document.getElementById('errMsg').style.display = 'block';
-                document.getElementById('errMsg').innerText = "⚠️ Server Busy. Try again in 10 seconds.";
+                document.getElementById('errMsg').innerText = "⚠️ Connection issue. Retrying...";
+                setTimeout(startTracking, 5000); // Auto-retry for user
             }
         }
     </script>
