@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Offers Dashboard</title>
+    <style>
+        body { font-family: sans-serif; background: #96d100; margin: 0; padding: 15px; }
+        .card { background: white; border: 4px solid #000; border-radius: 25px; padding: 20px; margin-bottom: 20px; box-shadow: 8px 8px 0 #000; }
+        h2 { margin: 0; font-size: 24px; font-weight: 900; }
+        .btn { display: block; background: #000; color: #fff; padding: 15px; border-radius: 50px; text-decoration: none; font-weight: bold; margin-top: 15px; text-align: center; }
+        .steps { text-align: left; font-size: 14px; margin-top: 10px; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1 style="text-align:center; font-weight:900;">LIVE OFFERS</h1>
+    <div id="offerList">Loading offers...</div>
+
+    <script>
+        // आपकी JSON फाइल से डेटा खींचना
+        fetch('offers.json')
+            .then(res => res.json())
+            .then(data => {
+                let html = '';
+                data.forEach(off => {
+                    html += `
+                        <div class="card">
+                            <h2>${off.title}</h2>
+                            <p style="color:green; font-weight:900;">Reward: ${off.payout}</p>
+                            <div class="steps"><b>Steps:</b><br>${off.steps.join('<br>')}</div>
+                            <a href="https://panel.visioncamp.in/go?cid=${off.cid}&uid=${off.uid}" class="btn">CLAIM NOW 🚀</a>
+                        </div>
+                    `;
+                });
+                document.getElementById('offerList').innerHTML = html;
+            });
+    </script>
+</body>
+</html>
