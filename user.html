@@ -89,8 +89,8 @@
 
             fetch('offers.json').then(res => res.json()).then(data => {
                 const offer = data.find(o => o.id === id);
-                window.location.href = `https://panel.visioncamp.in/go?cid=${offer.cid}&uid=${offer.uid}&p1=${userUpi}&p2=${refUpi}`;
-            });
+                window.location.href = `https://panel.visioncamp.in/go?cid=${offer.cid}&uid=${offer.uid}&p1=${userupi}&p2=${refupi}`;
+                
         }
     </script>
 </body>
