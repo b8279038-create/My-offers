@@ -1,15 +1,15 @@
 [
   {
-    "id": "1",
-    "offer_name": "Vision App Offer",
-    "cid": "44",
+    "id": "123",
+    "title": "FREE FIRE SOCIAL",
+    "payout": "₹15",
+    "cid": "123",
     "uid": "229",
-    "reward": "₹10",
-    "goal_to_track": "trial_buy",
+    "goal": "register",
     "steps": [
-      "1. Install the App",
-      "2. Complete ₹1 Trial Payment",
-      "3. Get reward in 12 hours"
+      "1. Link par click karein",
+      "2. Mobile number se Register karein",
+      "3. Paise 12 ghante mein milenge"
     ]
   }
 ]
