@@ -5,52 +5,28 @@
     <title>⚡ ULTIMATE ADMIN - INFINITE CONNECT</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
-        /* --- FULL STYLING (सब कुछ रखा है) --- */
         body { margin: 0; background: #000; font-family: 'Poppins', sans-serif; color: white; padding-bottom: 80px; }
         .container { max-width: 600px; margin: auto; padding: 12px; }
-        .header { 
-            background: #111; padding: 18px; border-bottom: 1px solid #222; 
-            display: flex; justify-content: space-between; align-items: center; 
-            position: sticky; top: 0; z-index: 99; box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-        }
+        .header { background: #111; padding: 18px; border-bottom: 1px solid #222; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 99; }
         .tabs { display: flex; gap: 6px; margin: 15px 0; background: #1a1a1a; padding: 5px; border-radius: 12px; }
-        .tab-btn { 
-            flex: 1; padding: 12px; border: none; background: none; 
-            color: #777; font-weight: 700; font-size: 11px; border-radius: 9px; 
-            cursor: pointer; transition: 0.3s; 
-        }
+        .tab-btn { flex: 1; padding: 12px; border: none; background: none; color: #777; font-weight: 700; font-size: 11px; border-radius: 9px; cursor: pointer; transition: 0.3s; }
         .tab-btn.active { background: #0072ff; color: #fff; box-shadow: 0 0 10px #0072ff; }
-        
-        .card { 
-            background: #111; padding: 16px; border-radius: 18px; 
-            margin-bottom: 12px; border: 1px solid #222; animation: fadeIn 0.5s; 
-        }
+        .card { background: #111; padding: 16px; border-radius: 18px; margin-bottom: 12px; border: 1px solid #222; transition: 0.3s; }
         .upi-txt { font-size: 14px; font-weight: 700; color: #00c6ff; word-break: break-all; }
         .offer-txt { font-size: 11px; color: #666; margin-top: 2px; }
         .amt-txt { font-size: 20px; font-weight: 900; color: #fff; }
-        
-        .btn-main { 
-            background: #fff; color: #000; border: none; padding: 12px; 
-            border-radius: 12px; font-weight: 900; width: 100%; margin-top: 12px; 
-            cursor: pointer; transition: 0.2s;
-        }
-        .btn-main:active { transform: scale(0.98); }
-        
-        .loader { 
-            text-align: center; margin-top: 50px; color: #0072ff; 
-            font-weight: 900; font-size: 14px; padding: 20px; border: 1px dashed #333; border-radius: 10px;
-        }
+        .btn-main { background: #fff; color: #000; border: none; padding: 12px; border-radius: 12px; font-weight: 900; width: 100%; margin-top: 12px; cursor: pointer; }
+        .btn-main:disabled { background: #444; color: #888; cursor: not-allowed; }
+        .loader { text-align: center; margin-top: 50px; color: #0072ff; font-weight: 900; font-size: 14px; padding: 20px; border: 1px dashed #333; border-radius: 10px; }
         .hidden { display: none; }
         .card-history { opacity: 0.4; filter: grayscale(1); border: 1px solid #333; }
-        
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <div style="font-weight:900; letter-spacing: 1px;">⚡ ADMIN PRO</div>
-            <div id="status" style="font-size:10px; color:#00ff00; border:1px solid #00ff00; padding:2px 6px; border-radius:4px;">● AUTO-RETRY ON</div>
+            <div style="font-weight:900;">⚡ ADMIN PRO</div>
+            <div id="status" style="font-size:10px; color:#00ff00; border:1px solid #00ff00; padding:2px 6px; border-radius:4px;">● AUTO-SYNC ON</div>
         </div>
         
         <div class="tabs">
@@ -67,13 +43,10 @@
     </div>
 
     <script>
-        // --- सेटिंग्स (Settings) ---
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwfjyg_o0a_BUgiC0Iuoit3OTtzBHhkvVf8kg6XeI0DaCKVpBsbljCbpK-Tbb7uk-Dqvg/exec";
         const API_URL = "https://panel.visioncamp.in/api.php?auth-token=8df0570da65f3a1798408c942b82839a&report=1";
-        
         let paidSet = new Set(), leads = [], offers = {};
 
-        // --- 1. INFINITE PROXY LOOP (कभी नहीं रुकेगा) ---
         async function fetchWithInfiniteRetry(url) {
             const proxies = [
                 `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}&v=${Date.now()}`,
@@ -81,165 +54,118 @@
                 `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
                 `https://thingproxy.freeboard.io/fetch/${url}`
             ];
-
             let index = 0;
-            let attempt = 1;
-
-            while (true) { // अनंत लूप (Infinite Loop)
-                let currentProxy = proxies[index];
+            while (true) {
                 try {
-                    document.getElementById('loader').innerHTML = `🔄 Connecting...<br><span style="font-size:10px;color:#777">Attempt ${attempt} | Proxy ${index + 1}</span>`;
-                    
-                    const response = await fetch(currentProxy);
+                    document.getElementById('loader').innerHTML = `🔄 Connecting Proxy ${index + 1}...`;
+                    const response = await fetch(proxies[index]);
                     if (response.ok) {
                         const data = await response.json();
-                        return data.data || data; // डेटा मिल गया! लूप तोड़ो और डेटा भेजो
+                        return data.data || data;
                     }
-                } catch (e) {
-                    console.log(`Proxy ${index + 1} failed.`);
-                }
-
-                // अगले प्रॉक्सी पर स्विच करो
+                } catch (e) {}
                 index = (index + 1) % proxies.length;
-                attempt++;
-
-                // अगर 4 के 4 फेल हो गए, तो 3 सेकंड रुको फिर से शुरू करो (Loop Back)
-                if (index === 0) {
-                    document.getElementById('loader').innerHTML = `⚠️ High Traffic. Waiting 3s...`;
-                    await new Promise(r => setTimeout(r, 3000));
-                }
+                if (index === 0) await new Promise(r => setTimeout(r, 2000));
             }
         }
 
-        // --- 2. STARTUP SEQUENCE ---
         async function init() {
             try {
-                // पहले गूगल शीट और ऑफर्स लाओ
-                document.getElementById('loader').innerText = "📂 Loading History & Offers...";
-                const [rSheet, rOffer] = await Promise.all([
-                    fetch(SCRIPT_URL),
-                    fetch('offers.json')
-                ]);
-                
+                const [rSheet, rOffer] = await Promise.all([fetch(SCRIPT_URL), fetch('offers.json')]);
                 const dSheet = await rSheet.json();
                 const dOffer = await rOffer.json();
-                
-                // Paid History Set करना
                 dSheet.forEach(k => paidSet.add(k));
-                
-                // Offers Map करना (ताकि 122 और 123 दोनों काम करें)
                 dOffer.forEach(o => {
-                    offers[o.cid || o.id] = { 
-                        t: o.title, 
-                        u: parseInt(o.user_payout.replace(/\D/g,'')) || 0, 
-                        r: parseInt(o.refer_payout.replace(/\D/g,'')) || 0 
-                    };
+                    offers[o.cid || o.id] = { t: o.title, u: parseInt(o.user_payout.replace(/\D/g,'')) || 0, r: parseInt(o.refer_payout.replace(/\D/g,'')) || 0 };
                 });
-                
-                // अब लीड्स लाओ (Infinite Loop वाला फंक्शन कॉल)
                 await loadLeads();
-
-            } catch(e) { 
-                console.error(e);
-                // अगर offers.json ही न मिले तो भी रीट्राय करो
-                setTimeout(init, 3000); 
-            }
+            } catch(e) { setTimeout(init, 3000); }
         }
 
         async function loadLeads() {
             leads = await fetchWithInfiniteRetry(API_URL);
-            if(Array.isArray(leads)) {
-                render();
-            } else {
-                // अगर डेटा अजीब आया तो फिर से ट्राई करो
-                setTimeout(loadLeads, 2000);
-            }
+            render();
         }
 
-        // --- 3. RENDER LOGIC (Everything included) ---
         function render() {
-            let tA = document.getElementById('tasks-area'), 
-                rA = document.getElementById('referrals-area'), 
-                hA = document.getElementById('history-area');
+            let tA = document.getElementById('tasks-area'), rA = document.getElementById('referrals-area'), hA = document.getElementById('history-area');
             let rG = {}, tc = 0, rc = 0;
-            
             tA.innerHTML = ''; rA.innerHTML = ''; hA.innerHTML = '';
 
-            // डेटा को उल्टा लूप करना (Newest First)
-            leads.reverse().forEach(l => {
+            [...leads].reverse().forEach(l => {
                 if(l.status.toLowerCase() !== 'approved') return;
-                
                 let o = offers[l.offerid] || { t: `Offer #${l.offerid}`, u: 0, r: 0 };
-                let sk = `${l.p1}_${l.offerid}_SELF`; // Task Key
-                let rk = `${l.p2}_${l.offerid}_REF`;  // Refer Key
+                let sk = `${l.p1}_${l.offerid}_SELF`, rk = `${l.p2}_${l.offerid}_REF`;
 
-                // --- TASK DISPLAY ---
                 if(paidSet.has(sk)) {
                     hA.innerHTML += createHistoryCard(l.p1, o.t, o.u, "TASK");
                 } else {
                     tc++;
-                    tA.innerHTML += `<div class="card">
+                    tA.innerHTML += `<div class="card" id="card-${sk}">
                         <div style="display:flex;justify-content:space-between">
                             <div><div class="upi-txt">${l.p1}</div><div class="offer-txt">${o.t}</div></div>
                             <div class="amt-txt">₹${o.u}</div>
                         </div>
-                        <button class="btn-main" onclick="copyAndPaid('${l.p1}','${sk}',this)">COPY & MARK PAID</button>
+                        <button class="btn-main" onclick="copyAndPaid('${l.p1}','${sk}','task')">COPY & MARK PAID</button>
                     </div>`;
                 }
 
-                // --- REFERRAL DISPLAY (Deep Logic) ---
                 if(l.p2 && l.p2.trim() !== "" && l.p2 !== "null") {
                     if(paidSet.has(rk)) {
                         hA.innerHTML += createHistoryCard(l.p2, o.t, o.r, "REF");
                     } else {
-                        // रेफरल ग्रुपिंग (Grouping logic to combine same UPI)
-                        if(!rG[l.p2]) rG[l.p2] = { total: 0, items: [] };
+                        if(!rG[l.p2]) rG[l.p2] = { total: 0, keys: [] };
                         rG[l.p2].total += o.r;
-                        rG[l.p2].items.push({ t: o.t, r: o.r, k: rk });
+                        rG[l.p2].keys.push(rk);
                     }
                 }
             });
 
-            // Pending Referrals को प्रिंट करना
             for (let [upi, d] of Object.entries(rG)) {
                 rc++;
-                let ks = JSON.stringify(d.items.map(i => i.k)); // सारी Keys एक साथ
-                rA.innerHTML += `<div class="card">
+                let cardId = upi.replace(/[^a-zA-Z0-9]/g, '');
+                rA.innerHTML += `<div class="card" id="card-${cardId}">
                     <div style="display:flex;justify-content:space-between">
-                        <div><div class="upi-txt">${upi}</div><div class="offer-txt">${d.items.length} Pending Referrals</div></div>
+                        <div><div class="upi-txt">${upi}</div><div class="offer-txt">${d.keys.length} Refs Pending</div></div>
                         <div class="amt-txt" style="color:#ffd700">₹${d.total}</div>
                     </div>
-                    <button class="btn-main" style="background:#ffd700" onclick='copyAndPaid("${upi}",${ks},this)'>COPY & MARK PAID ALL</button>
+                    <button class="btn-main" style="background:#ffd700" onclick='copyAndPaid("${upi}",${JSON.stringify(d.keys)},"ref","card-${cardId}")'>COPY & MARK PAID ALL</button>
                 </div>`;
             }
-
             document.getElementById('count-t').innerText = tc;
             document.getElementById('count-r').innerText = rc;
             document.getElementById('loader').style.display = 'none';
         }
 
-        // --- 4. HELPERS ---
         function createHistoryCard(u, t, a, type) {
             return `<div class="card card-history"><div style="display:flex;justify-content:space-between"><div><div class="upi-txt" style="color:#666">${u}</div><div style="font-size:10px;color:#444">${type}: ${t}</div></div><div style="font-weight:900;color:#00c851">₹${a} PAID</div></div></div>`;
         }
 
-        window.copyAndPaid = function(upi, keys, btn) {
+        window.copyAndPaid = function(upi, keys, type, refCardId) {
             navigator.clipboard.writeText(upi);
-            let confirmAction = confirm("✅ UPI Copied: " + upi + "\n\nक्या आपने पेमेंट कर दिया? (OK दबाते ही हिस्ट्री अपडेट होगी)");
-            if (confirmAction) {
-                btn.innerText = "SAVING...";
-                btn.style.opacity = "0.5";
+            if (confirm("✅ UPI Copied: " + upi + "\n\nMark as Paid?")) {
                 const kArr = Array.isArray(keys) ? keys : [keys];
+                const cardId = type === 'task' ? `card-${keys}` : refCardId;
                 
-                // गूगल शीट को अपडेट भेजना (Sequential Request)
+                // स्क्रीन से कार्ड गायब करो (बिना रिफ्रेश)
+                const card = document.getElementById(cardId);
+                if(card) {
+                    card.style.opacity = '0.3';
+                    card.style.transform = 'scale(0.9)';
+                    setTimeout(() => card.classList.add('hidden'), 300);
+                }
+
+                // काउंटर कम करो
+                let countId = type === 'task' ? 'count-t' : 'count-r';
+                let countEl = document.getElementById(countId);
+                countEl.innerText = Math.max(0, parseInt(countEl.innerText) - 1);
+
+                // गूगल शीट अपडेट (बिना पेज अटकाए)
                 kArr.forEach((k, i) => {
                     setTimeout(() => {
                         fetch(SCRIPT_URL + `?action=pay&key=${encodeURIComponent(k)}`, { mode: 'no-cors' });
-                    }, i * 400);
+                    }, i * 300);
                 });
-
-                // 2.5 सेकंड बाद पेज रिफ्रेश
-                setTimeout(() => location.reload(), 2500);
             }
         }
 
@@ -249,8 +175,6 @@
             ['tasks-area','referrals-area','history-area'].forEach(id => document.getElementById(id).classList.add('hidden'));
             document.getElementById(t + '-area').classList.remove('hidden');
         }
-        
-        // सिस्टम स्टार्ट
         init();
     </script>
 </body>
