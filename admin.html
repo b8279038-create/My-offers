@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>⚡ Admin Elite - Zero Error</title>
+    <title>💎 Elite Admin - Full Sync</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         body { margin: 0; background: #000; font-family: 'Poppins', sans-serif; color: white; padding-bottom: 60px; }
@@ -22,13 +22,13 @@
 </head>
 <body>
     <div class="container">
-        <div class="header"><div style="font-weight:900;">SECURE DASHBOARD</div><div id="status" style="font-size:10px; color:#00ff00;">● SYSTEM LIVE</div></div>
+        <div class="header"><div style="font-weight:900;">ELITE ADMIN</div><div id="status" style="font-size:10px; color:#00ff00;">● SYSTEM LIVE</div></div>
         <div class="tabs">
             <button class="tab-btn active" onclick="switchTab('tasks')">TASKS (<span id="count-t">0</span>)</button>
             <button class="tab-btn" onclick="switchTab('referrals')">REFS (<span id="count-r">0</span>)</button>
             <button class="tab-btn" onclick="switchTab('history')">HISTORY</button>
         </div>
-        <div id="loader" class="loader">⚙️ CONNECTING TO VISION SERVER...</div>
+        <div id="loader" class="loader">⚙️ DATA SYNC IN PROGRESS...</div>
         <div id="tasks-area"></div>
         <div id="referrals-area" class="hidden"></div>
         <div id="history-area" class="hidden"></div>
@@ -37,6 +37,7 @@
     <script>
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwfjyg_o0a_BUgiC0Iuoit3OTtzBHhkvVf8kg6XeI0DaCKVpBsbljCbpK-Tbb7uk-Dqvg/exec";
         const API_URL = "https://panel.visioncamp.in/api.php?auth-token=8df0570da65f3a1798408c942b82839a&report=1";
+        
         let paidSet = new Set(), leads = [], offers = {};
 
         async function init() {
@@ -45,29 +46,24 @@
                 const [dSheet, dOffer] = await Promise.all([rSheet.json(), rOffer.json()]);
                 dSheet.forEach(k => paidSet.add(k));
                 dOffer.forEach(o => offers[o.cid || o.id] = { t: o.title, u: parseInt(o.user_payout.replace(/\D/g,'')) || 0, r: parseInt(o.refer_payout.replace(/\D/g,'')) || 0 });
-                await fetchWithSpeed();
+                await fetchLeads();
             } catch(e) { console.error(e); }
         }
 
-        async function fetchWithSpeed() {
+        async function fetchLeads() {
             const paths = [
                 `https://api.allorigins.win/raw?url=${encodeURIComponent(API_URL)}&v=${Date.now()}`,
-                `https://corsproxy.io/?${encodeURIComponent(API_URL)}`,
-                `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(API_URL)}`
+                `https://corsproxy.io/?${encodeURIComponent(API_URL)}`
             ];
-
-            for (let p of paths) {
-                const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 3500); // 3.5 Second Timeout
-
+            for(let p of paths) {
                 try {
-                    const r = await fetch(p, { signal: controller.signal });
+                    const r = await fetch(p);
                     const j = await r.json();
                     leads = j.data || j;
-                    if (Array.isArray(leads)) { render(); clearTimeout(timeoutId); return; }
-                } catch (e) { console.log("Trying next channel..."); }
+                    if(Array.isArray(leads)) { render(); return; }
+                } catch(e) { continue; }
             }
-            document.getElementById('loader').innerText = "⚠️ DATA BUSY - REFRESH";
+            document.getElementById('loader').innerText = "⚠️ REFRESH PAGE";
         }
 
         function render() {
@@ -80,6 +76,7 @@
                 let o = offers[l.offerid] || { t: `Offer #${l.offerid}`, u: 0, r: 0 };
                 let sk = `${l.p1}_${l.offerid}_SELF`, rk = `${l.p2}_${l.offerid}_REF`;
 
+                // Self Tasks Logic
                 if(paidSet.has(sk)) hA.innerHTML += createCard(l.p1, o.t, o.u, "TASK");
                 else {
                     tc++;
@@ -92,7 +89,8 @@
                     </div>`;
                 }
 
-                if(l.p2 && l.p2.length > 5 && l.p2 !== l.p1) {
+                // Updated Referral Logic (No Strict Filter)
+                if(l.p2 && l.p2.trim() !== "" && l.p2 !== "null") {
                     if(paidSet.has(rk)) hA.innerHTML += createCard(l.p2, o.t, o.r, "REF");
                     else {
                         if(!rG[l.p2]) rG[l.p2] = { total: 0, items: [] };
