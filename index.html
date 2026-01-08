@@ -5,57 +5,64 @@
     <title>Promoter Panel</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
-        /* 1. पूरा डार्क थीम */
         body { margin: 0; padding: 0; background-color: #050505; font-family: 'Poppins', sans-serif; color: white; padding-bottom: 50px; }
         
-        /* 2. Header (Telegram Button के साथ) */
         .header {
             display: flex; justify-content: space-between; align-items: center;
             padding: 15px 20px; background: rgba(20, 20, 20, 0.95);
-            border-bottom: 1px solid #333; position: sticky; top: 0; z-index: 100;
+            border-bottom: 1px solid #333; position: sticky; top: 0; z-index: 50;
         }
         .logo { font-size: 16px; font-weight: 800; background: linear-gradient(to right, #00c6ff, #0072ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         .tg-btn { 
             background: linear-gradient(45deg, #0088cc, #005f8d); color: white; 
             text-decoration: none; padding: 8px 15px; border-radius: 20px; 
-            font-size: 12px; font-weight: bold; box-shadow: 0 4px 10px rgba(0,136,204,0.4); 
+            font-size: 12px; font-weight: bold; 
         }
 
-        /* 3. UPI और लिंक बनाने वाला हिस्सा */
-        .input-area { text-align: center; padding: 20px; }
-        .upi-box {
-            background: #1a1a1a; border: 1px solid #333; color: white;
-            padding: 15px; width: 85%; border-radius: 12px; font-family: 'Poppins', sans-serif;
-            text-align: center; font-size: 16px; outline: none; margin-bottom: 10px;
-        }
-        .upi-box:focus { border-color: #0072ff; }
-
-        /* 4. कार्ड डिजाइन (Cashcamps जैसा) */
-        .container { padding: 10px; max-width: 450px; margin: auto; }
+        .container { padding: 15px; max-width: 500px; margin: auto; }
         .card {
-            background: #121212; border-radius: 20px; padding: 20px; margin-bottom: 25px;
-            border: 1px solid #222; box-shadow: 0 10px 30px rgba(0,0,0,0.8);
-            text-align: center; position: relative;
+            background: #121212; border-radius: 20px; padding: 15px; margin-bottom: 20px;
+            border: 1px solid #222; box-shadow: 0 8px 20px rgba(0,0,0,0.6);
+            text-align: center; cursor: pointer; transition: transform 0.2s; position: relative;
         }
+        .card:active { transform: scale(0.98); }
         
-        .card img { 
-            width: 100%; height: 180px; object-fit: cover; border-radius: 15px; 
-            margin-bottom: 15px; border: 1px solid #333;
-        }
-        
-        .card h3 { margin: 0; font-size: 20px; font-weight: 800; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px; color: white;}
+        .card img { width: 100%; height: 180px; object-fit: cover; border-radius: 15px; margin-bottom: 10px; border: 1px solid #333; }
+        .card h3 { margin: 5px 0 15px; font-size: 20px; font-weight: 800; text-transform: uppercase; color: white; }
 
-        /* Rates Row */
-        .rates-row { display: flex; gap: 10px; justify-content: center; margin-bottom: 20px; }
+        .rates-row { display: flex; gap: 10px; justify-content: center; }
         .rate-box { 
-            background: #1f1f1f; padding: 10px; border-radius: 12px; width: 45%; 
+            background: #1f1f1f; padding: 10px; border-radius: 12px; width: 48%; 
             display: flex; flex-direction: column; align-items: center; border: 1px solid #333;
         }
-        .lbl { font-size: 10px; color: #888; text-transform: uppercase; margin-bottom: 5px; }
-        .price-user { font-size: 20px; font-weight: 800; color: #a450ff; text-shadow: 0 0 15px rgba(164, 80, 255, 0.3); } /* User का पैसा चमकता हुआ */
-        .price-ref { font-size: 20px; font-weight: 800; color: #ffffff; }
+        .lbl { font-size: 10px; color: #888; text-transform: uppercase; margin-bottom: 2px; }
+        .price-user { font-size: 18px; font-weight: 800; color: #a450ff; text-shadow: 0 0 10px rgba(164, 80, 255, 0.3); }
+        .price-ref { font-size: 18px; font-weight: 800; color: #ffffff; }
 
-        .action-btn {
+        .tap-hint { font-size: 12px; color: #555; margin-top: 10px; font-weight: 600; }
+
+        /* MODAL (POPUP) */
+        .modal-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9); z-index: 100; backdrop-filter: blur(5px);
+            align-items: center; justify-content: center;
+        }
+        .modal-box {
+            background: #121212; width: 85%; max-width: 400px; padding: 25px;
+            border-radius: 25px; border: 1px solid #333; text-align: center;
+            box-shadow: 0 0 30px rgba(0, 114, 255, 0.2); position: relative;
+        }
+        .close-btn { position: absolute; top: 15px; right: 20px; font-size: 24px; color: #888; cursor: pointer; }
+        .modal-title { font-size: 20px; font-weight: 800; margin-bottom: 20px; color: white; text-transform: uppercase;}
+        
+        .inp {
+            background: #1a1a1a; border: 1px solid #333; color: white;
+            padding: 15px; width: 90%; border-radius: 12px; 
+            font-family: 'Poppins', sans-serif; text-align: center; font-size: 16px; outline: none; margin-bottom: 15px;
+        }
+        .inp:focus { border-color: #0072ff; }
+
+        .copy-btn {
             background: white; color: black; width: 100%; padding: 15px; border: none;
             border-radius: 50px; font-weight: 900; font-size: 16px; cursor: pointer;
             text-transform: uppercase; letter-spacing: 1px;
@@ -69,58 +76,71 @@
         <a href="https://t.me/cashbackcampingn" class="tg-btn" target="_blank">✈️ Join Telegram</a>
     </div>
 
-    <div class="input-area">
-        <input type="text" id="myUpi" class="upi-box" placeholder="Enter Your UPI ID (Payment)">
-        <input type="text" id="myTg" class="upi-box" placeholder="Your Telegram Channel Link (Optional)">
+    <div class="container" id="cardList">
+        <p style="text-align:center; color:#555;">Loading Offer...</p>
     </div>
 
-    <div class="container" id="cardList">
-        <p style="text-align:center; color:#555;">Loading Offers...</p>
+    <div class="modal-overlay" id="modal">
+        <div class="modal-box">
+            <span class="close-btn" onclick="closeModal()">&times;</span>
+            <h3 class="modal-title" id="mTitle">OFFER NAME</h3>
+            <p style="color:#888; font-size:12px; margin-bottom:20px;">Apna UPI aur Telegram daal kar Link banayein 👇</p>
+
+            <input type="text" id="myUpi" class="inp" placeholder="Enter Your UPI ID (Payment)">
+            <input type="text" id="myTg" class="inp" placeholder="Your Telegram Link (Optional)">
+            <button class="copy-btn" onclick="generateLink()">COPY LINK 🔗</button>
+        </div>
     </div>
 
     <script>
+        let currentOfferId = null;
+
         fetch('offers.json').then(res => res.json()).then(data => {
             let html = '';
             data.forEach(o => {
                 html += `
-                <div class="card">
-                    <img src="${o.image}" onerror="this.src='https://via.placeholder.com/300x150?text=Offer+Image'">
+                <div class="card" onclick="openModal('${o.id}', '${o.title}')">
+                    <img src="${o.image}" onerror="this.src='https://via.placeholder.com/300x150?text=Error'">
                     <h3>${o.title}</h3>
                     <div class="rates-row">
                         <div class="rate-box">
-                            <span class="lbl">You Get</span>
+                            <span class="lbl">USER GET</span>
                             <span class="price-user">${o.user_payout}</span>
                         </div>
                         <div class="rate-box">
-                            <span class="lbl">Referral</span>
+                            <span class="lbl">REFERRAL</span>
                             <span class="price-ref">${o.refer_payout}</span>
                         </div>
                     </div>
-                    <button class="action-btn" onclick="makeLink('${o.id}')">Copy Link 🔗</button>
+                    <div class="tap-hint">👆 Tap to Create Link</div>
                 </div>`;
             });
             document.getElementById('cardList').innerHTML = html;
         });
 
-        function makeLink(id) {
+        function openModal(id, title) {
+            currentOfferId = id;
+            document.getElementById('mTitle').innerText = title;
+            document.getElementById('modal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('modal').style.display = 'none';
+        }
+
+        function generateLink() {
             let upi = document.getElementById('myUpi').value.trim();
             let tg = document.getElementById('myTg').value.trim();
 
-            if(!upi) { alert("⚠️ Bhai, pehle upar apni UPI ID daalo!"); return; }
+            if(!upi) { alert("⚠️ Bhai, Payment ke liye UPI to daalo!"); return; }
 
-            // 1. UPI Encrypt (Hide) karna
             let secretUpi = btoa(upi);
-
-            // 2. Link banana
-            let link = `https://${window.location.hostname}/user.html?id=${id}&ref=${secretUpi}`;
-            
-            // 3. Agar Telegram link dala hai, to use bhi jodo
-            if(tg) {
-                link += `&tg=${encodeURIComponent(tg)}`;
-            }
+            let link = `https://${window.location.hostname}/user.html?id=${currentOfferId}&ref=${secretUpi}`;
+            if(tg) { link += `&tg=${encodeURIComponent(tg)}`; }
 
             navigator.clipboard.writeText(link);
-            alert("✅ Link Copy Ho Gaya!\n\n(UPI Hidden Hai par System me aa jayegi)");
+            alert("✅ Link Copied!\nAb share karo.");
+            closeModal();
         }
     </script>
 </body>
