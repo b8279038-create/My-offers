@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>⚡ Live Payment Tracker - Pro</title>
+    <title>⚡ Live Payment Tracker - Ultra</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
         body { margin: 0; padding: 0; background-color: #000000; font-family: 'Poppins', sans-serif; color: white; text-align: center; }
@@ -23,6 +23,7 @@
         .ref-item { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px dashed #333; font-size: 13px; }
         .ref-count { font-weight: 800; color: #ffd700; }
         .loader { display: none; width: 30px; height: 30px; border: 3px solid #333; border-top: 3px solid #0072ff; border-radius: 50%; animation: spin 1s infinite; margin: 20px auto; }
+        .status-msg { font-size: 10px; color: #555; margin-top: 5px; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     </style>
@@ -35,10 +36,11 @@
 
         <div class="search-box">
             <input type="text" id="upi" class="inp" placeholder="Enter Your UPI ID...">
-            <button class="btn" onclick="startTracking()">CHECK</button>
+            <button class="btn" id="checkBtn" onclick="startTracking()">CHECK</button>
         </div>
 
         <div class="loader" id="loader"></div>
+        <div id="loader-msg" class="status-msg"></div>
 
         <div class="result-area" id="results">
             <div class="sec-title">✅ MY COMPLETED TASKS</div>
@@ -55,49 +57,85 @@
     </div>
 
     <script>
+        // --- मल्टी-प्रॉक्सी सिस्टम ---
+        async function fetchWithInfiniteLoop(url) {
+            const proxies = [
+                `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}&v=${Date.now()}`,
+                `https://corsproxy.io/?${encodeURIComponent(url)}`,
+                `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
+                `https://thingproxy.freeboard.io/fetch/${url}`
+            ];
+
+            let i = 0;
+            while (true) {
+                try {
+                    document.getElementById('loader-msg').innerText = `🔄 Engine ${i + 1} Connecting...`;
+                    const res = await fetch(proxies[i]);
+                    if (res.ok) {
+                        const json = await res.json();
+                        return json.data || json;
+                    }
+                } catch (e) {
+                    console.log(`Proxy ${i+1} failed`);
+                }
+
+                i = (i + 1) % proxies.length;
+                if (i === 0) {
+                    document.getElementById('loader-msg').innerText = "⏳ Traffic High... Retrying in 2s";
+                    await new Promise(r => setTimeout(r, 2000));
+                }
+            }
+        }
+
         async function startTracking() {
             let upiInput = document.getElementById('upi').value.trim().toLowerCase();
             if(!upiInput) return;
 
             document.getElementById('loader').style.display = 'block';
+            document.getElementById('loader-msg').style.display = 'block';
             document.getElementById('results').style.display = 'none';
+            document.getElementById('checkBtn').disabled = true;
 
             try {
-                // 1. Fetch Offers for Names
+                // 1. ऑफर्स डेटा
                 let offersRes = await fetch('offers.json');
                 let offersData = await offersRes.json();
                 let nameMap = {};
                 offersData.forEach(o => nameMap[o.cid || o.id] = o.title);
 
-                // 2. Fetch Data with Cache Buster (Force Fresh Data)
-                const apiUrl = `https://panel.visioncamp.in/api.php?auth-token=8df0570da65f3a1798408c942b82839a&report=1&v=${Date.now()}`;
-                const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(apiUrl)}`;
-                
-                let response = await fetch(proxyUrl);
-                let json = await response.json();
-                let leads = json.data || json;
+                // 2. विजन कैंप डेटा (Infinite Loop Call)
+                const apiUrl = `https://panel.visioncamp.in/api.php?auth-token=8df0570da65f3a1798408c942b82839a&report=1`;
+                let leads = await fetchWithInfiniteLoop(apiUrl);
 
                 let myTasksHtml = '';
                 let myRefers = {};
                 let totalRefCount = 0;
 
-                // 3. Deep Scan Logic
                 leads.forEach(lead => {
                     if(lead.status.toLowerCase() !== 'approved') return;
 
-                    // Check My Tasks (P1)
-                    if(lead.p1.toLowerCase() === upiInput) {
+                    // UPI डिकोडिंग हैंडलर (Security के लिए)
+                    let p1Raw = lead.p1.toLowerCase();
+                    let p2Raw = (lead.p2 || "").toLowerCase();
+
+                    // डिकोडिंग चाबी (अगर P2 कोड में है)
+                    let p2Clean = p2Raw;
+                    try {
+                        if (p2Raw.includes('==') || p2Raw.length > 15) { p2Clean = atob(p2Raw).toLowerCase(); }
+                    } catch(e) {}
+
+                    // Check My Tasks
+                    if(p1Raw === upiInput) {
                         myTasksHtml += `<div class="task-card"><span class="t-name">${nameMap[lead.offerid] || 'Offer #'+lead.offerid}</span><span class="t-status">PASSED</span></div>`;
                     }
 
-                    // Check My Referrals (P2) - Essential for Money Social & Free Fire
-                    if(lead.p2 && lead.p2.toLowerCase() === upiInput) {
+                    // Check My Referrals
+                    if(p2Clean === upiInput || p2Raw === upiInput) {
                         myRefers[lead.offerid] = (myRefers[lead.offerid] || 0) + 1;
                         totalRefCount++;
                     }
                 });
 
-                // 4. Update UI
                 document.getElementById('myTaskList').innerHTML = myTasksHtml || '<div style="color:#555; font-size:12px; text-align:center;">No tasks found.</div>';
                 document.getElementById('totalRefs').innerText = totalRefCount;
 
@@ -108,14 +146,15 @@
                 document.getElementById('refBreakdown').innerHTML = refHtml || '<div style="color:#555; font-size:11px; text-align:center;">No referrals yet.</div>';
 
                 document.getElementById('loader').style.display = 'none';
+                document.getElementById('loader-msg').style.display = 'none';
                 document.getElementById('results').style.display = 'block';
+                document.getElementById('checkBtn').disabled = false;
 
             } catch (err) {
-                alert("Server busy, please try again!");
-                document.getElementById('loader').style.display = 'none';
+                document.getElementById('loader-msg').innerText = "❌ Connection Failed. Try Again.";
+                document.getElementById('checkBtn').disabled = false;
             }
         }
     </script>
 </body>
 </html>
-
