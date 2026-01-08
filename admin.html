@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>⚡ Admin Pro - Fixed & Live</title>
+    <title>👑 Admin Original - Fixed Sync</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&display=swap" rel="stylesheet">
     <style>
         body { margin: 0; background: #000; font-family: 'Poppins', sans-serif; color: white; padding-bottom: 60px; }
@@ -12,26 +12,23 @@
         .tab-btn { flex: 1; padding: 12px; border: none; background: none; color: #777; font-weight: 700; font-size: 11px; border-radius: 9px; cursor: pointer; }
         .tab-btn.active { background: #0072ff; color: #fff; }
         .card { background: #111; padding: 16px; border-radius: 18px; margin-bottom: 12px; border: 1px solid #222; }
-        .card-task { border-left: 5px solid #00c6ff; }
-        .card-ref { border-left: 5px solid #ffd700; }
-        .card-history { opacity: 0.6; border-left: 5px solid #00c851; }
         .upi-txt { font-size: 14px; font-weight: 700; color: #eee; }
         .amt-tag { font-size: 20px; font-weight: 900; }
-        .action-btn { background: #fff; color: #000; border: none; padding: 12px; border-radius: 12px; font-weight: 900; width: 100%; margin-top: 12px; cursor: pointer; font-size: 12px; }
-        .details-list { display: none; margin-top: 10px; padding-top: 10px; border-top: 1px dashed #333; font-size: 11px; color: #999; }
+        .pay-btn { background: #fff; color: #000; border: none; padding: 12px; border-radius: 12px; font-weight: 900; width: 100%; margin-top: 12px; cursor: pointer; font-size: 12px; }
+        .details-box { display: none; margin-top: 10px; padding-top: 10px; border-top: 1px dashed #333; font-size: 11px; color: #999; }
         .loader { text-align: center; margin-top: 50px; color: #0072ff; font-weight: bold; }
         .hidden { display: none; }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="header"><div style="font-weight:900;">PRO ADMIN</div><div id="status" style="font-size:10px; color:#00ff00;">● LIVE</div></div>
+        <div class="header"><div style="font-weight:900;">PRO ADMIN</div><div id="status" style="font-size:10px; color:#00ff00;">● LIVE SYNC</div></div>
         <div class="tabs">
-            <button class="tab-btn active" onclick="switchTab('tasks')">TASKS (<span id="c-tasks">0</span>)</button>
-            <button class="tab-btn" onclick="switchTab('referrals')">REFS (<span id="c-refs">0</span>)</button>
+            <button class="tab-btn active" onclick="switchTab('tasks')">TASKS (<span id="c-t">0</span>)</button>
+            <button class="tab-btn" onclick="switchTab('referrals')">REFS (<span id="c-r">0</span>)</button>
             <button class="tab-btn" onclick="switchTab('history')">HISTORY</button>
         </div>
-        <div id="loader" class="loader">🔄 FETCHING LIVE API DATA...</div>
+        <div id="loader" class="loader">🔄 LOADING DATA...</div>
         <div id="tasks-area"></div>
         <div id="referrals-area" class="hidden"></div>
         <div id="history-area" class="hidden"></div>
@@ -39,7 +36,7 @@
 
     <script>
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwfjyg_o0a_BUgiC0Iuoit3OTtzBHhkvVf8kg6XeI0DaCKVpBsbljCbpK-Tbb7uk-Dqvg/exec";
-        const LEAD_API = "https://panel.visioncamp.in/api.php?auth-token=8df0570da65f3a1798408c942b82839a&report=1";
+        const API_URL = "https://panel.visioncamp.in/api.php?auth-token=8df0570da65f3a1798408c942b82839a&report=1";
         let paidSet = new Set(), rawLeads = [], offerMap = {};
 
         async function init() {
@@ -56,39 +53,39 @@
                 const resOffer = await fetch('offers.json');
                 const dataOffer = await resOffer.json();
                 dataOffer.forEach(o => {
-                    offerMap[o.cid || o.id] = { t: o.title, u: parseInt(o.user_payout.replace(/\D/g,'')) || 0, r: parseInt(o.refer_payout.replace(/\D/g,'')) || 0 };
+                    offerMap[o.cid || o.id] = { t: o.title, u: parseInt(o.user_payout.replace(/\D/g,'')), r: parseInt(o.refer_payout.replace(/\D/g,'')) };
                 });
-                await fetchLeads();
+                await fetchData();
             } catch(e) { console.error(e); }
         }
 
-        async function fetchLeads() {
-            const proxies = [
-                `https://api.allorigins.win/raw?url=${encodeURIComponent(LEAD_API)}`,
-                `https://corsproxy.io/?${encodeURIComponent(LEAD_API)}`
-            ];
-            for(let proxy of proxies) {
-                try {
-                    const res = await fetch(proxy);
-                    const json = await res.json();
-                    rawLeads = json.contents ? JSON.parse(json.contents).data : (json.data || json);
-                    if(Array.isArray(rawLeads)) { renderUI(); return; }
-                } catch(e) { continue; }
+        async function fetchData() {
+            // Updated reliable proxy logic
+            try {
+                const res = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(API_URL)}`);
+                const json = await res.json();
+                rawLeads = json.data || json;
+                if(Array.isArray(rawLeads)) render();
+                else throw new Error();
+            } catch(e) {
+                const res2 = await fetch(`https://corsproxy.io/?${encodeURIComponent(API_URL)}`);
+                const json2 = await res2.json();
+                rawLeads = json2.data || json2;
+                render();
             }
-            document.getElementById('loader').innerText = "❌ No Connection";
         }
 
-        function renderUI() {
+        function render() {
             let tArea = document.getElementById('tasks-area'), rArea = document.getElementById('referrals-area'), hArea = document.getElementById('history-area');
             tArea.innerHTML = ''; rArea.innerHTML = ''; hArea.innerHTML = '';
             let refGroups = {}, tCount = 0, rCount = 0;
 
             rawLeads.reverse().forEach(lead => {
                 if(lead.status.toLowerCase() !== 'approved') return;
-                let o = offerMap[lead.offerid] || { t: `Offer #${lead.offerid}`, u: 0, r: 0 };
+                let o = offerMap[lead.offerid] || { t: `Offer ${lead.offerid}`, u: 0, r: 0 };
                 let sKey = `${lead.p1}_${lead.offerid}_SELF`, rKey = `${lead.p2}_${lead.offerid}_REF`;
 
-                if(paidSet.has(sKey)) hArea.innerHTML += createHistoryCard(lead.p1, o.t, o.u, "TASK");
+                if(paidSet.has(sKey)) hArea.innerHTML += createCard(lead.p1, o.t, o.u, "TASK", "card-history");
                 else {
                     tCount++;
                     tArea.innerHTML += `
@@ -97,12 +94,12 @@
                             <div><div class="upi-txt">${lead.p1}</div><div style="font-size:10px;color:#666">${o.t}</div></div>
                             <div class="amt-tag">₹${o.u}</div>
                         </div>
-                        <button class="action-btn" onclick="securePay('${lead.p1}','${sKey}',this)">COPY ID & PAY</button>
+                        <button class="pay-btn" onclick="pay('${lead.p1}','${sKey}',this)">COPY ID & PAY</button>
                     </div>`;
                 }
 
                 if(lead.p2 && lead.p2.length > 5 && lead.p2 !== lead.p1) {
-                    if(paidSet.has(rKey)) hArea.innerHTML += createHistoryCard(lead.p2, o.t, o.r, "REFER");
+                    if(paidSet.has(rKey)) hArea.innerHTML += createCard(lead.p2, o.t, o.r, "REF", "card-history");
                     else {
                         if(!refGroups[lead.p2]) refGroups[lead.p2] = { total: 0, items: [] };
                         refGroups[lead.p2].total += o.r;
@@ -117,23 +114,23 @@
                 rArea.innerHTML += `
                 <div class="card card-ref">
                     <div style="display:flex;justify-content:space-between">
-                        <div><div class="upi-txt">${upi}</div><div style="font-size:10px;color:#666">${data.items.length} Refs Pending</div></div>
+                        <div><div class="upi-txt">${upi}</div><div style="font-size:10px;color:#666">${data.items.length} Pending</div></div>
                         <div class="amt-tag">₹${data.total}</div>
                     </div>
-                    <button class="action-btn" style="background:#ffd700" onclick='securePay("${upi}",${keys},this)'>COPY ID & PAY TOTAL (₹${data.total})</button>
-                    <button style="background:none;border:none;color:#0072ff;font-size:10px;margin-top:5px;cursor:pointer" onclick="this.nextElementSibling.style.display='block'">View Details ⌄</button>
-                    <div class="details-list">${details}</div>
+                    <button class="pay-btn" style="background:#ffcc00" onclick='pay("${upi}",${keys},this)'>COPY ID & PAY ALL</button>
+                    <button style="background:none;border:none;color:#0072ff;font-size:10px;margin-top:5px" onclick="this.nextElementSibling.style.display='block'">View Details ⌄</button>
+                    <div class="details-box">${details}</div>
                 </div>`;
             }
-            document.getElementById('c-tasks').innerText = tCount; document.getElementById('c-refs').innerText = rCount;
+            document.getElementById('c-t').innerText = tCount; document.getElementById('c-r').innerText = rCount;
             document.getElementById('loader').style.display = 'none';
         }
 
-        function createHistoryCard(u, t, a, type) {
-            return `<div class="card card-history"><div style="display:flex;justify-content:space-between"><div><div class="upi-txt">${u}</div><div style="font-size:10px">${type}: ${t}</div></div><div style="color:#00c851;font-weight:900">₹${a}</div></div></div>`;
+        function createCard(u, t, a, type, cls) {
+            return `<div class="card ${cls}"><div style="display:flex;justify-content:space-between"><div><div class="upi-txt">${u}</div><div style="font-size:10px">${type}: ${t}</div></div><div style="color:#00c851;font-weight:900">₹${a}</div></div></div>`;
         }
 
-        window.securePay = function(upi, keys, btn) {
+        window.pay = function(upi, keys, btn) {
             navigator.clipboard.writeText(upi);
             alert("✅ UPI ID Copied!");
             window.location.href = "upi://pay";
