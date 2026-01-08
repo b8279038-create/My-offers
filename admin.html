@@ -2,41 +2,32 @@
 <html>
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>💎 Admin Elite - Live Sync</title>
+    <title>⚡ Fast Admin Panel</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         body { margin: 0; background: #000; font-family: 'Inter', sans-serif; color: #fff; padding-bottom: 50px; }
         .container { max-width: 500px; margin: auto; padding: 12px; }
         .header { background: #0a0a0a; padding: 18px; border-bottom: 1px solid #1a1a1a; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 99; }
-        .live-dot { height: 8px; width: 8px; background: #00ff00; border-radius: 50%; display: inline-block; margin-right: 5px; box-shadow: 0 0 10px #00ff00; }
         .tabs { display: flex; gap: 8px; margin: 15px 0; background: #0f0f0f; padding: 6px; border-radius: 14px; border: 1px solid #1a1a1a; }
-        .tab-btn { flex: 1; padding: 12px; border: none; background: none; color: #666; font-weight: 700; font-size: 11px; border-radius: 10px; cursor: pointer; transition: 0.3s; }
+        .tab-btn { flex: 1; padding: 12px; border: none; background: none; color: #666; font-weight: 700; font-size: 11px; border-radius: 10px; cursor: pointer; }
         .tab-btn.active { background: #fff; color: #000; }
-        .card { background: #0a0a0a; padding: 16px; border-radius: 18px; margin-bottom: 12px; border: 1px solid #1a1a1a; position: relative; }
-        .card-task { border-left: 5px solid #0072ff; }
-        .card-ref { border-left: 5px solid #ffcc00; }
-        .card-history { opacity: 0.5; border-left: 5px solid #00c851; }
-        .upi { font-size: 15px; font-weight: 900; color: #fff; letter-spacing: 0.5px; }
-        .amt { font-size: 20px; font-weight: 900; color: #fff; }
-        .btn-pay { background: #fff; color: #000; border: none; padding: 12px; border-radius: 12px; font-weight: 900; width: 100%; margin-top: 12px; cursor: pointer; font-size: 12px; }
-        .btn-bulk { background: #ffcc00; color: #000; }
-        .details-panel { display: none; background: #111; padding: 10px; border-radius: 10px; margin-top: 10px; font-size: 11px; color: #888; border: 1px dashed #333; }
-        .loader { text-align: center; margin-top: 50px; font-weight: bold; color: #555; }
+        .card { background: #0a0a0a; padding: 16px; border-radius: 18px; margin-bottom: 12px; border: 1px solid #1a1a1a; }
+        .upi { font-size: 15px; font-weight: 900; }
+        .amt { font-size: 20px; font-weight: 900; }
+        .btn-pay { background: #fff; color: #000; border: none; padding: 12px; border-radius: 12px; font-weight: 900; width: 100%; margin-top: 12px; cursor: pointer; }
         .hidden { display: none; }
+        .loader { text-align: center; margin-top: 50px; font-weight: bold; color: #555; }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="header">
-            <div style="font-weight:900; font-size:18px;">DASHBOARD</div>
-            <div style="font-size:10px; color:#555;"><span class="live-dot"></span> LIVE SYNC ACTIVE</div>
-        </div>
+        <div class="header"><div style="font-weight:900;">DASHBOARD</div></div>
         <div class="tabs">
             <button class="tab-btn active" onclick="switchTab('tasks')">TASKS (<span id="count-tasks">0</span>)</button>
-            <button class="tab-btn" onclick="switchTab('referrals')">REFERRALS (<span id="count-refs">0</span>)</button>
+            <button class="tab-btn" onclick="switchTab('referrals')">REFS (<span id="count-refs">0</span>)</button>
             <button class="tab-btn" onclick="switchTab('history')">HISTORY</button>
         </div>
-        <div id="loader" class="loader">🔄 FETCHING LIVE API DATA...</div>
+        <div id="loader" class="loader">🔄 FETCHING LIVE DATA...</div>
         <div id="tasks-area"></div>
         <div id="referrals-area" class="hidden"></div>
         <div id="history-area" class="hidden"></div>
@@ -44,6 +35,8 @@
 
     <script>
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwfjyg_o0a_BUgiC0Iuoit3OTtzBHhkvVf8kg6XeI0DaCKVpBsbljCbpK-Tbb7uk-Dqvg/exec";
+        const API_URL = `https://panel.visioncamp.in/api.php?auth-token=8df0570da65f3a1798408c942b82839a&report=1`;
+        
         let paidSet = new Set(), rawLeads = [], offerMap = {};
 
         async function init() {
@@ -53,84 +46,82 @@
                 sessionStorage.setItem('adminLogged', 'true');
             }
             try {
-                // Fetch Data from multiple sources
-                await Promise.all([fetchPaidHistory(), fetchOffers()]);
-                await fetchLiveLeads();
-            } catch(e) { console.error("Sync Error: ", e); }
+                // 1. Fetch Google Sheets Data
+                let resS = await fetch(SCRIPT_URL);
+                let dataS = await resS.json();
+                dataS.forEach(k => paidSet.add(k));
+
+                // 2. Fetch Offers
+                let resO = await fetch('offers.json');
+                let dataO = await resO.json();
+                dataO.forEach(o => offerMap[o.cid || o.id] = { t: o.title, u: parseInt(o.user_payout.replace(/\D/g,'')), r: parseInt(o.refer_payout.replace(/\D/g,'')) });
+
+                // 3. Fetch Live Leads (With Fallback)
+                await fetchWithRetry();
+            } catch(e) { console.error(e); }
         }
 
-        async function fetchPaidHistory() {
-            let res = await fetch(SCRIPT_URL);
-            let data = await res.json();
-            data.forEach(k => paidSet.add(k));
-        }
-
-        async function fetchOffers() {
-            let res = await fetch('offers.json');
-            let data = await res.json();
-            data.forEach(o => {
-                offerMap[o.cid || o.id] = { 
-                    t: o.title, 
-                    u: parseInt(o.user_payout.replace(/\D/g,'')) || 0, 
-                    r: parseInt(o.refer_payout.replace(/\D/g,'')) || 0 
-                };
-            });
-        }
-
-        async function fetchLiveLeads() {
-            const api = `https://panel.visioncamp.in/api.php?auth-token=8df0570da65f3a1798408c942b82839a&report=1`;
-            const proxy = `https://api.allorigins.win/raw?url=${encodeURIComponent(api)}`;
-            let res = await fetch(proxy);
-            let json = await res.json();
-            rawLeads = json.contents ? JSON.parse(json.contents).data : (json.data || json);
-            renderDashboard();
+        async function fetchWithRetry() {
+            const proxy = `https://api.allorigins.win/raw?url=${encodeURIComponent(API_URL)}`;
+            try {
+                let res = await fetch(proxy);
+                let json = await res.json();
+                rawLeads = json.data || json;
+                renderDashboard();
+            } catch(e) {
+                // Last hope if proxy fails
+                document.getElementById('loader').innerText = "⚠️ RE-TRYING CONNECTION...";
+                let res2 = await fetch(`https://corsproxy.io/?${encodeURIComponent(API_URL)}`);
+                let json2 = await res2.json();
+                rawLeads = json2.data || json2;
+                renderDashboard();
+            }
         }
 
         function renderDashboard() {
             let tArea = document.getElementById('tasks-area'), rArea = document.getElementById('referrals-area'), hArea = document.getElementById('history-area');
-            tArea.innerHTML = ''; rArea.innerHTML = ''; hArea.innerHTML = '';
             let refGroups = {}, tCount = 0, rCount = 0;
+            
+            tArea.innerHTML = ''; rArea.innerHTML = ''; hArea.innerHTML = '';
+
+            if(!Array.isArray(rawLeads)) { document.getElementById('loader').innerText = "❌ NO DATA FOUND"; return; }
 
             rawLeads.reverse().forEach(lead => {
                 if(lead.status.toLowerCase() !== 'approved') return;
-                let o = offerMap[lead.offerid] || { t: `Unknown Offer (${lead.offerid})`, u: 0, r: 0 };
-                let selfKey = `${lead.p1}_${lead.offerid}_SELF`, refKey = `${lead.p2}_${lead.offerid}_REF`;
+                let o = offerMap[lead.offerid] || { t: `Offer ${lead.offerid}`, u: 0, r: 0 };
+                let sKey = `${lead.p1}_${lead.offerid}_SELF`, rKey = `${lead.p2}_${lead.offerid}_REF`;
 
-                if(paidSet.has(selfKey)) hArea.innerHTML += createHistoryCard(lead.p1, o.t, o.u, "TASK");
+                if(paidSet.has(sKey)) hArea.innerHTML += createHistoryCard(lead.p1, o.t, o.u, "TASK");
                 else {
                     tCount++;
                     tArea.innerHTML += `
-                    <div class="card card-task">
-                        <div style="display:flex;justify-content:space-between;align-items:center">
-                            <div><div class="upi">${lead.p1}</div><div style="font-size:10px;color:#666">${o.t}</div></div>
+                    <div class="card">
+                        <div style="display:flex;justify-content:space-between">
+                            <div><div class="upi">${lead.p1}</div><div style="font-size:10px;color:#555">${o.t}</div></div>
                             <div class="amt">₹${o.u}</div>
                         </div>
-                        <button class="btn-pay" onclick="payAndClear('${lead.p1}','${selfKey}',this)">COPY ID & OPEN APP</button>
+                        <button class="btn-pay" onclick="payAndMark('${lead.p1}','${sKey}',this)">COPY & PAY</button>
                     </div>`;
                 }
 
                 if(lead.p2 && lead.p2.length > 5 && lead.p2 !== lead.p1) {
-                    if(paidSet.has(refKey)) hArea.innerHTML += createHistoryCard(lead.p2, o.t, o.r, "REFERRAL");
+                    if(paidSet.has(rKey)) hArea.innerHTML += createHistoryCard(lead.p2, o.t, o.r, "REFER");
                     else {
-                        if(!refGroups[lead.p2]) refGroups[lead.p2] = { total: 0, items: [] };
-                        refGroups[lead.p2].total += o.r;
-                        refGroups[lead.p2].items.push({ t: o.t, r: o.r, k: refKey });
+                        if(!refGroups[lead.p2]) refGroups[lead.p2] = { total: 0, count: 0, keys: [] };
+                        refGroups[lead.p2].total += o.r; refGroups[lead.p2].count++; refGroups[lead.p2].keys.push(rKey);
                     }
                 }
             });
 
-            for (let [upi, data] of Object.entries(refGroups)) {
+            for (let [upi, d] of Object.entries(refGroups)) {
                 rCount++;
-                let keys = JSON.stringify(data.items.map(i => i.k)), details = data.items.map(i => `<div>• ${i.t}: ₹${i.r}</div>`).join('');
                 rArea.innerHTML += `
-                <div class="card card-ref">
-                    <div style="display:flex;justify-content:space-between;align-items:center">
-                        <div><div class="upi">${upi}</div><div style="font-size:10px;color:#666">${data.items.length} Referrals Pending</div></div>
-                        <div class="amt">₹${data.total}</div>
+                <div class="card">
+                    <div style="display:flex;justify-content:space-between">
+                        <div><div class="upi">${upi}</div><div style="font-size:10px;color:#555">${d.count} Refs Pending</div></div>
+                        <div class="amt">₹${d.total}</div>
                     </div>
-                    <button class="btn-pay btn-bulk" onclick='payAndClear("${upi}",${keys},this)'>COPY ID & PAY TOTAL (₹${data.total})</button>
-                    <button style="background:none;border:none;color:#0072ff;font-size:10px;margin-top:8px;cursor:pointer" onclick="this.nextElementSibling.style.display='block'">View Offer Details ⌄</button>
-                    <div class="details-panel">${details}</div>
+                    <button class="btn-pay" style="background:#ffcc00" onclick='payAndMark("${upi}",${JSON.stringify(d.keys)},this)'>COPY & PAY ALL</button>
                 </div>`;
             }
             document.getElementById('count-tasks').innerText = tCount;
@@ -139,29 +130,23 @@
         }
 
         function createHistoryCard(upi, t, a, type) {
-            return `<div class="card card-history"><div style="display:flex;justify-content:space-between;align-items:center"><div><div class="upi" style="color:#555">${upi}</div><div style="font-size:10px;color:#444">${type}: ${t}</div></div><div style="color:#00c851;font-weight:900">₹${a} PAID</div></div></div>`;
+            return `<div class="card" style="opacity:0.4"><div style="display:flex;justify-content:space-between"><div><div class="upi">${upi}</div><div style="font-size:10px">${type}: ${t}</div></div><div style="color:#00c851;font-weight:900">₹${a} PAID</div></div></div>`;
         }
 
-        window.payAndClear = function(upi, keys, btn) {
+        window.payAndMark = function(upi, keys, btn) {
             navigator.clipboard.writeText(upi);
-            alert("✅ UPI ID Copied!\n\nPay Manually in your Payment App.");
-            window.location.href = "upi://pay"; // Open App Chooser with NO DATA
-            btn.innerText = "UPDATING SYNC...";
-            btn.disabled = true;
-
-            const keyArr = Array.isArray(keys) ? keys : [keys];
-            keyArr.forEach((k, i) => {
-                setTimeout(() => fetch(SCRIPT_URL + `?action=pay&key=${encodeURIComponent(k)}`, { mode: 'no-cors' }), i * 350);
-            });
+            alert("UPI ID Copied!");
+            window.location.href = "upi://pay";
+            btn.innerText = "UPDATING...";
+            const kArr = Array.isArray(keys) ? keys : [keys];
+            kArr.forEach((k, i) => setTimeout(() => fetch(SCRIPT_URL + `?action=pay&key=${encodeURIComponent(k)}`, { mode: 'no-cors' }), i * 350));
             setTimeout(() => location.reload(), 2500);
         }
 
         window.switchTab = function(t) {
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             event.target.classList.add('active');
-            document.getElementById('tasks-area').classList.add('hidden');
-            document.getElementById('referrals-area').classList.add('hidden');
-            document.getElementById('history-area').classList.add('hidden');
+            ['tasks-area','referrals-area','history-area'].forEach(id => document.getElementById(id).classList.add('hidden'));
             document.getElementById(t + '-area').classList.remove('hidden');
         }
         init();
