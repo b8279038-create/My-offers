@@ -12,7 +12,7 @@
         .search-box { background: #111; border: 1px solid #333; padding: 5px; border-radius: 50px; display: flex; align-items: center; margin-bottom: 25px; }
         .inp { background: transparent; border: none; color: white; padding: 10px 15px; width: 100%; outline: none; font-size: 15px; font-weight: 600; }
         .btn { background: #0072ff; color: white; border: none; padding: 10px 25px; border-radius: 40px; font-weight: 800; cursor: pointer; font-size: 14px; }
-        .result-area { display: none; text-align: left; }
+        .result-area { display: none; text-align: left; animation: fadeInUp 0.5s; }
         .sec-title { font-size: 12px; color: #888; font-weight: 800; letter-spacing: 1px; margin: 20px 0 10px 0; border-bottom: 1px solid #222; padding-bottom: 5px; }
         .task-card { background: rgba(0, 255, 0, 0.05); border: 1px solid #00ff00; padding: 12px; border-radius: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
         .t-name { font-weight: 700; font-size: 14px; }
@@ -21,18 +21,17 @@
         .ref-total { font-size: 32px; font-weight: 900; color: #00c6ff; }
         .ref-label { font-size: 12px; color: #888; margin-bottom: 15px; }
         .ref-item { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px dashed #333; font-size: 13px; }
-        .ref-item:last-child { border-bottom: none; }
         .ref-count { font-weight: 800; color: #ffd700; }
         .loader { display: none; width: 30px; height: 30px; border: 3px solid #333; border-top: 3px solid #0072ff; border-radius: 50%; animation: spin 1s infinite; margin: 20px auto; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .error-msg { color: #ff4444; font-size: 12px; display: none; margin-top: 10px; text-align: center;}
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
     <div class="container">
         <div class="logo">⚡ Payment Tracker</div>
-        <p class="sub-txt">Check your Completed Offers & Referrals</p>
+        <p class="sub-txt">Enter your UPI to check your Live Status</p>
 
         <div class="search-box">
             <input type="text" id="upi" class="inp" placeholder="Enter Your UPI ID...">
@@ -40,96 +39,83 @@
         </div>
 
         <div class="loader" id="loader"></div>
-        <div class="error-msg" id="errMsg"></div>
 
         <div class="result-area" id="results">
-            <div id="myTaskSection">
-                <div class="sec-title">✅ MY COMPLETED OFFERS</div>
-                <div id="myTaskList"></div>
-            </div>
+            <div class="sec-title">✅ MY COMPLETED TASKS</div>
+            <div id="myTaskList"></div>
 
-            <div id="refSection">
-                <div class="sec-title">👥 MY REFERRAL DASHBOARD</div>
-                <div class="ref-summary-box">
-                    <div class="ref-total" id="totalRefs">0</div>
-                    <div class="ref-label">Total Successful Refers</div>
-                    <div id="refBreakdown"></div>
-                </div>
+            <div class="sec-title">👥 REFERRAL STATUS (LIVE)</div>
+            <div class="ref-summary-box">
+                <div class="ref-total" id="totalRefs">0</div>
+                <div class="ref-label">Total Valid Referrals</div>
+                <div id="refBreakdown"></div>
             </div>
+            <p style="font-size: 10px; color: #555; text-align: center;">*Updates every 5-10 mins from server</p>
         </div>
     </div>
 
     <script>
-        // --- POWER PROXY SYSTEM ---
-        async function fetchWithFailover(targetUrl) {
-            const proxies = [
-                `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`,
-                `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`,
-                `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(targetUrl)}`,
-                `https://thingproxy.freeboard.io/fetch/${targetUrl}`
-            ];
-
-            for (let proxy of proxies) {
-                try {
-                    let response = await fetch(proxy);
-                    if (!response.ok) continue;
-                    let data = await response.json();
-                    let finalData = data.data || data;
-                    if (Array.isArray(finalData)) return finalData;
-                } catch (err) { continue; }
-            }
-            throw new Error("Connection failed");
-        }
-
         async function startTracking() {
-            let upi = document.getElementById('upi').value.trim();
-            if(!upi) return;
+            let upiInput = document.getElementById('upi').value.trim().toLowerCase();
+            if(!upiInput) return;
 
             document.getElementById('loader').style.display = 'block';
             document.getElementById('results').style.display = 'none';
-            document.getElementById('errMsg').style.display = 'none';
 
             try {
+                // 1. Fetch Offers for Names
                 let offersRes = await fetch('offers.json');
                 let offersData = await offersRes.json();
                 let nameMap = {};
                 offersData.forEach(o => nameMap[o.cid || o.id] = o.title);
 
-                const apiKey = "8df0570da65f3a1798408c942b82839a"; 
-                const targetUrl = `https://panel.visioncamp.in/api.php?auth-token=${apiKey}&report=1`;
+                // 2. Fetch Data with Cache Buster (Force Fresh Data)
+                const apiUrl = `https://panel.visioncamp.in/api.php?auth-token=8df0570da65f3a1798408c942b82839a&report=1&v=${Date.now()}`;
+                const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(apiUrl)}`;
                 
-                let leads = await fetchWithFailover(targetUrl);
+                let response = await fetch(proxyUrl);
+                let json = await response.json();
+                let leads = json.data || json;
 
-                let myTasks = [], myRefers = {}, totalRefCount = 0;
+                let myTasksHtml = '';
+                let myRefers = {};
+                let totalRefCount = 0;
 
-                leads.reverse().forEach(lead => {
+                // 3. Deep Scan Logic
+                leads.forEach(lead => {
                     if(lead.status.toLowerCase() !== 'approved') return;
-                    if(lead.p1 === upi) myTasks.push({ name: nameMap[lead.offerid] || `Offer #${lead.offerid}` });
-                    if(lead.p2 === upi) {
+
+                    // Check My Tasks (P1)
+                    if(lead.p1.toLowerCase() === upiInput) {
+                        myTasksHtml += `<div class="task-card"><span class="t-name">${nameMap[lead.offerid] || 'Offer #'+lead.offerid}</span><span class="t-status">PASSED</span></div>`;
+                    }
+
+                    // Check My Referrals (P2) - Essential for Money Social & Free Fire
+                    if(lead.p2 && lead.p2.toLowerCase() === upiInput) {
                         myRefers[lead.offerid] = (myRefers[lead.offerid] || 0) + 1;
                         totalRefCount++;
                     }
                 });
 
-                document.getElementById('myTaskList').innerHTML = myTasks.length ? myTasks.map(t => `<div class="task-card"><span class="t-name">${t.name}</span><span class="t-status">PASSED</span></div>`).join('') : '<div style="color:#555; font-size:12px; text-align:center; padding:10px;">No completed tasks.</div>';
-
+                // 4. Update UI
+                document.getElementById('myTaskList').innerHTML = myTasksHtml || '<div style="color:#555; font-size:12px; text-align:center;">No tasks found.</div>';
                 document.getElementById('totalRefs').innerText = totalRefCount;
+
                 let refHtml = '';
                 for (let [oid, count] of Object.entries(myRefers)) {
-                    refHtml += `<div class="ref-item"><span>${nameMap[oid] || `Offer #${oid}`}</span><span class="ref-count">${count} Leads ✅</span></div>`;
+                    refHtml += `<div class="ref-item"><span>${nameMap[oid] || 'Offer #'+oid}</span><span class="ref-count">${count} Done</span></div>`;
                 }
-                document.getElementById('refBreakdown').innerHTML = refHtml || '<div style="color:#555; font-size:11px;">No referrals.</div>';
+                document.getElementById('refBreakdown').innerHTML = refHtml || '<div style="color:#555; font-size:11px; text-align:center;">No referrals yet.</div>';
 
                 document.getElementById('loader').style.display = 'none';
                 document.getElementById('results').style.display = 'block';
 
             } catch (err) {
+                alert("Server busy, please try again!");
                 document.getElementById('loader').style.display = 'none';
-                document.getElementById('errMsg').style.display = 'block';
-                document.getElementById('errMsg').innerText = "⚠️ Connection issue. Retrying...";
-                setTimeout(startTracking, 5000); // Auto-retry for user
             }
         }
     </script>
 </body>
 </html>
+
