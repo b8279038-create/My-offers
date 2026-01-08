@@ -2,80 +2,74 @@
 <html>
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🚀 Pro Admin Dashboard</title>
+    <title>⚡ Ultimate Admin Panel</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&display=swap" rel="stylesheet">
     <style>
         body { margin: 0; padding: 0; background-color: #050505; font-family: 'Poppins', sans-serif; color: white; padding-bottom: 80px; }
-        .container { max-width: 600px; margin: auto; padding: 15px; }
+        .container { max-width: 600px; margin: auto; padding: 10px; }
 
         /* HEADER */
         .header { 
-            background: rgba(20, 20, 20, 0.95); padding: 15px; border-radius: 16px; border: 1px solid #333;
-            display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;
-            position: sticky; top: 10px; z-index: 100; backdrop-filter: blur(10px); box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            background: #111; padding: 15px; border-radius: 15px; border: 1px solid #333;
+            display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;
+            position: sticky; top: 10px; z-index: 100; box-shadow: 0 10px 30px rgba(0,0,0,0.8);
         }
-        .title { font-size: 16px; font-weight: 900; background: linear-gradient(to right, #fff, #aaa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .status-dot { height: 8px; width: 8px; background: #00ff00; border-radius: 50%; display: inline-block; box-shadow: 0 0 8px #00ff00; }
+        .title { font-size: 16px; font-weight: 900; color:white; letter-spacing: 1px; }
+        .status-dot { height: 10px; width: 10px; background: #00ff00; border-radius: 50%; display: inline-block; box-shadow: 0 0 10px #00ff00; }
 
-        /* MONEY METER */
-        .money-card {
-            background: linear-gradient(135deg, #111, #1a1a1a); border: 1px solid #333;
-            padding: 20px; border-radius: 20px; text-align: center; margin-bottom: 25px;
-            position: relative; overflow: hidden;
+        /* TABS (3 SECTIONS) */
+        .tabs { display: flex; gap: 5px; margin-bottom: 15px; background: #1a1a1a; padding: 5px; border-radius: 12px; }
+        .tab-btn { 
+            flex: 1; padding: 10px; border: none; background: none; color: #888; 
+            font-weight: 700; font-size: 12px; border-radius: 8px; cursor: pointer; transition: 0.3s;
         }
-        .money-card::before { content:''; position:absolute; top:-50%; left:-50%; width:200%; height:200%; background: radial-gradient(circle, rgba(0,114,255,0.1) 0%, transparent 70%); }
-        
-        .total-lbl { font-size: 12px; color: #888; text-transform: uppercase; letter-spacing: 2px; font-weight: bold; }
-        .total-amt { font-size: 36px; font-weight: 900; color: #fff; margin: 5px 0; text-shadow: 0 0 20px rgba(255,255,255,0.2); }
-        .stats-row { display: flex; justify-content: center; gap: 20px; margin-top: 10px; font-size: 12px; color: #aaa; }
-        .stat-val { color: #fff; font-weight: bold; }
+        .tab-btn.active { background: #0072ff; color: white; box-shadow: 0 4px 10px rgba(0, 114, 255, 0.4); }
 
         /* SEARCH */
         .search-inp { 
-            width: 92%; background: #111; border: 1px solid #333; color: white; padding: 14px; 
-            border-radius: 12px; outline: none; font-weight: bold; margin-bottom: 20px; font-size: 14px;
-            transition: 0.3s;
+            width: 93%; background: #111; border: 1px solid #333; color: white; padding: 12px; 
+            border-radius: 10px; outline: none; font-weight: bold; margin-bottom: 15px;
         }
-        .search-inp:focus { border-color: #0072ff; box-shadow: 0 0 15px rgba(0, 114, 255, 0.2); }
+        .search-inp:focus { border-color: #0072ff; }
 
-        /* LIST CARDS */
+        /* CARDS */
         .card { 
-            background: #111; padding: 15px; border-radius: 16px; margin-bottom: 12px; 
-            border: 1px solid #222; position: relative; transition: transform 0.2s;
+            background: #111; padding: 15px; border-radius: 16px; margin-bottom: 10px; 
+            border: 1px solid #222; position: relative;
         }
-        .card:active { transform: scale(0.98); }
         
-        .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
-        .badge { font-size: 9px; padding: 4px 8px; border-radius: 6px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; }
-        .b-task { background: rgba(0, 198, 255, 0.15); color: #00c6ff; border: 1px solid rgba(0, 198, 255, 0.3); }
-        .b-ref { background: rgba(255, 215, 0, 0.15); color: #ffd700; border: 1px solid rgba(255, 215, 0, 0.3); }
-        
-        .date { font-size: 10px; color: #555; font-weight: 600; }
+        /* TASK CARD STYLE */
+        .card-task { border-left: 4px solid #00c6ff; }
+        /* REFER CARD STYLE */
+        .card-ref { border-left: 4px solid #ffd700; }
+        /* PAID CARD STYLE */
+        .card-paid { opacity: 0.6; border-left: 4px solid #00c851; background: #0a0a0a; }
 
-        .upi-row { display: flex; justify-content: space-between; align-items: center; }
-        .upi { font-size: 15px; font-weight: 700; color: #eee; letter-spacing: 0.5px; }
-        .offer-name { font-size: 11px; color: #888; margin-top: 2px; }
-
-        .action-row { 
-            margin-top: 12px; padding-top: 12px; border-top: 1px dashed #333; 
-            display: flex; justify-content: space-between; align-items: center; 
-        }
+        .row { display: flex; justify-content: space-between; align-items: center; }
+        .upi { font-size: 14px; font-weight: 700; color: #eee; letter-spacing: 0.5px; }
+        .sub-txt { font-size: 10px; color: #888; margin-top: 3px; }
         
         .amt-tag { font-size: 18px; font-weight: 900; color: #fff; }
         
+        /* BUTTONS */
         .pay-btn { 
-            background: white; color: black; border: none; padding: 8px 20px; 
-            border-radius: 50px; font-weight: 900; cursor: pointer; font-size: 12px;
-            box-shadow: 0 4px 15px rgba(255,255,255,0.2); display: flex; align-items: center; gap: 5px;
+            background: linear-gradient(90deg, #fff, #ddd); color: black; border: none; padding: 8px 15px; 
+            border-radius: 50px; font-weight: 900; cursor: pointer; font-size: 11px;
+            box-shadow: 0 0 10px rgba(255,255,255,0.2);
         }
-        
-        /* PAID STATE */
-        .card.paid { opacity: 0.5; border-color: #00c851; background: rgba(0, 200, 81, 0.05); }
-        .card.paid .amt-tag { color: #00c851; text-decoration: line-through; }
-        .card.paid .badge { background: #00c851; color: black; border: none; }
-        
-        .loader { text-align: center; color: #0072ff; margin-top: 50px; font-weight: bold; font-size: 14px; }
-        .error { color: #ff4444; text-align: center; font-size: 12px; margin-top: 10px; }
+        .bulk-btn {
+            background: linear-gradient(90deg, #ffd700, #ffaa00); color: black; width: 100%;
+            margin-top: 10px; padding: 10px; border-radius: 8px; font-weight: 800; border: none;
+            cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 5px;
+        }
+
+        /* EXPANDABLE SECTION */
+        .expand-list { display: none; margin-top: 10px; padding-top: 10px; border-top: 1px dashed #333; }
+        .mini-item { display: flex; justify-content: space-between; padding: 5px 0; font-size: 11px; color: #aaa; }
+        .toggle-btn { background: none; border: none; color: #0072ff; font-size: 10px; font-weight: bold; cursor: pointer; float: right; }
+
+        .loader { text-align: center; color: #0072ff; margin-top: 50px; font-weight: bold; }
+        .hidden { display: none; }
     </style>
 </head>
 <body>
@@ -83,236 +77,276 @@
     <div class="container">
         <div class="header">
             <div class="title"><span class="status-dot"></span> ADMIN PANEL</div>
-            <div id="connStatus" style="font-size:10px; color:#666;">Connecting...</div>
+            <div id="status" style="font-size:10px; color:#666;">Syncing...</div>
         </div>
 
-        <div class="money-card">
-            <div class="total-lbl">Pending Payouts</div>
-            <div class="total-amt" id="totalPending">₹0</div>
-            <div class="stats-row">
-                <span>Tasks: <span id="countTasks" class="stat-val">0</span></span>
-                <span>Referrals: <span id="countRefs" class="stat-val">0</span></span>
-                <span>Paid Today: <span id="countPaid" class="stat-val" style="color:#00c851;">0</span></span>
-            </div>
+        <input type="text" id="searchBox" class="search-inp" placeholder="🔍 Search UPI / Number..." onkeyup="handleSearch()">
+
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('tasks')">MY TASKS (<span id="cTask">0</span>)</button>
+            <button class="tab-btn" onclick="switchTab('referrals')">REFERRALS (<span id="cRef">0</span>)</button>
+            <button class="tab-btn" onclick="switchTab('history')">HISTORY</button>
         </div>
 
-        <input type="text" id="searchBox" class="search-inp" placeholder="🔍 Search UPI (e.g. pathak...)" onkeyup="filterData()">
-
-        <div id="loader" class="loader">
-            ⏳ Fetching Live Data...<br>
-            <span style="font-size:10px; color:#666; font-weight:normal;">(Checking 4 Servers)</span>
-        </div>
-        <div id="errorBox" class="error"></div>
-
-        <div id="listArea"></div>
+        <div id="loader" class="loader">🔄 Fetching Live Data...</div>
+        
+        <div id="tasks-area"></div>
+        <div id="referrals-area" class="hidden"></div>
+        <div id="history-area" class="hidden"></div>
     </div>
 
     <script>
-        // --- CONFIGURATION (YOUR LINKS) ---
-        const FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLSey891Fma_ZVh30EqVzmypxIp6bNn0pxYFMzSN2GJbBvslQpQ/formResponse";
-        const ENTRY_ID = "entry.1285085795";
-        const SHEET_ID = "1fv5jJ32MjEVI976q9mxverORoF4Zfnmj2yScxRpcBmk"; 
-        const SHEET_CSV = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv`;
+        // ✅ YOUR DEPLOYED SCRIPT URL (Don't Change)
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwfjyg_o0a_BUgiC0Iuoit3OTtzBHhkvVf8kg6XeI0DaCKVpBsbljCbpK-Tbb7uk-Dqvg/exec";
 
         let paidSet = new Set();
-        let allCards = [];
+        let rawLeads = [];
+        let offerMap = {};
 
         async function init() {
-            // Admin Password
-            if(!sessionStorage.getItem('adminAuth')) {
+            // Password Protection
+            if(!sessionStorage.getItem('adminLogged')) {
                 let p = prompt("🔐 Enter Admin Password:");
-                if(p !== "Pathak123") {
-                    document.body.innerHTML = "<h2 style='text-align:center; color:#fff; margin-top:50px;'>⛔ WRONG PASSWORD</h2>";
-                    return;
-                }
-                sessionStorage.setItem('adminAuth', 'true');
+                if(p !== "Pathak123") { document.body.innerHTML = "<h2 style='text-align:center;color:white;margin-top:50px;'>⛔ WRONG PASSWORD</h2>"; return; }
+                sessionStorage.setItem('adminLogged', 'true');
             }
 
             try {
-                // 1. Get Paid History
-                await fetchSheetData();
-                
-                // 2. Get Offers (Prices)
-                let offersRes = await fetch('offers.json');
-                let offersData = await offersRes.json();
-                let offerMap = {};
-                offersData.forEach(o => {
-                    let userP = parseInt(o.user_payout.replace(/[^0-9]/g, '')) || 0;
-                    let refP = parseInt(o.refer_payout.replace(/[^0-9]/g, '')) || 0;
-                    
-                    let data = { title: o.title, userPrice: userP, refPrice: refP };
-                    if(o.cid) offerMap[o.cid] = data;
-                    if(o.id) offerMap[o.id] = data;
+                // 1. Fetch Paid Data (Instant from Google Script)
+                await fetchPaidHistory();
+
+                // 2. Fetch Offer Prices
+                let oRes = await fetch('offers.json');
+                let oData = await oRes.json();
+                oData.forEach(o => {
+                    let uP = parseInt(o.user_payout.replace(/[^0-9]/g, '')) || 0;
+                    let rP = parseInt(o.refer_payout.replace(/[^0-9]/g, '')) || 0;
+                    if(o.cid) offerMap[o.cid] = { t: o.title, u: uP, r: rP };
+                    if(o.id) offerMap[o.id] = { t: o.title, u: uP, r: rP };
                 });
 
-                // 3. Get Leads (Multi-Proxy)
-                await fetchLeads(offerMap);
+                // 3. Fetch Live Leads (Multi-Proxy)
+                await fetchLiveLeads();
 
-            } catch(e) {
-                document.getElementById('loader').style.display = 'none';
-                document.getElementById('errorBox').innerText = "System Error: " + e.message;
-            }
+            } catch(e) { alert("System Error: " + e.message); }
         }
 
-        // --- ROBUST PROXY SYSTEM ---
-        async function fetchLeads(offerMap) {
+        async function fetchPaidHistory() {
+            try {
+                let res = await fetch(SCRIPT_URL);
+                let data = await res.json();
+                data.forEach(k => paidSet.add(k));
+                document.getElementById('status').innerText = "🟢 Online";
+                document.getElementById('status').style.color = "#00ff00";
+            } catch(e) { console.warn("History Sync Failed"); }
+        }
+
+        async function fetchLiveLeads() {
             const apiKey = "8df0570da65f3a1798408c942b82839a";
             const target = `https://panel.visioncamp.in/api.php?auth-token=${apiKey}&report=1`;
-
+            // Redundant Proxies
             const proxies = [
                 `https://api.allorigins.win/raw?url=${encodeURIComponent(target)}`,
                 `https://corsproxy.io/?${encodeURIComponent(target)}`,
-                `https://thingproxy.freeboard.io/fetch/${target}`,
-                `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(target)}`
+                `https://thingproxy.freeboard.io/fetch/${target}`
             ];
 
-            let leads = null;
+            let success = false;
             for(let proxy of proxies) {
                 try {
                     let res = await fetch(proxy);
-                    if(!res.ok) throw new Error("X");
                     let json = await res.json();
-                    
-                    if(json.contents) leads = JSON.parse(json.contents).data || [];
-                    else if(json.data) leads = json.data;
-                    else leads = json;
-                    
-                    document.getElementById('connStatus').innerText = "🟢 Online";
-                    document.getElementById('connStatus').style.color = "#00ff00";
+                    rawLeads = json.contents ? JSON.parse(json.contents).data : (json.data || json);
+                    if(!Array.isArray(rawLeads)) rawLeads = [];
+                    success = true;
                     break;
                 } catch(e) { continue; }
             }
-
-            if(!leads) throw new Error("All Servers Busy. Try later.");
-            renderDashboard(leads, offerMap);
+            
+            if(!success) { document.getElementById('loader').innerText = "⚠️ API Error. Refresh Page."; return; }
+            processData();
         }
 
-        async function fetchSheetData() {
-            try {
-                let url = `https://api.allorigins.win/raw?url=${encodeURIComponent(SHEET_CSV)}`;
-                let res = await fetch(url);
-                let txt = await res.text();
-                txt.split('\n').forEach(r => {
-                    if(r.includes('|')) paidSet.add(r.split('|')[0].trim());
-                });
-            } catch(e) { console.log("Sheet empty or error"); }
-        }
+        function processData() {
+            // Clear Views
+            document.getElementById('tasks-area').innerHTML = '';
+            document.getElementById('referrals-area').innerHTML = '';
+            document.getElementById('history-area').innerHTML = '';
 
-        // --- DASHBOARD RENDER LOGIC ---
-        function renderDashboard(leads, offerMap) {
-            let html = '';
-            let totalPendingMoney = 0;
-            let countT = 0;
-            let countR = 0;
-            let countP = 0;
-            allCards = [];
+            let tasksHTML = '';
+            let historyHTML = '';
+            
+            // For Referrals Grouping
+            let refGroups = {}; // { 'upi': { total: 0, items: [] } }
 
-            leads.reverse();
+            let taskCount = 0;
+            let refCount = 0;
 
-            leads.forEach(lead => {
+            rawLeads.reverse().forEach(lead => {
                 if(lead.status.toLowerCase() !== 'approved') return;
-                
-                let info = offerMap[lead.offerid] || { title: `Offer #${lead.offerid}`, userPrice: 0, refPrice: 0 };
-                let dateStr = new Date().toLocaleDateString() + " " + new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
 
-                // 1. SELF TASK
-                // Pass dateStr here explicitly
-                processItem(lead.p1, info.title, "SELF TASK", info.userPrice, `${lead.p1}_${lead.offerid}_SELF`, 'task', dateStr);
+                let oInfo = offerMap[lead.offerid] || { t: `Offer #${lead.offerid}`, u: 0, r: 0 };
+                let date = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
 
-                // 2. REFERRAL
+                // --- 1. SELF TASK ---
+                let selfKey = `${lead.p1}_${lead.offerid}_SELF`;
+                if(paidSet.has(selfKey)) {
+                    // Paid History
+                    historyHTML += createPaidCard(lead.p1, oInfo.t, oInfo.u, "SELF TASK", date);
+                } else {
+                    // Active Task
+                    taskCount++;
+                    tasksHTML += `
+                    <div class="card card-task" data-search="${lead.p1}">
+                        <div class="row">
+                            <div>
+                                <div class="upi">${lead.p1}</div>
+                                <div class="sub-txt">${oInfo.t} • ${date}</div>
+                            </div>
+                            <div style="text-align:right;">
+                                <div class="amt-tag">₹${oInfo.u}</div>
+                                <button class="pay-btn" onclick="paySingle('${lead.p1}', ${oInfo.u}, '${selfKey}', this)">PAY NOW</button>
+                            </div>
+                        </div>
+                    </div>`;
+                }
+
+                // --- 2. REFERRALS (Grouping Logic) ---
                 if(lead.p2 && lead.p2.length > 5 && lead.p2 !== lead.p1) {
-                    processItem(lead.p2, `${info.title} (Refer Bonus)`, "REFERRAL", info.refPrice, `${lead.p2}_${lead.offerid}_REF`, 'ref', dateStr);
+                    let refKey = `${lead.p2}_${lead.offerid}_REF`; // P2 is Referrer
+                    
+                    if(paidSet.has(refKey)) {
+                        historyHTML += createPaidCard(lead.p2, `${oInfo.t} (Ref)`, oInfo.r, "REFERRAL", date);
+                    } else {
+                        // Grouping Process
+                        if(!refGroups[lead.p2]) refGroups[lead.p2] = { total: 0, count: 0, items: [] };
+                        refGroups[lead.p2].total += oInfo.r;
+                        refGroups[lead.p2].count++;
+                        refGroups[lead.p2].items.push({ 
+                            title: oInfo.t, 
+                            amt: oInfo.r, 
+                            key: refKey 
+                        });
+                    }
                 }
             });
 
-            // Added dateStr to arguments below
-            function processItem(upi, title, type, price, key, cat, dateStr) {
-                let isPaid = paidSet.has(key);
-                
-                if(isPaid) {
-                    countP++;
-                } else {
-                    totalPendingMoney += price;
-                    if(cat === 'task') countT++; else countR++;
-                }
+            // --- RENDER REFERRALS (Grouped) ---
+            let refsHTML = '';
+            for (let [upi, data] of Object.entries(refGroups)) {
+                refCount++;
+                let itemsList = data.items.map(i => 
+                    `<div class="mini-item"><span>${i.title}</span> <span>₹${i.amt}</span></div>`
+                ).join('');
 
-                allCards.push({ upi, html: '' });
-                let idx = allCards.length - 1;
+                // Encode all keys for bulk payment
+                let allKeys = JSON.stringify(data.items.map(i => i.key));
 
-                let badgeClass = cat === 'task' ? 'b-task' : 'b-ref';
-                let cardClass = isPaid ? 'card paid' : 'card';
-                
-                let btnHtml = isPaid 
-                    ? `<span style="color:#00c851; font-weight:900; font-size:12px;">PAID ✅</span>`
-                    : `<button class="pay-btn" onclick="payNow('${upi}', ${price}, '${key}', this)">
-                        PAY NOW ➔
-                       </button>`;
-
-                let itemHtml = `
-                <div class="${cardClass}" id="card-${idx}">
-                    <div class="card-header">
-                        <span class="badge ${badgeClass}">${type}</span>
-                        <span class="date">${dateStr}</span>
-                    </div>
-                    <div class="upi-row">
+                refsHTML += `
+                <div class="card card-ref" data-search="${upi}">
+                    <div class="row">
                         <div>
                             <div class="upi">${upi}</div>
-                            <div class="offer-name">${title}</div>
+                            <div class="sub-txt">${data.count} Referrals Pending</div>
+                        </div>
+                        <div class="amt-tag">₹${data.total}</div>
+                    </div>
+                    
+                    <button class="bulk-btn" onclick='payBulk("${upi}", ${data.total}, ${allKeys}, this)'>
+                        PAY ALL ₹${data.total} ⚡
+                    </button>
+
+                    <button class="toggle-btn" onclick="this.parentElement.querySelector('.expand-list').style.display='block'">View Details ⌄</button>
+                    <div class="expand-list">
+                        ${itemsList}
+                        <div style="text-align:center; margin-top:5px; font-size:10px; color:#666;">
+                            (Click Pay All to clear list)
                         </div>
                     </div>
-                    <div class="action-row">
-                        <div class="amt-tag">₹${price}</div>
-                        <div>${btnHtml}</div>
-                    </div>
                 </div>`;
-                
-                allCards[idx].html = itemHtml;
-                html += itemHtml;
             }
 
-            document.getElementById('listArea').innerHTML = html;
+            document.getElementById('tasks-area').innerHTML = tasksHTML || '<div style="text-align:center;color:#444;margin-top:20px;">No Pending Tasks</div>';
+            document.getElementById('referrals-area').innerHTML = refsHTML || '<div style="text-align:center;color:#444;margin-top:20px;">No Pending Referrals</div>';
+            document.getElementById('history-area').innerHTML = historyHTML || '<div style="text-align:center;color:#444;margin-top:20px;">History Empty</div>';
+
+            document.getElementById('cTask').innerText = taskCount;
+            document.getElementById('cRef').innerText = refCount;
             document.getElementById('loader').style.display = 'none';
-
-            document.getElementById('totalPending').innerText = "₹" + totalPendingMoney;
-            document.getElementById('countTasks').innerText = countT;
-            document.getElementById('countRefs').innerText = countR;
-            document.getElementById('countPaid').innerText = countP;
         }
 
-        // --- PAYMENT FUNCTION ---
-        window.payNow = function(upi, amount, key, btn) {
-            let link = `upi://pay?pa=${upi}&pn=Earner&am=${amount}&cu=INR`;
-            window.location.href = link;
+        function createPaidCard(upi, title, amt, type, date) {
+            return `
+            <div class="card card-paid" data-search="${upi}">
+                <div class="row">
+                    <div>
+                        <div class="upi" style="text-decoration:line-through; color:#888;">${upi}</div>
+                        <div class="sub-txt">${type} • ${title}</div>
+                    </div>
+                    <div style="text-align:right;">
+                        <div class="amt-tag" style="color:#00c851;">₹${amt}</div>
+                        <div style="font-size:10px; color:#00c851; font-weight:bold;">PAID ✅</div>
+                    </div>
+                </div>
+            </div>`;
+        }
 
-            btn.innerHTML = "Saving...";
-            btn.style.opacity = "0.7";
-
-            let dataStr = `${key} | Paid | ₹${amount} | ${new Date().toISOString()}`;
+        // --- PAYMENT LOGIC (SECURE) ---
+        
+        // 1. Single Payment
+        window.paySingle = function(upi, amt, key, btn) {
+            // Random Note for security
+            let note = "P" + Math.floor(Math.random() * 9000 + 1000); 
+            window.location.href = `upi://pay?pa=${upi}&pn=User&am=${amt}&cu=INR&tn=${note}`;
             
-            fetch(FORM_URL, {
-                method: 'POST',
-                mode: 'no-cors',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: `${ENTRY_ID}=${encodeURIComponent(dataStr)}`
-            }).then(() => {
-                setTimeout(() => {
-                    let card = btn.closest('.card');
-                    card.classList.add('paid');
-                    card.querySelector('.amt-tag').style.color = "#00c851";
-                    card.querySelector('.amt-tag').style.textDecoration = "line-through";
-                    btn.parentNode.innerHTML = `<span style="color:#00c851; font-weight:900; font-size:12px;">PAID ✅</span>`;
-                    
-                    let currTotal = parseInt(document.getElementById('totalPending').innerText.replace('₹',''));
-                    document.getElementById('totalPending').innerText = "₹" + (currTotal - amount);
-                }, 2000);
-            }).catch(() => alert("Network Error: Sheet Update Failed"));
+            btn.innerText = "SAVING...";
+            // Update Server
+            fetch(SCRIPT_URL + `?action=pay&key=${encodeURIComponent(key)}&amount=${amt}`, { mode: 'no-cors' })
+            .then(() => {
+                setTimeout(() => { btn.closest('.card').style.display = 'none'; checkRefresh(); }, 1500);
+            });
         }
 
-        window.filterData = function() {
-            let term = document.getElementById('searchBox').value.toLowerCase();
-            allCards.forEach((c, i) => {
-                document.getElementById(`card-${i}`).style.display = c.upi.toLowerCase().includes(term) ? 'block' : 'none';
+        // 2. BULK PAYMENT (Referrals)
+        window.payBulk = function(upi, totalAmt, keysArray, btn) {
+            let note = "BULK" + Math.floor(Math.random() * 9000 + 1000);
+            // Open UPI once for TOTAL amount
+            window.location.href = `upi://pay?pa=${upi}&pn=User&am=${totalAmt}&cu=INR&tn=${note}`;
+
+            btn.innerText = "PROCESSING...";
+            btn.style.background = "#555";
+
+            // Loop and save all keys in background
+            keysArray.forEach((k, i) => {
+                setTimeout(() => {
+                    fetch(SCRIPT_URL + `?action=pay&key=${encodeURIComponent(k)}&amount=Bulk`, { mode: 'no-cors' });
+                }, i * 300); // Thoda gap taaki Google block na kare
             });
+
+            setTimeout(() => {
+                btn.closest('.card').style.display = 'none';
+                alert("✅ Payment Record Updated!");
+            }, 2000);
+        }
+
+        // TABS & SEARCH
+        window.switchTab = function(tab) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('div[id$="-area"]').forEach(d => d.classList.add('hidden'));
+            
+            event.target.classList.add('active');
+            document.getElementById(tab + '-area').classList.remove('hidden');
+        }
+
+        window.handleSearch = function() {
+            let term = document.getElementById('searchBox').value.toLowerCase();
+            document.querySelectorAll('.card').forEach(c => {
+                c.style.display = c.getAttribute('data-search').toLowerCase().includes(term) ? 'block' : 'none';
+            });
+        }
+
+        function checkRefresh() {
+             // Optional: Auto refresh logic if needed
         }
 
         init();
