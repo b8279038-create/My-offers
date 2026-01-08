@@ -2,26 +2,78 @@
 <html>
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Link Generator</title>
+    <title>Cashback Campaign</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
-        body { font-family: sans-serif; background: #f4f4f4; text-align: center; padding: 15px; }
-        .card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 5px 10px rgba(0,0,0,0.1); max-width: 400px; margin: auto; }
-        input { width: 90%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 5px; font-size: 16px; }
-        .btn { background: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; width: 100%; font-size: 16px; font-weight: bold; margin-top: 5px; }
-        .offer-box { border-top: 1px solid #eee; margin-top: 15px; padding-top: 15px; text-align: left; }
-        .green { color: green; font-weight: bold; }
+        body { margin: 0; padding: 0; background-color: #050505; font-family: 'Poppins', sans-serif; color: white; padding-bottom: 50px; }
+        
+        /* HEADER */
+        .header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 15px 20px; background: rgba(20, 20, 20, 0.95);
+            border-bottom: 1px solid #333; position: sticky; top: 0; z-index: 100;
+        }
+        .logo { font-size: 16px; font-weight: 800; background: linear-gradient(to right, #00c6ff, #0072ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .tg-btn { 
+            background: linear-gradient(45deg, #0088cc, #005f8d); color: white; 
+            text-decoration: none; padding: 8px 15px; border-radius: 20px; 
+            font-size: 12px; font-weight: bold; box-shadow: 0 4px 10px rgba(0,136,204,0.4); 
+        }
+
+        /* UPI BOX */
+        .input-area { text-align: center; padding: 20px; }
+        .upi-box {
+            background: #1a1a1a; border: 1px solid #333; color: white;
+            padding: 12px; width: 85%; border-radius: 12px; font-family: 'Poppins', sans-serif;
+            text-align: center; font-size: 16px; outline: none; margin-bottom: 10px;
+        }
+
+        /* CARD DESIGN (HEAVY LOOK) */
+        .container { padding: 10px; max-width: 450px; margin: auto; }
+        .card {
+            background: #121212; border-radius: 20px; padding: 20px; margin-bottom: 25px;
+            border: 1px solid #222; box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            text-align: center; position: relative;
+        }
+        
+        /* Image Setting */
+        .card img { 
+            width: 100%; height: 180px; object-fit: cover; border-radius: 15px; 
+            margin-bottom: 15px; border: 1px solid #333;
+        }
+        
+        .card h3 { margin: 0; font-size: 22px; font-weight: 800; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px;}
+
+        /* Rates Row */
+        .rates-row { display: flex; gap: 10px; justify-content: center; margin-bottom: 20px; }
+        .rate-box { 
+            background: #1f1f1f; padding: 10px; border-radius: 12px; width: 45%; 
+            display: flex; flex-direction: column; align-items: center; border: 1px solid #333;
+        }
+        .lbl { font-size: 10px; color: #888; text-transform: uppercase; margin-bottom: 5px; }
+        .price-user { font-size: 20px; font-weight: 800; color: #a450ff; text-shadow: 0 0 15px rgba(164, 80, 255, 0.3); }
+        .price-ref { font-size: 20px; font-weight: 800; color: #ffffff; }
+
+        .action-btn {
+            background: white; color: black; width: 100%; padding: 15px; border: none;
+            border-radius: 50px; font-weight: 900; font-size: 16px; cursor: pointer;
+            text-transform: uppercase; letter-spacing: 1px;
+        }
     </style>
 </head>
 <body>
-    <div class="card">
-        <h2>🔥 Link Generator</h2>
-        <p>Apna Link Banao aur Kamao!</p>
-        
-        <input type="text" id="myUpi" placeholder="Enter Your UPI ID">
-        
-        <input type="text" id="myTg" placeholder="Your Telegram Link (Optional)">
-        
-        <div id="list">Loading Offers...</div>
+
+    <div class="header">
+        <div class="logo">Cashback Campaign 🔥</div>
+        <a href="https://t.me/cashbackcampingn" class="tg-btn">✈️ Join Telegram</a>
+    </div>
+
+    <div class="input-area">
+        <input type="text" id="myUpi" class="upi-box" placeholder="Enter Your UPI ID First...">
+    </div>
+
+    <div class="container" id="cardList">
+        <p style="text-align:center; color:#555;">Loading Offers...</p>
     </div>
 
     <script>
@@ -29,12 +81,39 @@
             let html = '';
             data.forEach(o => {
                 html += `
-                <div class="offer-box">
+                <div class="card">
+                    <img src="${o.image}" onerror="this.src='https://via.placeholder.com/300x150?text=Offer+Image'">
                     <h3>${o.title}</h3>
-                    <p>User: <span class="green">${o.user_payout}</span> | You: <span class="green">${o.refer_payout}</span></p>
-                    <button class="btn" onclick="makeLink('${o.id}')">Copy Link 🔗</button>
+                    <div class="rates-row">
+                        <div class="rate-box">
+                            <span class="lbl">You Get</span>
+                            <span class="price-user">${o.user_payout}</span>
+                        </div>
+                        <div class="rate-box">
+                            <span class="lbl">Referral</span>
+                            <span class="price-ref">${o.refer_payout}</span>
+                        </div>
+                    </div>
+                    <button class="action-btn" onclick="makeLink('${o.id}')">Copy Link 🔗</button>
                 </div>`;
             });
+            document.getElementById('cardList').innerHTML = html;
+        });
+
+        function makeLink(id) {
+            let upi = document.getElementById('myUpi').value.trim();
+            if(!upi) { alert("⚠️ Pehle upar apni UPI ID daalo!"); return; }
+
+            let secretUpi = btoa(upi);
+            let link = `https://${window.location.hostname}/user.html?id=${id}&ref=${secretUpi}`;
+            link += `&tg=https://t.me/cashbackcampingn`; 
+
+            navigator.clipboard.writeText(link);
+            alert("✅ Link Copied Successfully!");
+        }
+    </script>
+</body>
+</html>            });
             document.getElementById('list').innerHTML = html;
         });
 
