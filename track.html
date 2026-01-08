@@ -2,14 +2,12 @@
 <html>
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Live Tracker</title>
+    <title>Live Payment Tracker</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
         body { margin: 0; padding: 0; background-color: #000000; font-family: 'Poppins', sans-serif; color: white; text-align: center; }
-        
         .container { max-width: 450px; margin: 20px auto; padding: 15px; }
         
-        /* HEADER */
         .logo { font-size: 22px; font-weight: 900; color: #fff; text-transform: uppercase; margin-bottom: 5px; letter-spacing: 1px; }
         .sub-txt { color: #888; font-size: 12px; margin-bottom: 20px; }
 
@@ -29,14 +27,12 @@
 
         /* RESULTS AREA */
         .result-area { display: none; text-align: left; }
-        
-        /* SECTION TITLES */
         .sec-title { 
             font-size: 12px; color: #888; font-weight: 800; letter-spacing: 1px; 
             margin: 20px 0 10px 0; border-bottom: 1px solid #222; padding-bottom: 5px;
         }
 
-        /* 1. MY TASKS CARD (Green) */
+        /* TASKS CARD */
         .task-card { 
             background: rgba(0, 255, 0, 0.05); border: 1px solid #00ff00; 
             padding: 12px; border-radius: 12px; margin-bottom: 10px; 
@@ -45,7 +41,7 @@
         .t-name { font-weight: 700; font-size: 14px; }
         .t-status { background: #00ff00; color: black; padding: 2px 8px; border-radius: 5px; font-size: 10px; font-weight: 900; }
 
-        /* 2. REFERRAL CARD (Blue/Gold) */
+        /* REFERRAL CARD */
         .ref-summary-box {
             background: #121212; border: 1px solid #333; border-radius: 15px; padding: 15px;
             margin-bottom: 10px; text-align: center;
@@ -60,11 +56,10 @@
         .ref-item:last-child { border-bottom: none; }
         .ref-count { font-weight: 800; color: #ffd700; }
 
-        /* LOADER & ERROR */
         .loader { display: none; width: 30px; height: 30px; border: 3px solid #333; border-top: 3px solid #0072ff; border-radius: 50%; animation: spin 1s infinite; margin: 20px auto; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         
-        .error-msg { color: #ff4444; font-size: 12px; display: none; margin-top: 10px; }
+        .error-msg { color: #ff4444; font-size: 12px; display: none; margin-top: 10px; text-align: center;}
     </style>
 </head>
 <body>
@@ -79,10 +74,9 @@
         </div>
 
         <div class="loader" id="loader"></div>
-        <div class="error-msg" id="errMsg">Network Failed. Retrying...</div>
+        <div class="error-msg" id="errMsg"></div>
 
         <div class="result-area" id="results">
-            
             <div id="myTaskSection">
                 <div class="sec-title">✅ MY COMPLETED OFFERS</div>
                 <div id="myTaskList"></div>
@@ -90,54 +84,86 @@
 
             <div id="refSection">
                 <div class="sec-title">👥 MY REFERRAL DASHBOARD</div>
-                
                 <div class="ref-summary-box">
                     <div class="ref-total" id="totalRefs">0</div>
                     <div class="ref-label">Total Successful Refers</div>
-                    
-                    <div id="refBreakdown">
-                        </div>
+                    <div id="refBreakdown"></div>
                 </div>
             </div>
-
         </div>
     </div>
 
     <script>
+        // --- 1. MULTI-PROXY SYSTEM (Jugaad x 3) ---
+        async function fetchWithFailover(targetUrl) {
+            // Ye 3 alag-alag raste hain. Ek band hua to dusra chalega.
+            const proxies = [
+                `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`,
+                `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`,
+                `https://thingproxy.freeboard.io/fetch/${targetUrl}`
+            ];
+
+            for (let proxy of proxies) {
+                try {
+                    console.log("Trying proxy:", proxy);
+                    let response = await fetch(proxy);
+                    if (!response.ok) throw new Error("Proxy failed");
+                    let data = await response.json();
+                    
+                    // VisionCamp ka data kabhi 'contents' me hota hai kabhi direct
+                    if (data.contents) {
+                        return JSON.parse(data.contents).data || [];
+                    } else if (data.data) {
+                        return data.data;
+                    } else {
+                        return data; // Direct array
+                    }
+                } catch (err) {
+                    console.warn("Backup proxy switching...", err);
+                    // Agar fail hua to loop agle proxy par jayega
+                    continue; 
+                }
+            }
+            throw new Error("All connections failed. Please try later.");
+        }
+
         async function startTracking() {
             let upi = document.getElementById('upi').value.trim();
             if(!upi) { alert("Please enter UPI ID"); return; }
 
-            // Reset UI
             document.getElementById('loader').style.display = 'block';
             document.getElementById('results').style.display = 'none';
             document.getElementById('errMsg').style.display = 'none';
 
             try {
-                // 1. Get Offer Names (offers.json)
+                // Step A: Offer Names Lana
                 let offersRes = await fetch('offers.json');
+                if(!offersRes.ok) throw new Error("offers.json file missing");
                 let offersData = await offersRes.json();
                 
-                // ID aur CID dono ko map kar rahe hain taaki naam sahi dikhe
                 let nameMap = {};
                 offersData.forEach(o => {
                     if(o.cid) nameMap[o.cid] = o.title;
                     if(o.id) nameMap[o.id] = o.title;
                 });
 
-                // 2. Fetch API Data (With Retry Logic)
-                let leads = await fetchWithRetry();
+                // Step B: API Data Lana (Using Tagda Solution)
+                const apiKey = "8df0570da65f3a1798408c942b82839a"; 
+                const targetUrl = `https://panel.visioncamp.in/api.php?auth-token=${apiKey}&report=1`;
+                
+                let leads = await fetchWithFailover(targetUrl);
 
-                // 3. Process Data
+                // Step C: Filter Data
+                if(!Array.isArray(leads)) leads = []; // Safety check
+
                 let myTasks = [];
-                let myRefers = {}; // { '122': 5, '123': 2 }
+                let myRefers = {}; 
                 let totalRefCount = 0;
 
                 leads.forEach(lead => {
-                    // Sirf Approved wale hi count honge
                     if(lead.status.toLowerCase() !== 'approved') return;
 
-                    // Case A: Khud complete kiya (p1 match)
+                    // My Task
                     if(lead.p1 === upi) {
                         myTasks.push({
                             id: lead.offerid,
@@ -145,7 +171,7 @@
                         });
                     }
 
-                    // Case B: Refer kiya (p2 match)
+                    // Referral
                     if(lead.p2 === upi) {
                         let oid = lead.offerid;
                         if(!myRefers[oid]) myRefers[oid] = 0;
@@ -154,9 +180,9 @@
                     }
                 });
 
-                // 4. DISPLAY RESULTS
+                // Step D: Show Results
                 
-                // A. Show My Tasks
+                // 1. Tasks
                 let taskHtml = '';
                 if(myTasks.length === 0) {
                     taskHtml = '<div style="color:#555; font-size:12px; text-align:center; padding:10px;">No completed tasks found.</div>';
@@ -171,14 +197,13 @@
                 }
                 document.getElementById('myTaskList').innerHTML = taskHtml;
 
-                // B. Show Referrals
+                // 2. Referrals
                 document.getElementById('totalRefs').innerText = totalRefCount;
                 
                 let refHtml = '';
                 if(totalRefCount === 0) {
-                    refHtml = '<div style="color:#555; font-size:11px;">No referrals yet. Share your link!</div>';
+                    refHtml = '<div style="color:#555; font-size:11px;">No referrals yet.</div>';
                 } else {
-                    // Object se loop chala kar list banayenge
                     for (let [oid, count] of Object.entries(myRefers)) {
                         let oName = nameMap[oid] || `Offer #${oid}`;
                         refHtml += `
@@ -190,7 +215,6 @@
                 }
                 document.getElementById('refBreakdown').innerHTML = refHtml;
 
-                // Done
                 document.getElementById('loader').style.display = 'none';
                 document.getElementById('results').style.display = 'block';
 
@@ -198,33 +222,7 @@
                 console.error(err);
                 document.getElementById('loader').style.display = 'none';
                 document.getElementById('errMsg').style.display = 'block';
-                document.getElementById('errMsg').innerText = "⚠️ Server Error: " + err.message;
-            }
-        }
-
-        // --- SPECIAL FUNCTION: Ye connect fail hone par dubara try karega ---
-        async function fetchWithRetry(retries = 3) {
-            const apiKey = "8df0570da65f3a1798408c942b82839a"; 
-            const targetUrl = `https://panel.visioncamp.in/api.php?auth-token=${apiKey}&report=1`;
-            
-            // Hum 'allorigins' use karenge jo jyada stable hai JSON ke liye
-            const proxy = `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`;
-
-            for (let i = 0; i < retries; i++) {
-                try {
-                    let response = await fetch(proxy);
-                    if (!response.ok) throw new Error("Proxy Error");
-                    
-                    let data = await response.json();
-                    // AllOrigins data ko 'contents' me deta hai string bana kar
-                    if (data.contents) {
-                        let parsed = JSON.parse(data.contents);
-                        return parsed.data || [];
-                    }
-                    throw new Error("Empty Data");
-                } catch (err) {
-                    if (i === retries - 1) throw err; // Last try bhi fail to error do
-                }
+                document.getElementById('errMsg').innerText = "⚠️ Server Busy. Try again in 10 seconds.";
             }
         }
     </script>
