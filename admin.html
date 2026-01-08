@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>💎 Admin Final - Ultra Secure</title>
+    <title>⚡ Admin Elite - Zero Error</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         body { margin: 0; background: #000; font-family: 'Poppins', sans-serif; color: white; padding-bottom: 60px; }
@@ -22,50 +22,50 @@
 </head>
 <body>
     <div class="container">
-        <div class="header"><div style="font-weight:900;">SECURE ADMIN</div><div id="status" style="font-size:10px; color:#00ff00;">● SYSTEM LIVE</div></div>
+        <div class="header"><div style="font-weight:900;">SECURE DASHBOARD</div><div id="status" style="font-size:10px; color:#00ff00;">● SYSTEM LIVE</div></div>
         <div class="tabs">
             <button class="tab-btn active" onclick="switchTab('tasks')">TASKS (<span id="count-t">0</span>)</button>
             <button class="tab-btn" onclick="switchTab('referrals')">REFS (<span id="count-r">0</span>)</button>
             <button class="tab-btn" onclick="switchTab('history')">HISTORY</button>
         </div>
-        <div id="loader" class="loader">⚙️ DATA SYNC IN PROGRESS...</div>
+        <div id="loader" class="loader">⚙️ CONNECTING TO VISION SERVER...</div>
         <div id="tasks-area"></div>
         <div id="referrals-area" class="hidden"></div>
         <div id="history-area" class="hidden"></div>
     </div>
 
     <script>
-        // --- 100% CHECKED CONFIGURATION ---
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwfjyg_o0a_BUgiC0Iuoit3OTtzBHhkvVf8kg6XeI0DaCKVpBsbljCbpK-Tbb7uk-Dqvg/exec";
         const API_URL = "https://panel.visioncamp.in/api.php?auth-token=8df0570da65f3a1798408c942b82839a&report=1";
-        
         let paidSet = new Set(), leads = [], offers = {};
 
         async function init() {
             try {
-                // Fetch Sheets & Offers First
                 const [rSheet, rOffer] = await Promise.all([fetch(SCRIPT_URL), fetch('offers.json')]);
                 const [dSheet, dOffer] = await Promise.all([rSheet.json(), rOffer.json()]);
                 dSheet.forEach(k => paidSet.add(k));
                 dOffer.forEach(o => offers[o.cid || o.id] = { t: o.title, u: parseInt(o.user_payout.replace(/\D/g,'')) || 0, r: parseInt(o.refer_payout.replace(/\D/g,'')) || 0 });
-                
-                await fetchLeads();
-            } catch(e) { console.error("Initialization failed", e); }
+                await fetchWithSpeed();
+            } catch(e) { console.error(e); }
         }
 
-        async function fetchLeads() {
-            // Multi-Path Fetching for 100% Success
+        async function fetchWithSpeed() {
             const paths = [
                 `https://api.allorigins.win/raw?url=${encodeURIComponent(API_URL)}&v=${Date.now()}`,
-                `https://corsproxy.io/?${encodeURIComponent(API_URL)}`
+                `https://corsproxy.io/?${encodeURIComponent(API_URL)}`,
+                `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(API_URL)}`
             ];
-            for(let p of paths) {
+
+            for (let p of paths) {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 3500); // 3.5 Second Timeout
+
                 try {
-                    const r = await fetch(p);
+                    const r = await fetch(p, { signal: controller.signal });
                     const j = await r.json();
                     leads = j.data || j;
-                    if(Array.isArray(leads)) { render(); return; }
-                } catch(e) { continue; }
+                    if (Array.isArray(leads)) { render(); clearTimeout(timeoutId); return; }
+                } catch (e) { console.log("Trying next channel..."); }
             }
             document.getElementById('loader').innerText = "⚠️ DATA BUSY - REFRESH";
         }
@@ -88,7 +88,7 @@
                             <div><div class="upi-txt">${l.p1}</div><div style="font-size:10px;color:#555">${o.t}</div></div>
                             <div class="amt-txt">₹${o.u}</div>
                         </div>
-                        <button class="btn-main" onclick="safePay('${l.p1}','${sk}',this)">COPY & OPEN APPS</button>
+                        <button class="btn-main" onclick="copyOnly('${l.p1}','${sk}',this)">COPY ID & MARK PAID</button>
                     </div>`;
                 }
 
@@ -109,7 +109,7 @@
                         <div><div class="upi-txt">${upi}</div><div style="font-size:10px;color:#555">${d.items.length} Pending</div></div>
                         <div class="amt-txt" style="color:#ffd700">₹${d.total}</div>
                     </div>
-                    <button class="btn-main" style="background:#ffd700" onclick='safePay("${upi}",${ks},this)'>COPY & PAY ALL</button>
+                    <button class="btn-main" style="background:#ffd700" onclick='copyOnly("${upi}",${ks},this)'>COPY ID & MARK PAID</button>
                     <button style="background:none;border:none;color:#0072ff;font-size:10px;margin-top:8px;cursor:pointer" onclick="this.nextElementSibling.style.display='block'">View Details ⌄</button>
                     <div class="hidden" style="margin-top:10px; padding-top:10px; border-top:1px dashed #333; font-size:11px; color:#888;">${details}</div>
                 </div>`;
@@ -122,15 +122,9 @@
             return `<div class="card card-history"><div style="display:flex;justify-content:space-between"><div><div class="upi-txt" style="color:#666">${u}</div><div style="font-size:10px;color:#444">${type}: ${t}</div></div><div style="font-weight:900;color:#00c851">₹${a} PAID</div></div></div>`;
         }
 
-        window.safePay = function(upi, keys, btn) {
-            // Step 1: Secure Copy
+        window.copyOnly = function(upi, keys, btn) {
             navigator.clipboard.writeText(upi);
-            alert("✅ ID Copied! Select App and Paste Manually.");
-            
-            // Step 2: Clean Launch (NO DATA SENT TO APP)
-            window.location.href = "upi://pay"; 
-            
-            // Step 3: Google Sync
+            alert("✅ UPI ID Copied!\n\nPay Manually in any App and return here.");
             btn.innerText = "UPDATING...";
             const kArr = Array.isArray(keys) ? keys : [keys];
             kArr.forEach((k, i) => setTimeout(() => fetch(SCRIPT_URL + `?action=pay&key=${encodeURIComponent(k)}`, { mode: 'no-cors' }), i * 350));
