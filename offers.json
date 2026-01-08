@@ -1,0 +1,15 @@
+[
+  {
+    "id": "1",
+    "offer_name": "Vision App Offer",
+    "cid": "44",
+    "uid": "229",
+    "reward": "₹10",
+    "goal_to_track": "trial_buy",
+    "steps": [
+      "1. Install the App",
+      "2. Complete ₹1 Trial Payment",
+      "3. Get reward in 12 hours"
+    ]
+  }
+]
