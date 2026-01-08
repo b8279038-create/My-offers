@@ -2,42 +2,38 @@
 <html>
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>👑 Admin Pro - Safe Sync</title>
+    <title>🔒 Manual Pro Admin</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&display=swap" rel="stylesheet">
     <style>
         body { margin: 0; background: #050505; font-family: 'Poppins', sans-serif; color: white; padding-bottom: 80px; }
         .container { max-width: 600px; margin: auto; padding: 10px; }
         .header { background: #111; padding: 15px; border-radius: 15px; border: 1px solid #333; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 10px; z-index: 100; }
-        .status-dot { height: 10px; width: 10px; background: #00ff00; border-radius: 50%; display: inline-block; box-shadow: 0 0 10px #00ff00; }
         .tabs { display: flex; gap: 5px; margin: 15px 0; background: #1a1a1a; padding: 5px; border-radius: 12px; }
         .tab-btn { flex: 1; padding: 10px; border: none; background: none; color: #888; font-weight: 700; font-size: 11px; border-radius: 8px; cursor: pointer; }
         .tab-btn.active { background: #0072ff; color: white; }
         .card { background: #111; padding: 15px; border-radius: 16px; margin-bottom: 10px; border: 1px solid #222; }
-        .card-task { border-left: 4px solid #00c6ff; }
-        .card-ref { border-left: 4px solid #ffd700; }
-        .card-history { opacity: 0.7; border-left: 4px solid #00c851; }
-        .upi { font-size: 14px; font-weight: 700; color: #eee; }
-        .sub-txt { font-size: 10px; color: #888; margin-top: 3px; }
-        .amt-tag { font-size: 18px; font-weight: 900; }
-        .pay-btn { background: #fff; color: #000; border: none; padding: 8px 15px; border-radius: 50px; font-weight: 900; font-size: 11px; cursor: pointer; }
-        .bulk-btn { background: linear-gradient(90deg, #ffd700, #ffaa00); color: black; width: 100%; margin-top: 10px; padding: 10px; border-radius: 8px; font-weight: 800; border: none; }
-        .details-box { display: none; margin-top: 10px; padding-top: 10px; border-top: 1px dashed #333; font-size: 11px; color: #aaa; }
-        .loader { text-align: center; color: #0072ff; margin-top: 50px; font-weight: bold; }
+        .upi-text { font-size: 14px; font-weight: 700; color: #00c6ff; }
+        .amt-tag { font-size: 18px; font-weight: 900; color: #fff; }
+        .open-app-btn { background: #fff; color: #000; border: none; padding: 12px; border-radius: 10px; font-weight: 900; width: 100%; margin-top: 10px; cursor: pointer; font-size: 12px; }
+        .bulk-card { border-left: 4px solid #ffd700; }
+        .history-card { opacity: 0.6; border-left: 4px solid #00c851; }
+        .details { display: none; font-size: 11px; color: #888; margin-top: 8px; padding-top: 8px; border-top: 1px dashed #333; }
         .hidden { display: none; }
+        .loader { text-align: center; margin-top: 40px; color: #0072ff; }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <div style="font-weight:900;">ADMIN PANEL</div>
-            <div id="status" style="font-size:10px; color:#666;"><span class="status-dot"></span> LIVE SYNC</div>
+            <div style="font-weight:900;">SECURE ADMIN</div>
+            <div id="status" style="font-size:10px; color:#00ff00;">● SYSTEM READY</div>
         </div>
         <div class="tabs">
             <button class="tab-btn active" onclick="switchTab('tasks')">TASKS (<span id="cTask">0</span>)</button>
             <button class="tab-btn" onclick="switchTab('referrals')">REFERRALS (<span id="cRef">0</span>)</button>
             <button class="tab-btn" onclick="switchTab('history')">HISTORY</button>
         </div>
-        <div id="loader" class="loader">🔄 Loading Secure Data...</div>
+        <div id="loader" class="loader">🔄 Loading Live Data...</div>
         <div id="tasks-area"></div>
         <div id="referrals-area" class="hidden"></div>
         <div id="history-area" class="hidden"></div>
@@ -49,7 +45,7 @@
 
         async function init() {
             if(!sessionStorage.getItem('adminLogged')) {
-                let p = prompt("🔐 Password:");
+                let p = prompt("🔐 Enter Password:");
                 if(p !== "Pathak123") return;
                 sessionStorage.setItem('adminLogged', 'true');
             }
@@ -57,13 +53,9 @@
                 await fetchPaidHistory();
                 let oRes = await fetch('offers.json');
                 let oData = await oRes.json();
-                oData.forEach(o => {
-                    let uP = parseInt(o.user_payout.replace(/[^0-9]/g, '')) || 0;
-                    let rP = parseInt(o.refer_payout.replace(/[^0-9]/g, '')) || 0;
-                    offerMap[o.cid || o.id] = { t: o.title, u: uP, r: rP };
-                });
+                oData.forEach(o => offerMap[o.cid || o.id] = { t: o.title, u: parseInt(o.user_payout.replace(/\D/g,'')), r: parseInt(o.refer_payout.replace(/\D/g,'')) });
                 await fetchLiveLeads();
-            } catch(e) { alert("Error: " + e.message); }
+            } catch(e) { console.error(e); }
         }
 
         async function fetchPaidHistory() {
@@ -91,21 +83,21 @@
                 let o = offerMap[lead.offerid] || { t: `Offer #${lead.offerid}`, u: 0, r: 0 };
                 let selfKey = `${lead.p1}_${lead.offerid}_SELF`, refKey = `${lead.p2}_${lead.offerid}_REF`;
 
-                if(paidSet.has(selfKey)) hArea.innerHTML += createCard(lead.p1, o.t, o.u, "TASK", "card-history", true);
+                if(paidSet.has(selfKey)) hArea.innerHTML += createHistoryCard(lead.p1, o.t, o.u, "USER TASK");
                 else {
                     tCount++;
                     tArea.innerHTML += `
-                    <div class="card card-task">
-                        <div style="display:flex;justify-content:space-between">
-                            <div><div class="upi">${lead.p1}</div><div class="sub-txt">${o.t}</div></div>
-                            <div style="text-align:right"><div class="amt-tag">₹${o.u}</div>
-                            <button class="pay-btn" onclick="paySingle('${lead.p1}','${selfKey}',this)">PAY</button></div>
+                    <div class="card">
+                        <div style="display:flex;justify-content:space-between;align-items:center">
+                            <div><div class="upi-text">${lead.p1}</div><div style="font-size:10px;color:#888">${o.t}</div></div>
+                            <div class="amt-tag">₹${o.u}</div>
                         </div>
+                        <button class="open-app-btn" onclick="openAppManual('${lead.p1}','${selfKey}',this)">OPEN UPI APP & MARK PAID</button>
                     </div>`;
                 }
 
                 if(lead.p2 && lead.p2.length > 5 && lead.p2 !== lead.p1) {
-                    if(paidSet.has(refKey)) hArea.innerHTML += createCard(lead.p2, o.t, o.r, "REFER", "card-history", true);
+                    if(paidSet.has(refKey)) hArea.innerHTML += createHistoryCard(lead.p2, o.t, o.r, "REFERRAL");
                     else {
                         if(!refGroups[lead.p2]) refGroups[lead.p2] = { total: 0, items: [] };
                         refGroups[lead.p2].total += o.r;
@@ -118,37 +110,42 @@
                 rCount++;
                 let keys = JSON.stringify(data.items.map(i => i.k)), details = data.items.map(i => `<div>${i.t}: ₹${i.r}</div>`).join('');
                 rArea.innerHTML += `
-                <div class="card card-ref">
-                    <div style="display:flex;justify-content:space-between">
-                        <div><div class="upi">${upi}</div><div class="sub-txt">${data.items.length} Refs Pending</div></div>
+                <div class="card bulk-card">
+                    <div style="display:flex;justify-content:space-between;align-items:center">
+                        <div><div class="upi-text">${upi}</div><div style="font-size:10px;color:#888">${data.items.length} Pending Referrals</div></div>
                         <div class="amt-tag">₹${data.total}</div>
                     </div>
-                    <button class="bulk-btn" onclick='payBulk("${upi}",${keys},this)'>PAY ALL ₹${data.total}</button>
-                    <button style="background:none;border:none;color:#0072ff;font-size:10px;margin-top:5px" onclick="this.nextElementSibling.style.display='block'">View History ⌄</button>
-                    <div class="details-box">${details}</div>
+                    <button class="open-app-btn" style="background:#ffd700" onclick='openAppManual("${upi}",${keys},this)'>OPEN APP & PAY ALL (₹${data.total})</button>
+                    <button style="background:none;border:none;color:#0072ff;font-size:10px;margin-top:8px;cursor:pointer" onclick="this.nextElementSibling.style.display='block'">Check History ⌄</button>
+                    <div class="details">${details}</div>
                 </div>`;
             }
             document.getElementById('cTask').innerText = tCount; document.getElementById('cRef').innerText = rCount;
             document.getElementById('loader').style.display = 'none';
         }
 
-        function createCard(upi, t, a, type, cls, paid) {
-            return `<div class="card ${cls}"><div style="display:flex;justify-content:space-between"><div><div class="upi">${upi}</div><div class="sub-txt">${type}: ${t}</div></div><div class="amt-tag" style="color:#00c851">₹${a}</div></div></div>`;
+        function createHistoryCard(upi, t, a, type) {
+            return `<div class="card history-card"><div style="display:flex;justify-content:space-between"><div><div class="upi-text" style="color:#888">${upi}</div><div style="font-size:10px">${type}: ${t}</div></div><div style="color:#00c851;font-weight:900">₹${a} PAID</div></div></div>`;
         }
 
-        window.paySingle = function(upi, key, btn) {
+        window.openAppManual = function(upi, keyOrKeys, btn) {
+            // 1. Copy UPI ID (For user convenience)
             navigator.clipboard.writeText(upi);
-            window.location.href = `upi://pay?pa=${upi}&pn=Admin&cu=INR&tn=TaskID_${Math.floor(Math.random()*999)}`;
-            btn.innerText = "SAVING...";
-            fetch(SCRIPT_URL + `?action=pay&key=${encodeURIComponent(key)}`, { mode: 'no-cors' }).then(() => { setTimeout(()=>location.reload(), 2000); });
-        }
+            alert("UPI ID Copied! Now select your App and Pay Manually.");
 
-        window.payBulk = function(upi, keys, btn) {
-            navigator.clipboard.writeText(upi);
-            window.location.href = `upi://pay?pa=${upi}&pn=Admin&cu=INR&tn=BulkRef_${Math.floor(Math.random()*999)}`;
-            btn.innerText = "PROCESSING...";
-            keys.forEach((k, i) => { setTimeout(() => fetch(SCRIPT_URL + `?action=pay&key=${encodeURIComponent(k)}`, { mode: 'no-cors' }), i * 400); });
-            setTimeout(()=>location.reload(), 3000);
+            // 2. Open Generic UPI Intent (This will ask user to choose App, but fill NOTHING)
+            window.location.href = "upi://pay"; 
+
+            // 3. Mark as Paid in History
+            btn.innerText = "UPDATING HISTORY...";
+            btn.disabled = true;
+
+            const keys = Array.isArray(keyOrKeys) ? keyOrKeys : [keyOrKeys];
+            keys.forEach((k, i) => {
+                setTimeout(() => fetch(SCRIPT_URL + `?action=pay&key=${encodeURIComponent(k)}`, { mode: 'no-cors' }), i * 300);
+            });
+
+            setTimeout(() => location.reload(), 2000);
         }
 
         window.switchTab = function(t) {
