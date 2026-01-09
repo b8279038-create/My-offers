@@ -2,14 +2,14 @@
 <html lang="en">
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Master Panel - Final Fix</title>
+    <title>Master Panel - Fixed URL</title>
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <style>
-        body { font-family: sans-serif; background: #0f0f0f; color: #fff; padding: 20px; }
-        .card { background: #1a1a1a; padding: 20px; border-radius: 12px; border: 1px solid #333; margin-bottom: 20px; }
+        body { font-family: sans-serif; background: #0b0b0b; color: #fff; padding: 20px; }
+        .card { background: #151515; padding: 20px; border-radius: 12px; border: 1px solid #333; }
         input { width: 100%; padding: 12px; margin: 10px 0; background: #222; border: 1px solid #444; color: #fff; border-radius: 8px; box-sizing: border-box; }
         button { background: #0072ff; color: white; border: none; padding: 15px; width: 100%; border-radius: 8px; font-weight: bold; cursor: pointer; }
-        #status-msg { margin-top: 10px; font-size: 14px; text-align: center; color: #00d2ff; }
+        #status-msg { margin-top: 15px; font-size: 14px; text-align: center; color: #00d2ff; }
     </style>
 </head>
 <body>
@@ -20,29 +20,32 @@
         <input type="text" id="offCID" placeholder="Campaign ID (CID)">
         <input type="text" id="offPayout" placeholder="User Payout">
         <button onclick="addOffer()" id="saveBtn">SAVE TO DATABASE</button>
-        <div id="status-msg">Ready...</div>
+        <div id="status-msg">System Ready</div>
     </div>
 
     <script>
-        const URL = 'https://mwxmxhdsvtavwqqcllnj.supabase.co';
-        const KEY = 'sb_publishable_GouMk9TXG7QwnkRHAE6pBw_9Ej9-vJL_';
+        // URL और Key को साफ़ (clean) करने के लिए trim() का इस्तेमाल
+        const URL = 'https://mwxmxhdsvtavwqqcllnj.supabase.co'.trim();
+        const KEY = 'sb_publishable_GouMk9TXG7QwnkRHAE6pBw_9Ej9-vJL_'.trim();
         
         async function addOffer() {
             const btn = document.getElementById('saveBtn');
             const msg = document.getElementById('status-msg');
-            const title = document.getElementById('offTitle').value;
-            const cid = document.getElementById('offCID').value;
-            const payout = document.getElementById('offPayout').value;
+            const title = document.getElementById('offTitle').value.trim();
+            const cid = document.getElementById('offCID').value.trim();
+            const payout = document.getElementById('offPayout').value.trim();
 
-            if(!title || !cid) { alert("Bhai, details bharo!"); return; }
+            if(!title || !cid) { alert("Details bharo bhai!"); return; }
             
-            btn.innerText = "Processing...";
+            btn.innerText = "Checking URL...";
             btn.disabled = true;
 
             try {
-                // यहाँ हम लाइब्रेरी को इन्शियलाइज़ कर रहे हैं
+                // Supabase Client Initialization
                 const { createClient } = window.supabase;
                 const client = createClient(URL, KEY);
+
+                msg.innerText = "Saving to Supabase...";
 
                 const { data, error } = await client
                     .from('offers')
@@ -54,17 +57,19 @@
 
                 if (error) {
                     msg.innerHTML = "❌ Error: " + error.message;
-                    btn.innerText = "SAVE AGAIN";
+                    btn.innerText = "RETRY";
                 } else {
-                    msg.innerHTML = "✅ SUCCESS! Saved to Supabase.";
-                    alert("Success! Offer Database mein save ho gaya.");
+                    msg.innerHTML = "✅ SUCCESS! Saved.";
+                    alert("Dhamaka! Offer save ho gaya.");
                     document.getElementById('offTitle').value = '';
                     document.getElementById('offCID').value = '';
                     document.getElementById('offPayout').value = '';
                     btn.innerText = "SAVE TO DATABASE";
                 }
             } catch (err) {
-                msg.innerHTML = "❌ System Error: " + err.message;
+                msg.innerHTML = "❌ Error: " + err.message;
+                console.error(err);
+                btn.innerText = "FIX URL & RETRY";
             } finally {
                 btn.disabled = false;
             }
