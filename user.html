@@ -58,16 +58,20 @@
             });
 
         function go() {
-            const upiValue = document.getElementById('userUpiInput').value.trim();
-            if(!upiValue) { alert("Paisa lene ke liye UPI daalo!"); return; }
+            const rawUpi = document.getElementById('userUpiInput').value.trim();
+            if(!rawUpi) { alert("Paisa lene ke liye UPI daalo!"); return; }
             if(!currentOffer) { alert("Offer details loading, please wait..."); return; }
             
-            let refUpi = "";
+            // लिंक को खराब होने से बचाने के लिए सुरक्षित कोड
+            const upiValue = encodeURIComponent(rawUpi);
+
+            let refUpiRaw = "";
             try { 
-                refUpi = (encryptedRef && encryptedRef.length > 10) ? atob(encryptedRef) : (encryptedRef || ""); 
+                refUpiRaw = (encryptedRef && encryptedRef.length > 10) ? atob(encryptedRef) : (encryptedRef || ""); 
             } catch(e) { 
-                refUpi = encryptedRef || ""; 
+                refUpiRaw = encryptedRef || ""; 
             }
+            const refUpi = encodeURIComponent(refUpiRaw);
 
             let finalLink = "";
 
