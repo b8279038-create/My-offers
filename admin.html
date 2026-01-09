@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>⚡ ULTIMATE ADMIN - P-RO</title>
+    <title>⚡ ULTIMATE ADMIN - INFINITE CONNECT</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         body { margin: 0; background: #000; font-family: 'Poppins', sans-serif; color: white; padding-bottom: 80px; }
@@ -14,54 +14,39 @@
         .card { background: #111; padding: 16px; border-radius: 18px; margin-bottom: 12px; border: 1px solid #222; transition: 0.3s; }
         .upi-txt { font-size: 14px; font-weight: 700; color: #00c6ff; word-break: break-all; }
         .offer-txt { font-size: 11px; color: #666; margin-top: 2px; }
-        
-        /* Amount Design - Big for Safety */
-        .amt-txt { font-size: 28px; font-weight: 900; color: #fff; background: #222; padding: 2px 12px; border-radius: 10px; border: 1.5px solid #0072ff; }
-        
-        /* App Shortcuts Buttons */
-        .app-row { display: flex; gap: 6px; margin-top: 12px; }
-        .app-btn { flex: 1; padding: 10px 2px; background: #1a1a1a; border: 1.5px solid #333; color: #fff; font-size: 10px; font-weight: 900; border-radius: 10px; cursor: pointer; }
-        
-        .btn-main { background: #fff; color: #000; border: none; padding: 14px; border-radius: 12px; font-weight: 900; width: 100%; margin-top: 12px; cursor: pointer; font-size: 14px; }
+        .amt-txt { font-size: 20px; font-weight: 900; color: #fff; }
+        .btn-main { background: #fff; color: #000; border: none; padding: 12px; border-radius: 12px; font-weight: 900; width: 100%; margin-top: 12px; cursor: pointer; }
+        .btn-main:disabled { background: #444; color: #888; cursor: not-allowed; }
         .loader { text-align: center; margin-top: 50px; color: #0072ff; font-weight: 900; font-size: 14px; padding: 20px; border: 1px dashed #333; border-radius: 10px; }
-        .hidden { display: none !important; }
+        .hidden { display: none; }
         .card-history { opacity: 0.4; filter: grayscale(1); border: 1px solid #333; }
     </style>
 </head>
 <body>
-    <div class="container" id="main-ui" style="display:none;">
+    <div class="container">
         <div class="header">
             <div style="font-weight:900;">⚡ ADMIN PRO</div>
             <div id="status" style="font-size:10px; color:#00ff00; border:1px solid #00ff00; padding:2px 6px; border-radius:4px;">● AUTO-SYNC ON</div>
         </div>
+        
         <div class="tabs">
             <button class="tab-btn active" onclick="switchTab('tasks')">TASKS (<span id="count-t">0</span>)</button>
             <button class="tab-btn" onclick="switchTab('referrals')">REFS (<span id="count-r">0</span>)</button>
             <button class="tab-btn" onclick="switchTab('history')">HISTORY</button>
         </div>
-        <div id="loader" class="loader">🔄 CONNECTING TO SERVER...</div>
+
+        <div id="loader" class="loader">🚀 STARTING ENGINES...</div>
+        
         <div id="tasks-area"></div>
         <div id="referrals-area" class="hidden"></div>
         <div id="history-area" class="hidden"></div>
     </div>
 
     <script>
-        // --- 1. PASSWORD CHECK (1234) ---
-        const p = prompt("Enter Admin Password:");
-        if(p === "1234") { 
-            document.getElementById('main-ui').style.display = 'block'; 
-        } else { 
-            alert("Wrong Password!"); window.location.reload(); 
-        }
-
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwfjyg_o0a_BUgiC0Iuoit3OTtzBHhkvVf8kg6XeI0DaCKVpBsbljCbpK-Tbb7uk-Dqvg/exec";
         const API_URL = "https://panel.visioncamp.in/api.php?auth-token=8df0570da65f3a1798408c942b82839a&report=1";
         let paidSet = new Set(), leads = [], offers = {};
 
-        // --- 2. APP LAUNCHER LOGIC ---
-        window.openApp = function(url) { window.location.href = url; }
-
-        // --- 3. ORIGINAL DATA LOGIC (No changes) ---
         async function fetchWithInfiniteRetry(url) {
             const proxies = [
                 `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}&v=${Date.now()}`,
@@ -72,14 +57,15 @@
             let index = 0;
             while (true) {
                 try {
+                    document.getElementById('loader').innerHTML = `🔄 Connecting Proxy ${index + 1}...`;
                     const response = await fetch(proxies[index]);
                     if (response.ok) {
                         const data = await response.json();
-                        return data.data || data; 
+                        return data.data || data;
                     }
                 } catch (e) {}
                 index = (index + 1) % proxies.length;
-                await new Promise(r => setTimeout(r, 2000));
+                if (index === 0) await new Promise(r => setTimeout(r, 2000));
             }
         }
 
@@ -98,7 +84,7 @@
 
         async function loadLeads() {
             leads = await fetchWithInfiniteRetry(API_URL);
-            if(Array.isArray(leads)) render();
+            render();
         }
 
         function render() {
@@ -116,17 +102,11 @@
                 } else {
                     tc++;
                     tA.innerHTML += `<div class="card" id="card-${sk}">
-                        <div style="display:flex;justify-content:space-between;align-items:center">
+                        <div style="display:flex;justify-content:space-between">
                             <div><div class="upi-txt">${l.p1}</div><div class="offer-txt">${o.t}</div></div>
                             <div class="amt-txt">₹${o.u}</div>
                         </div>
-                        <div class="app-row">
-                            <button class="app-btn" onclick="openApp('fampay://')">FAM</button>
-                            <button class="app-btn" onclick="openApp('phonepe://')">PP</button>
-                            <button class="app-btn" onclick="openApp('paytmmp://')">PT</button>
-                            <button class="app-btn" onclick="openApp('gpay://')">GP</button>
-                        </div>
-                        <button class="btn-main" onclick="copyAndPaid('${l.p1}','${sk}','task')">📋 COPY & MARK PAID</button>
+                        <button class="btn-main" onclick="copyAndPaid('${l.p1}','${sk}','task')">COPY & MARK PAID</button>
                     </div>`;
                 }
 
@@ -135,7 +115,8 @@
                         hA.innerHTML += createHistoryCard(l.p2, o.t, o.r, "REF");
                     } else {
                         if(!rG[l.p2]) rG[l.p2] = { total: 0, keys: [] };
-                        rG[l.p2].total += o.r; rG[l.p2].keys.push(rk);
+                        rG[l.p2].total += o.r;
+                        rG[l.p2].keys.push(rk);
                     }
                 }
             });
@@ -144,21 +125,16 @@
                 rc++;
                 let cardId = upi.replace(/[^a-zA-Z0-9]/g, '');
                 rA.innerHTML += `<div class="card" id="card-${cardId}">
-                    <div style="display:flex;justify-content:space-between;align-items:center">
-                        <div><div class="upi-txt">${upi}</div><div class="offer-txt">${d.keys.length} Refs</div></div>
-                        <div class="amt-txt" style="color:#ffd700;border-color:#ffd700">₹${d.total}</div>
+                    <div style="display:flex;justify-content:space-between">
+                        <div><div class="upi-txt">${upi}</div><div class="offer-txt">${d.keys.length} Refs Pending</div></div>
+                        <div class="amt-txt" style="color:#ffd700">₹${d.total}</div>
                     </div>
-                    <div class="app-row">
-                        <button class="app-btn" onclick="openApp('fampay://')">FAM</button>
-                        <button class="app-btn" onclick="openApp('phonepe://')">PP</button>
-                        <button class="app-btn" onclick="openApp('paytmmp://')">PT</button>
-                    </div>
-                    <button class="btn-main" style="background:#ffd700" onclick='copyAndPaid("${upi}",${JSON.stringify(d.keys)},"ref","card-${cardId}")'>📋 COPY & MARK PAID ALL</button>
+                    <button class="btn-main" style="background:#ffd700" onclick='copyAndPaid("${upi}",${JSON.stringify(d.keys)},"ref","card-${cardId}")'>COPY & MARK PAID ALL</button>
                 </div>`;
             }
             document.getElementById('count-t').innerText = tc;
             document.getElementById('count-r').innerText = rc;
-            document.getElementById('loader').classList.add('hidden');
+            document.getElementById('loader').style.display = 'none';
         }
 
         function createHistoryCard(u, t, a, type) {
@@ -170,13 +146,25 @@
             if (confirm("✅ UPI Copied: " + upi + "\n\nMark as Paid?")) {
                 const kArr = Array.isArray(keys) ? keys : [keys];
                 const cardId = type === 'task' ? `card-${keys}` : refCardId;
+                
+                // स्क्रीन से कार्ड गायब करो (बिना रिफ्रेश)
                 const card = document.getElementById(cardId);
-                if(card) { card.style.opacity = '0.3'; setTimeout(() => card.classList.add('hidden'), 300); }
+                if(card) {
+                    card.style.opacity = '0.3';
+                    card.style.transform = 'scale(0.9)';
+                    setTimeout(() => card.classList.add('hidden'), 300);
+                }
+
+                // काउंटर कम करो
                 let countId = type === 'task' ? 'count-t' : 'count-r';
                 let countEl = document.getElementById(countId);
                 countEl.innerText = Math.max(0, parseInt(countEl.innerText) - 1);
+
+                // गूगल शीट अपडेट (बिना पेज अटकाए)
                 kArr.forEach((k, i) => {
-                    setTimeout(() => { fetch(SCRIPT_URL + `?action=pay&key=${encodeURIComponent(k)}`, { mode: 'no-cors' }); }, i * 300);
+                    setTimeout(() => {
+                        fetch(SCRIPT_URL + `?action=pay&key=${encodeURIComponent(k)}`, { mode: 'no-cors' });
+                    }, i * 300);
                 });
             }
         }
