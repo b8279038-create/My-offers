@@ -64,14 +64,22 @@
             
             let refUpi = "";
             try { 
-                // अगर ref कोड में है तो डिकोड करो, वरना सीधा इस्तेमाल करो
                 refUpi = (encryptedRef && encryptedRef.length > 10) ? atob(encryptedRef) : (encryptedRef || ""); 
             } catch(e) { 
                 refUpi = encryptedRef || ""; 
             }
 
-            // विज़न कैंप रिडायरेक्ट लिंक (बिना गड़बड़ के)
-            const finalLink = `https://panel.visioncamp.in/go?cid=${currentOffer.cid}&uid=${currentOffer.uid}&p1=${upiValue}&p2=${refUpi}`;
+            let finalLink = "";
+
+            // --- DOUBLE PANEL LOGIC ---
+            // अगर UID '633' है तो Hiqmobi का लिंक खुलेगा
+            if (currentOffer.uid === "633") {
+                finalLink = `https://link.hiqmobi.com/go/633/${currentOffer.cid}?p1=${upiValue}&p2=${refUpi}`;
+            } 
+            // वरना तेरा पुराना विज़न कैंप वाला ओरिजिनल पैनल खुलेगा
+            else {
+                finalLink = `https://panel.visioncamp.in/go?cid=${currentOffer.cid}&uid=${currentOffer.uid}&p1=${upiValue}&p2=${refUpi}`;
+            }
             
             window.location.href = finalLink;
         }
