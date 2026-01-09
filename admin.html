@@ -2,171 +2,196 @@
 <html>
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>⚡ PATHAK ULTIMATE ADMIN</title>
+    <title>⚡ PATHAK PRO ADMIN</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
-        body { margin: 0; background: #000; font-family: 'Poppins', sans-serif; color: white; padding-bottom: 50px; }
+        body { margin: 0; background: #000; font-family: 'Poppins', sans-serif; color: white; padding-bottom: 80px; }
         .container { max-width: 600px; margin: auto; padding: 12px; }
-        .header { background: #111; padding: 18px; border-bottom: 2px solid #0072ff; display: flex; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+        .header { background: #111; padding: 15px; border-bottom: 1px solid #333; display: flex; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
         
-        .card { background: #111; padding: 16px; border-radius: 18px; margin-bottom: 15px; border: 1px solid #222; position: relative; }
-        .upi-box { font-size: 15px; font-weight: 700; color: #00c6ff; background: #1a1a1a; padding: 10px; border-radius: 10px; border: 1px dashed #444; margin-bottom: 10px; cursor: pointer; text-align: center; }
-        
-        .amt-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        .amt-txt { font-size: 30px; font-weight: 900; color: #fff; border-left: 5px solid #0072ff; padding-left: 10px; }
-        
-        .app-grid { display: flex; justify-content: space-around; gap: 8px; margin-bottom: 15px; background: #1a1a1a; padding: 12px; border-radius: 15px; }
-        .app-item { text-align: center; cursor: pointer; flex: 1; }
-        .app-item img { width: 42px; height: 42px; border-radius: 12px; border: 1.5px solid #333; margin-bottom: 4px; }
-        .app-name { font-size: 9px; font-weight: 900; color: #888; text-transform: uppercase; }
+        /* ORIGINAL TABS SYSTEM */
+        .tabs { display: flex; gap: 8px; margin: 15px 0; background: #1a1a1a; padding: 6px; border-radius: 12px; }
+        .tab-btn { flex: 1; padding: 10px; border: none; background: none; color: #777; font-weight: 700; font-size: 11px; border-radius: 9px; cursor: pointer; transition: 0.3s; }
+        .tab-btn.active { background: #0072ff; color: #fff; box-shadow: 0 0 10px #0072ff; }
 
-        .btn-done { background: #fff; color: #000; border: none; padding: 14px; border-radius: 12px; font-weight: 900; width: 100%; cursor: pointer; font-size: 14px; box-shadow: 0 4px 15px rgba(255,255,255,0.1); }
+        .card { background: #111; border: 1px solid #333; border-radius: 18px; margin-bottom: 15px; padding: 18px; position: relative; }
+        .upi-banner { font-size: 18px; color: #00c6ff; font-weight: 900; background: #1a1a1a; padding: 14px; border-radius: 12px; text-align: center; border: 1px dashed #444; cursor: pointer; margin-bottom: 10px; letter-spacing: 1px; }
         
-        .loader { text-align: center; margin-top: 40px; color: #0072ff; font-weight: 900; }
+        .details-row { display: flex; justify-content: space-between; align-items: center; margin: 12px 0; }
+        .amt-txt { font-size: 32px; font-weight: 900; color: #fff; border-left: 4px solid #0072ff; padding-left: 12px; }
+
+        /* APP ICONS GRID - UPDATED LINKS */
+        .app-grid { display: flex; justify-content: space-between; gap: 10px; margin: 18px 0; background: #161616; padding: 12px; border-radius: 15px; border: 1px solid #222; }
+        .app-item { text-align: center; cursor: pointer; flex: 1; transition: 0.2s; }
+        .app-item:active { transform: scale(0.9); }
+        .app-item img { width: 45px; height: 45px; border-radius: 12px; border: 1px solid #333; margin-bottom: 4px; background: #222; }
+        .app-name { font-size: 9px; font-weight: 700; color: #777; text-transform: uppercase; }
+
+        .btn-paid { width: 100%; background: #fff; color: #000; border: none; padding: 15px; border-radius: 12px; font-weight: 900; cursor: pointer; font-size: 14px; box-shadow: 0 4px 15px rgba(255,255,255,0.1); }
+        
+        #toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #0072ff; color: white; padding: 10px 25px; border-radius: 30px; display: none; z-index: 1000; font-weight: 900; box-shadow: 0 0 20px rgba(0,114,255,0.5); }
+        .loader { text-align: center; margin-top: 50px; color: #0072ff; font-weight: 900; }
         .hidden { display: none !important; }
-        #toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #00c6ff; color: #000; padding: 8px 20px; border-radius: 30px; font-weight: 900; font-size: 12px; display: none; z-index: 9999; box-shadow: 0 0 20px rgba(0,198,255,0.5); }
+        .history-card { opacity: 0.4; filter: grayscale(1); }
     </style>
 </head>
 <body>
-    <div id="toast">✅ UPI COPIED!</div>
-    <div class="header">
-        <div style="font-weight:900; font-size: 18px;">⚡ PATHAK PRO</div>
-        <div id="status-box" style="font-size:11px; color:#00ff00; font-weight:700;">● REPORT 3 LIVE</div>
+
+<div id="toast">UPI COPIED! ✅</div>
+
+<div class="header">
+    <div style="font-weight:900; font-size: 18px;">⚡ PATHAK PRO</div>
+    <div id="status" style="font-size:10px; color:#00ff00; border:1px solid #00ff00; padding:2px 8px; border-radius:4px; font-weight:bold;">REPORT 3 (48H)</div>
+</div>
+
+<div class="container">
+    <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('tasks')">TASKS (<span id="t-count">0</span>)</button>
+        <button class="tab-btn" onclick="switchTab('referrals')">REFER (<span id="r-count">0</span>)</button>
+        <button class="tab-btn" onclick="switchTab('history')">HISTORY</button>
     </div>
 
-    <div class="container">
-        <div id="loader" class="loader">🚀 BOOTING OLD LOGIC + PROXIES...</div>
-        <div id="tasks-area"></div>
-    </div>
+    <div id="loader" class="loader">🔄 LOADING DATA FROM PROXY...</div>
 
-    <script>
-        // --- 1. CONFIG & OLD LOGIC START ---
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwfjyg_o0a_BUgiC0Iuoit3OTtzBHhkvVf8kg6XeI0DaCKVpBsbljCbpK-Tbb7uk-Dqvg/exec";
-        const API_URL = "https://panel.visioncamp.in/api.php?auth-token=8df0570da65f3a1798408c942b82839a&report=3";
+    <div id="tasks-area"></div>
+    <div id="referrals-area" class="hidden"></div>
+    <div id="history-area" class="hidden"></div>
+</div>
+
+<script>
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwfjyg_o0a_BUgiC0Iuoit3OTtzBHhkvVf8kg6XeI0DaCKVpBsbljCbpK-Tbb7uk-Dqvg/exec";
+    // REPORT=3 (Today + Yesterday = 48 Hours)
+    const API_URL = "https://panel.visioncamp.in/api.php?auth-token=8df0570da65f3a1798408c942b82839a&report=3";
+    
+    let paidSet = new Set(), leads = [], offers = {};
+
+    // Copy & Direct App Opening
+    function handleApp(app, upi) {
+        navigator.clipboard.writeText(upi);
+        const toast = document.getElementById('toast');
+        toast.style.display = 'block';
+        setTimeout(() => toast.style.display = 'none', 1500);
+
+        const apps = {
+            'paytm': "paytmmp://",
+            'phonepe': "phonepe://",
+            'gpay': "googlepay://",
+            'fampay': "fampay://"
+        };
         
-        let paidSet = new Set(), leads = [], offers = {};
-
-        function copyAndNotify(text) {
-            navigator.clipboard.writeText(text);
-            const t = document.getElementById('toast');
-            t.style.display = 'block';
-            setTimeout(() => t.style.display = 'none', 1500);
+        if(apps[app]) {
+            setTimeout(() => { window.location.href = apps[app]; }, 400);
         }
+    }
 
-        function openPayApp(app, upi) {
-            copyAndNotify(upi);
-            const urls = {
-                'paytm': "paytmmp://cash_wallet?feature=money_transfer",
-                'phonepe': "phonepe://pay",
-                'fampay': "fampay://",
-                'gpay': "googlepay://"
-            };
-            setTimeout(() => { if(urls[app]) window.location.href = urls[app]; }, 400);
-        }
-
-        // --- 2. THE POWERFUL PROXY SYSTEM (Purana Logic) ---
-        async function fetchWithRetry(url) {
-            const proxies = [
-                `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}&v=${Date.now()}`,
-                `https://corsproxy.io/?${encodeURIComponent(url)}`,
-                `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`
-            ];
-            for (let p of proxies) {
-                try {
-                    const r = await fetch(p);
-                    if (r.ok) {
-                        const d = await r.json();
-                        return d.data || d;
-                    }
-                } catch (e) { console.log("Proxy failed, trying next..."); }
-            }
-            return null;
-        }
-
-        async function init() {
-            try {
-                // Google Sheet Load
-                const rSheet = await fetch(SCRIPT_URL);
-                const dSheet = await rSheet.json();
-                dSheet.forEach(k => paidSet.add(k));
-
-                // Offers Load
-                const rOffer = await fetch('offers.json');
-                const dOffer = await rOffer.json();
-                dOffer.forEach(o => {
-                    offers[o.cid || o.id] = { t: o.title, u: parseInt(o.user_payout.replace(/\D/g,'')) || 6 };
-                });
-
-                await loadLeads();
-            } catch(e) { console.error(e); setTimeout(init, 3000); }
-        }
-
-        async function loadLeads() {
-            leads = await fetchWithRetry(API_URL);
-            if(leads) render();
-        }
-
-        function render() {
-            const area = document.getElementById('tasks-area');
-            area.innerHTML = '';
-            let count = 0;
-
-            [...leads].reverse().forEach(l => {
-                if(l.status.toLowerCase() !== 'approved') return;
-                let sk = `${l.p1}_${l.offerid}_SELF`;
-                if(paidSet.has(sk)) return;
-
-                let o = offers[l.offerid] || { t: `Offer #${l.offerid}`, u: 6 };
-                count++;
-
-                area.innerHTML += `
-                    <div class="card" id="card-${sk}">
-                        <div class="upi-box" onclick="copyAndNotify('${l.p1}')">
-                            ${l.p1} <span style="font-size:10px; color:#666; margin-left:10px;">TAP TO COPY</span>
-                        </div>
-                        
-                        <div class="amt-row">
-                            <div style="font-size:12px; color:#aaa; font-weight:700;">${o.t}</div>
-                            <div class="amt-txt">₹${o.u}</div>
-                        </div>
-                        
-                        <div class="app-grid">
-                            <div class="app-item" onclick="openPayApp('fampay', '${l.p1}')">
-                                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRz-M8v1XpW5qXoY8yWzB-L-U0fO8i_X3lCjw&s">
-                                <div class="app-name">FamPay</div>
-                            </div>
-                            <div class="app-item" onclick="openPayApp('phonepe', '${l.p1}')">
-                                <img src="https://logowik.com/content/uploads/images/phonepe-icon9223.logowik.com.webp">
-                                <div class="app-name">PhonePe</div>
-                            </div>
-                            <div class="app-item" onclick="openPayApp('paytm', '${l.p1}')">
-                                <img src="https://cdn.iconscout.com/icon/free/png-256/free-paytm-226448.png">
-                                <div class="app-name">Paytm</div>
-                            </div>
-                            <div class="app-item" onclick="openPayApp('gpay', '${l.p1}')">
-                                <img src="https://www.vectorlogo.zone/logos/google_pay/google_pay-icon.svg">
-                                <div class="app-name">GPay</div>
-                            </div>
-                        </div>
-
-                        <button class="btn-done" onclick="markPaid('${l.p1}', '${sk}')">✅ MARK AS PAID</button>
-                    </div>
-                `;
+    async function init() {
+        try {
+            const [rSheet, rOffer] = await Promise.all([fetch(SCRIPT_URL), fetch('offers.json')]);
+            const dSheet = await rSheet.json();
+            const dOffer = await rOffer.json();
+            dSheet.forEach(k => paidSet.add(k));
+            dOffer.forEach(o => {
+                offers[o.cid || o.id] = { 
+                    t: o.title, 
+                    u: parseInt(o.user_payout.replace(/\D/g,'')) || 6, 
+                    r: parseInt(o.refer_payout.replace(/\D/g,'')) || 2 
+                };
             });
+
+            // Proxy Logic for Infinite Retry
+            const res = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(API_URL)}`);
+            const data = await res.json();
+            leads = data.data || data;
+            
             document.getElementById('loader').classList.add('hidden');
-            if(count === 0) document.getElementById('loader').innerHTML = "📭 NO PENDING TASKS!";
+            render();
+        } catch(e) { 
+            document.getElementById('loader').innerText = "❌ ERROR: DATA NOT LOADED";
         }
+    }
 
-        window.markPaid = function(upi, key) {
-            if(confirm("Confirm Payment Done? Card will hide.")) {
-                document.getElementById(`card-${key}`).style.opacity = '0.3';
-                document.getElementById(`card-${key}`).style.pointerEvents = 'none';
-                fetch(SCRIPT_URL + `?action=pay&key=${encodeURIComponent(key)}`, { mode: 'no-cors' });
-                setTimeout(() => { document.getElementById(`card-${key}`).classList.add('hidden'); }, 500);
+    function render() {
+        let tA = document.getElementById('tasks-area'), rA = document.getElementById('referrals-area'), hA = document.getElementById('history-area');
+        let rG = {}, tc = 0, rc = 0;
+        tA.innerHTML = ''; rA.innerHTML = ''; hA.innerHTML = '';
+
+        [...leads].reverse().forEach(l => {
+            if(l.status.toLowerCase() !== 'approved') return;
+            let o = offers[l.offerid] || { t: `Offer ${l.offerid}`, u: 6, r: 2 };
+            let sk = `${l.p1}_${l.offerid}_SELF`;
+            let rk = `${l.p2}_${l.offerid}_REF`;
+
+            if(paidSet.has(sk)) {
+                hA.innerHTML += `<div class="card history-card"><div class="upi-banner">${l.p1}</div><div style="text-align:center">PAID ₹${o.u} (TASK)</div></div>`;
+            } else {
+                tc++;
+                tA.innerHTML += cardTemplate(l.p1, o.t, o.u, sk);
             }
+
+            if(l.p2 && l.p2 !== "null" && l.p2.trim() !== "") {
+                if(!rG[l.p2]) rG[l.p2] = { total: 0, keys: [] };
+                rG[l.p2].total += o.r;
+                rG[l.p2].keys.push(rk);
+            }
+        });
+
+        for (let [upi, d] of Object.entries(rG)) {
+            if(d.keys.every(k => paidSet.has(k))) continue;
+            rc++;
+            rA.innerHTML += cardTemplate(upi, `${d.keys.length} Referrals`, d.total, JSON.stringify(d.keys));
         }
 
-        init();
-    </script>
+        document.getElementById('t-count').innerText = tc;
+        document.getElementById('r-count').innerText = rc;
+    }
+
+    function cardTemplate(upi, title, amt, key) {
+        return `
+            <div class="card" id="card-${key}">
+                <div class="upi-banner" onclick="handleApp('none', '${upi}')">${upi}</div>
+                <div class="details-row">
+                    <div style="font-size:12px; color:#888; font-weight:bold;">${title}</div>
+                    <div class="amt-txt">₹${amt}</div>
+                </div>
+                <div class="app-grid">
+                    <div class="app-item" onclick="handleApp('fampay', '${upi}')">
+                        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRz-M8v1XpW5qXoY8yWzB-L-U0fO8i_X3lCjw&s">
+                        <div class="app-name">FAMPAY</div>
+                    </div>
+                    <div class="app-item" onclick="handleApp('phonepe', '${upi}')">
+                        <img src="https://logowik.com/content/uploads/images/phonepe-icon9223.logowik.com.webp">
+                        <div class="app-name">PHONEPE</div>
+                    </div>
+                    <div class="app-item" onclick="handleApp('paytm', '${upi}')">
+                        <img src="https://cdn.iconscout.com/icon/free/png-256/free-paytm-226448.png">
+                        <div class="app-name">PAYTM</div>
+                    </div>
+                    <div class="app-item" onclick="handleApp('gpay', '${upi}')">
+                        <img src="https://www.vectorlogo.zone/logos/google_pay/google_pay-icon.svg">
+                        <div class="app-name">GPAY</div>
+                    </div>
+                </div>
+                <button class="btn-paid" onclick="markPaid('${key}')">✅ MARK AS PAID</button>
+            </div>`;
+    }
+
+    window.markPaid = function(key) {
+        if(confirm("Are you sure? This will update Google Sheets.")) {
+            const kArr = key.startsWith('[') ? JSON.parse(key) : [key];
+            kArr.forEach(k => fetch(SCRIPT_URL + `?action=pay&key=${encodeURIComponent(k)}`, { mode: 'no-cors' }));
+            alert("Updated Successfully! Refreshing...");
+            location.reload();
+        }
+    }
+
+    window.switchTab = function(tab) {
+        document.querySelectorAll('.tab-btn').forEach(t => t.classList.remove('active'));
+        event.target.classList.add('active');
+        ['tasks-area','referrals-area','history-area'].forEach(id => document.getElementById(id).classList.add('hidden'));
+        document.getElementById(tab + '-area').classList.remove('hidden');
+    }
+
+    init();
+</script>
 </body>
 </html>
