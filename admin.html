@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>⚡ ULTIMATE ADMIN - PRO CONNECT</title>
+    <title>⚡ ULTIMATE ADMIN - INFINITE CONNECT</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         body { margin: 0; background: #000; font-family: 'Poppins', sans-serif; color: white; padding-bottom: 80px; }
@@ -11,20 +11,15 @@
         .tabs { display: flex; gap: 6px; margin: 15px 0; background: #1a1a1a; padding: 5px; border-radius: 12px; }
         .tab-btn { flex: 1; padding: 12px; border: none; background: none; color: #777; font-weight: 700; font-size: 11px; border-radius: 9px; cursor: pointer; transition: 0.3s; }
         .tab-btn.active { background: #0072ff; color: #fff; box-shadow: 0 0 10px #0072ff; }
-        
         .card { background: #111; padding: 16px; border-radius: 18px; margin-bottom: 12px; border: 1px solid #222; transition: 0.3s; }
         .upi-txt { font-size: 14px; font-weight: 700; color: #00c6ff; word-break: break-all; }
         .offer-txt { font-size: 11px; color: #666; margin-top: 2px; }
-        
-        /* Amount Design - Big and Clear */
-        .amt-txt { font-size: 26px; font-weight: 900; color: #fff; background: #222; padding: 4px 12px; border-radius: 8px; border: 1px solid #0072ff; }
-        
+        /* Amount Design - Big for Safety */
+        .amt-txt { font-size: 24px; font-weight: 900; color: #fff; background: #222; padding: 2px 10px; border-radius: 8px; border: 1px solid #0072ff; }
         .btn-main { background: #fff; color: #000; border: none; padding: 12px; border-radius: 12px; font-weight: 900; width: 100%; margin-top: 12px; cursor: pointer; }
-        
-        /* App Buttons Grid */
-        .app-grid { display: flex; gap: 6px; margin-top: 12px; }
-        .app-btn { flex: 1; padding: 10px 5px; background: #1a1a1a; border: 1px solid #333; color: #fff; font-size: 10px; font-weight: 900; border-radius: 8px; cursor: pointer; }
-        
+        /* App Shortcuts */
+        .app-grid { display: flex; gap: 5px; margin-top: 10px; }
+        .app-btn { flex: 1; padding: 8px 2px; background: #1a1a1a; border: 1px solid #333; color: #fff; font-size: 9px; font-weight: 900; border-radius: 6px; cursor: pointer; }
         .loader { text-align: center; margin-top: 50px; color: #0072ff; font-weight: 900; font-size: 14px; padding: 20px; border: 1px dashed #333; border-radius: 10px; }
         .hidden { display: none !important; }
         .card-history { opacity: 0.4; filter: grayscale(1); border: 1px solid #333; }
@@ -36,37 +31,34 @@
             <div style="font-weight:900;">⚡ ADMIN PRO</div>
             <div id="status" style="font-size:10px; color:#00ff00; border:1px solid #00ff00; padding:2px 6px; border-radius:4px;">● AUTO-SYNC ON</div>
         </div>
-        
         <div class="tabs">
             <button class="tab-btn active" onclick="switchTab('tasks')">TASKS (<span id="count-t">0</span>)</button>
             <button class="tab-btn" onclick="switchTab('referrals')">REFS (<span id="count-r">0</span>)</button>
             <button class="tab-btn" onclick="switchTab('history')">HISTORY</button>
         </div>
-
         <div id="loader" class="loader">🚀 STARTING ENGINES...</div>
-        
         <div id="tasks-area"></div>
         <div id="referrals-area" class="hidden"></div>
         <div id="history-area" class="hidden"></div>
     </div>
 
     <script>
-        // --- PASSWORD SYSTEM ---
-        const pass = prompt("Enter Admin Password:");
+        // --- 1. PASSWORD SYSTEM ---
+        const pass = prompt("Enter Password:");
         if(pass === "1234") {
             document.getElementById('admin-panel').style.display = 'block';
         } else {
-            alert("Wrong Password!");
-            window.location.reload();
+            alert("Wrong!"); window.location.reload();
         }
 
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwfjyg_o0a_BUgiC0Iuoit3OTtzBHhkvVf8kg6XeI0DaCKVpBsbljCbpK-Tbb7uk-Dqvg/exec";
         const API_URL = "https://panel.visioncamp.in/api.php?auth-token=8df0570da65f3a1798408c942b82839a&report=1";
         let paidSet = new Set(), leads = [], offers = {};
 
-        // --- APP LAUNCHER ---
+        // --- 2. APP LAUNCHER ---
         window.openApp = function(url) { window.location.href = url; }
 
+        // --- 3. DATA FETCH (Wohi Purana Logic) ---
         async function fetchWithInfiniteRetry(url) {
             const proxies = [
                 `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}&v=${Date.now()}`,
@@ -81,7 +73,8 @@
                     const response = await fetch(proxies[index]);
                     if (response.ok) {
                         const data = await response.json();
-                        return data.data || data;
+                        // यहाँ सुधार किया है ताकि डेटा सीधा लोड हो
+                        return data.data || data; 
                     }
                 } catch (e) {}
                 index = (index + 1) % proxies.length;
@@ -104,7 +97,7 @@
 
         async function loadLeads() {
             leads = await fetchWithInfiniteRetry(API_URL);
-            render();
+            if (leads) render();
         }
 
         function render() {
@@ -152,7 +145,7 @@
                 let cardId = upi.replace(/[^a-zA-Z0-9]/g, '');
                 rA.innerHTML += `<div class="card" id="card-${cardId}">
                     <div style="display:flex;justify-content:space-between;align-items:center">
-                        <div><div class="upi-txt">${upi}</div><div class="offer-txt">${d.keys.length} Refs Pending</div></div>
+                        <div><div class="upi-txt">${upi}</div><div class="offer-txt">${d.keys.length} Refs</div></div>
                         <div class="amt-txt" style="color:#ffd700;border-color:#ffd700">₹${d.total}</div>
                     </div>
                     <div class="app-grid">
@@ -165,7 +158,7 @@
             }
             document.getElementById('count-t').innerText = tc;
             document.getElementById('count-r').innerText = rc;
-            document.getElementById('loader').style.display = 'none';
+            document.getElementById('loader').classList.add('hidden');
         }
 
         function createHistoryCard(u, t, a, type) {
@@ -178,18 +171,14 @@
                 const kArr = Array.isArray(keys) ? keys : [keys];
                 const cardId = type === 'task' ? `card-${keys}` : refCardId;
                 const card = document.getElementById(cardId);
-                if(card) {
-                    card.style.opacity = '0.3';
-                    card.style.transform = 'scale(0.9)';
-                    setTimeout(() => card.classList.add('hidden'), 300);
-                }
+                if(card) { card.style.opacity = '0.3'; setTimeout(() => card.classList.add('hidden'), 300); }
+                
                 let countId = type === 'task' ? 'count-t' : 'count-r';
                 let countEl = document.getElementById(countId);
                 countEl.innerText = Math.max(0, parseInt(countEl.innerText) - 1);
+
                 kArr.forEach((k, i) => {
-                    setTimeout(() => {
-                        fetch(SCRIPT_URL + `?action=pay&key=${encodeURIComponent(k)}`, { mode: 'no-cors' });
-                    }, i * 300);
+                    setTimeout(() => { fetch(SCRIPT_URL + `?action=pay&key=${encodeURIComponent(k)}`, { mode: 'no-cors' }); }, i * 300);
                 });
             }
         }
