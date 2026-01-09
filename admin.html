@@ -2,56 +2,85 @@
 <html>
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>⚡ PATHAK PRO ADMIN</title>
+    <title>🔥 PATHAK ULTRA PRO</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
-        body { margin: 0; background: #000; font-family: 'Poppins', sans-serif; color: white; padding-bottom: 80px; }
-        .container { max-width: 600px; margin: auto; padding: 12px; }
-        .header { background: #111; padding: 15px; border-bottom: 1px solid #333; display: flex; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+        body { margin: 0; background: #000; font-family: 'Poppins', sans-serif; color: white; padding-bottom: 100px; }
+        .container { max-width: 600px; margin: auto; padding: 10px; }
         
-        /* ORIGINAL TABS SYSTEM */
-        .tabs { display: flex; gap: 8px; margin: 15px 0; background: #1a1a1a; padding: 6px; border-radius: 12px; }
-        .tab-btn { flex: 1; padding: 10px; border: none; background: none; color: #777; font-weight: 700; font-size: 11px; border-radius: 9px; cursor: pointer; transition: 0.3s; }
-        .tab-btn.active { background: #0072ff; color: #fff; box-shadow: 0 0 10px #0072ff; }
+        /* 1. REPORT FILTERS (TOP BAR) */
+        .filter-box { 
+            display: flex; gap: 5px; position: sticky; top: 0; z-index: 99; 
+            background: #000; padding: 10px 0; border-bottom: 1px solid #333;
+        }
+        .filter-btn { 
+            flex: 1; padding: 10px; border: 1px solid #333; background: #111; color: #888; 
+            border-radius: 8px; font-weight: 900; font-size: 10px; cursor: pointer; 
+        }
+        .filter-btn.active { background: #00e5ff; color: #000; border-color: #00e5ff; }
 
-        .card { background: #111; border: 1px solid #333; border-radius: 18px; margin-bottom: 15px; padding: 18px; position: relative; }
-        .upi-banner { font-size: 18px; color: #00c6ff; font-weight: 900; background: #1a1a1a; padding: 14px; border-radius: 12px; text-align: center; border: 1px dashed #444; cursor: pointer; margin-bottom: 10px; letter-spacing: 1px; }
+        /* 2. TABS SECTION */
+        .tabs { display: flex; gap: 5px; margin: 10px 0; background: #1a1a1a; padding: 5px; border-radius: 12px; }
+        .tab { flex: 1; padding: 10px; text-align: center; font-weight: bold; font-size: 11px; color: #666; cursor: pointer; border-radius: 8px; }
+        .tab.active { background: #fff; color: #000; }
+
+        /* 3. CARD DESIGN */
+        .card { background: #0f0f0f; border: 1px solid #222; border-radius: 16px; margin-bottom: 16px; padding: 15px; }
         
-        .details-row { display: flex; justify-content: space-between; align-items: center; margin: 12px 0; }
-        .amt-txt { font-size: 32px; font-weight: 900; color: #fff; border-left: 4px solid #0072ff; padding-left: 12px; }
+        /* BANNER */
+        .magic-banner { 
+            background: linear-gradient(90deg, #111, #1a1a1a); 
+            padding: 12px; border-radius: 10px; text-align: center; 
+            border: 1px dashed #444; cursor: pointer; margin-bottom: 12px;
+        }
+        .upi-text { font-size: 15px; color: #00e5ff; font-weight: 900; letter-spacing: 0.5px; }
+        .tap-hint { font-size: 9px; color: #555; margin-top: 4px; text-transform: uppercase; }
 
-        /* APP ICONS GRID - UPDATED LINKS */
-        .app-grid { display: flex; justify-content: space-between; gap: 10px; margin: 18px 0; background: #161616; padding: 12px; border-radius: 15px; border: 1px solid #222; }
-        .app-item { text-align: center; cursor: pointer; flex: 1; transition: 0.2s; }
-        .app-item:active { transform: scale(0.9); }
-        .app-item img { width: 45px; height: 45px; border-radius: 12px; border: 1px solid #333; margin-bottom: 4px; background: #222; }
-        .app-name { font-size: 9px; font-weight: 700; color: #777; text-transform: uppercase; }
+        .info-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .amt-box { font-size: 26px; font-weight: 900; color: #fff; text-shadow: 0 0 10px rgba(255,255,255,0.2); }
 
-        .btn-paid { width: 100%; background: #fff; color: #000; border: none; padding: 15px; border-radius: 12px; font-weight: 900; cursor: pointer; font-size: 14px; box-shadow: 0 4px 15px rgba(255,255,255,0.1); }
+        /* 4. MULTI-ICON GRID */
+        .label-sec { font-size: 9px; color: #444; font-weight: bold; margin: 10px 0 5px 0; text-transform: uppercase; }
+        .app-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
         
-        #toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #0072ff; color: white; padding: 10px 25px; border-radius: 30px; display: none; z-index: 1000; font-weight: 900; box-shadow: 0 0 20px rgba(0,114,255,0.5); }
-        .loader { text-align: center; margin-top: 50px; color: #0072ff; font-weight: 900; }
+        .app-btn { 
+            background: #181818; padding: 8px 0; border-radius: 8px; 
+            text-align: center; cursor: pointer; border: 1px solid #333; 
+        }
+        .app-btn:active { background: #333; }
+        .app-btn img { width: 30px; height: 30px; display: block; margin: 0 auto 4px; }
+        .app-name { font-size: 8px; font-weight: 900; color: #aaa; }
+        
+        /* SPECIFIC COLORS FOR IDENTIFICATION */
+        .fam-btn { border-color: #F89F1E33; }
+        .pe-btn { border-color: #5f259f33; }
+        .pay-btn { border-color: #00baf233; }
+
+        .btn-done { width: 100%; background: #00e5ff; color: #000; border: none; padding: 14px; border-radius: 10px; font-weight: 900; margin-top: 15px; cursor: pointer; font-size: 14px; }
+        
+        .loader { text-align: center; padding: 50px; color: #00e5ff; font-weight: bold; font-size: 12px; }
         .hidden { display: none !important; }
-        .history-card { opacity: 0.4; filter: grayscale(1); }
+        #toast { position: fixed; top: 70px; left: 50%; transform: translateX(-50%); background: #fff; color: #000; padding: 8px 20px; border-radius: 20px; font-weight: 900; font-size: 10px; display: none; z-index: 9999; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
     </style>
 </head>
 <body>
 
-<div id="toast">UPI COPIED! ✅</div>
-
-<div class="header">
-    <div style="font-weight:900; font-size: 18px;">⚡ PATHAK PRO</div>
-    <div id="status" style="font-size:10px; color:#00ff00; border:1px solid #00ff00; padding:2px 8px; border-radius:4px; font-weight:bold;">REPORT 3 (48H)</div>
-</div>
+<div id="toast">COPIED! LOADING APP... 🚀</div>
 
 <div class="container">
-    <div class="tabs">
-        <button class="tab-btn active" onclick="switchTab('tasks')">TASKS (<span id="t-count">0</span>)</button>
-        <button class="tab-btn" onclick="switchTab('referrals')">REFER (<span id="r-count">0</span>)</button>
-        <button class="tab-btn" onclick="switchTab('history')">HISTORY</button>
+    <div class="filter-box">
+        <button class="filter-btn active" onclick="loadReport(1, this)">TODAY (1)</button>
+        <button class="filter-btn" onclick="loadReport(3, this)">48 HRS (3)</button>
+        <button class="filter-btn" onclick="loadReport(2, this)">ALL DATA (2)</button>
     </div>
 
-    <div id="loader" class="loader">🔄 LOADING DATA FROM PROXY...</div>
+    <div class="tabs">
+        <div class="tab active" onclick="switchTab('tasks')">TASKS (<span id="tc">0</span>)</div>
+        <div class="tab" onclick="switchTab('referrals')">REFS (<span id="rc">0</span>)</div>
+        <div class="tab" onclick="switchTab('history')">HISTORY</div>
+    </div>
+
+    <div id="loader" class="loader">🔐 SYSTEM SECURE<br>LOADING DATA...</div>
 
     <div id="tasks-area"></div>
     <div id="referrals-area" class="hidden"></div>
@@ -59,55 +88,78 @@
 </div>
 
 <script>
+    // --- SECURITY CHECK (5 MIN) ---
+    function checkSec() {
+        const t = localStorage.getItem('last_login');
+        const n = Date.now();
+        if(!t || (n - t > 300000)) { // 300000ms = 5 mins
+            if(prompt("ENTER PASSWORD:") === "1234") { localStorage.setItem('last_login', n); }
+            else { location.reload(); throw "Stop"; }
+        } else { localStorage.setItem('last_login', n); }
+    }
+    checkSec();
+
+    // --- CONFIG ---
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwfjyg_o0a_BUgiC0Iuoit3OTtzBHhkvVf8kg6XeI0DaCKVpBsbljCbpK-Tbb7uk-Dqvg/exec";
-    // REPORT=3 (Today + Yesterday = 48 Hours)
-    const API_URL = "https://panel.visioncamp.in/api.php?auth-token=8df0570da65f3a1798408c942b82839a&report=3";
-    
+    let CURRENT_REP = 1;
     let paidSet = new Set(), leads = [], offers = {};
 
-    // Copy & Direct App Opening
-    function handleApp(app, upi) {
+    // --- APP OPENING LOGIC (WITH fam.one) ---
+    function openApp(app, upi, amt) {
         navigator.clipboard.writeText(upi);
-        const toast = document.getElementById('toast');
-        toast.style.display = 'block';
-        setTimeout(() => toast.style.display = 'none', 1500);
-
-        const apps = {
-            'paytm': "paytmmp://",
-            'phonepe': "phonepe://",
-            'gpay': "googlepay://",
-            'fampay': "fampay://"
-        };
+        const t = document.getElementById('toast');
+        t.style.display = 'block';
+        setTimeout(() => t.style.display = 'none', 1500);
         
-        if(apps[app]) {
-            setTimeout(() => { window.location.href = apps[app]; }, 400);
-        }
+        let url = "";
+        
+        // FAMPAY LOGIC
+        if(app === 'fam_one') url = `https://fam.one/${upi}`; // Tumhara maanga hua link
+        if(app === 'fam_app') url = "fampay://"; 
+        if(app === 'fam_pay') url = `fampay://upi/pay?pa=${upi}&pn=User&am=${amt}&cu=INR`;
+
+        // PHONEPE LOGIC
+        if(app === 'pe_app') url = "phonepe://";
+        if(app === 'pe_pay') url = `phonepe://pay?pa=${upi}&pn=User&am=${amt}&cu=INR`;
+
+        // PAYTM LOGIC
+        if(app === 'pay_app') url = "paytmmp://";
+        if(app === 'pay_pay') url = `paytmmp://pay?pa=${upi}&pn=User&am=${amt}&cu=INR`;
+
+        setTimeout(() => { window.location.href = url; }, 500);
     }
 
-    async function init() {
-        try {
-            const [rSheet, rOffer] = await Promise.all([fetch(SCRIPT_URL), fetch('offers.json')]);
-            const dSheet = await rSheet.json();
-            const dOffer = await rOffer.json();
-            dSheet.forEach(k => paidSet.add(k));
-            dOffer.forEach(o => {
-                offers[o.cid || o.id] = { 
-                    t: o.title, 
-                    u: parseInt(o.user_payout.replace(/\D/g,'')) || 6, 
-                    r: parseInt(o.refer_payout.replace(/\D/g,'')) || 2 
-                };
-            });
+    // --- DATA LOADING ---
+    async function loadReport(rid, btn) {
+        CURRENT_REP = rid;
+        if(btn) {
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+        }
+        document.getElementById('tasks-area').innerHTML = '';
+        document.getElementById('loader').classList.remove('hidden');
+        document.getElementById('loader').innerHTML = "🔄 CONNECTING PROXY...";
 
-            // Proxy Logic for Infinite Retry
+        try {
+            if(Object.keys(offers).length === 0) {
+                const [rSheet, rOffer] = await Promise.all([fetch(SCRIPT_URL), fetch('offers.json')]);
+                const dSheet = await rSheet.json();
+                const dOffer = await rOffer.json();
+                dSheet.forEach(k => paidSet.add(k));
+                dOffer.forEach(o => {
+                    offers[o.cid || o.id] = { t: o.title, u: parseInt(o.user_payout.replace(/\D/g,'')) || 6, r: parseInt(o.refer_payout.replace(/\D/g,'')) || 2 };
+                });
+            }
+            
+            // PROXY + API
+            const API_URL = `https://panel.visioncamp.in/api.php?auth-token=8df0570da65f3a1798408c942b82839a&report=${CURRENT_REP}`;
             const res = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(API_URL)}`);
             const data = await res.json();
             leads = data.data || data;
             
             document.getElementById('loader').classList.add('hidden');
             render();
-        } catch(e) { 
-            document.getElementById('loader').innerText = "❌ ERROR: DATA NOT LOADED";
-        }
+        } catch(e) { document.getElementById('loader').innerHTML = "❌ SERVER ERROR"; }
     }
 
     function render() {
@@ -122,76 +174,99 @@
             let rk = `${l.p2}_${l.offerid}_REF`;
 
             if(paidSet.has(sk)) {
-                hA.innerHTML += `<div class="card history-card"><div class="upi-banner">${l.p1}</div><div style="text-align:center">PAID ₹${o.u} (TASK)</div></div>`;
+                hA.innerHTML += `<div class="card" style="opacity:0.5; font-size:10px; border:1px solid #444;">${l.p1} | ₹${o.u} (PAID)</div>`;
             } else {
                 tc++;
-                tA.innerHTML += cardTemplate(l.p1, o.t, o.u, sk);
+                tA.innerHTML += makeCard(l.p1, o.t, o.u, sk);
             }
 
-            if(l.p2 && l.p2 !== "null" && l.p2.trim() !== "") {
+            if(l.p2 && l.p2.length > 5) {
                 if(!rG[l.p2]) rG[l.p2] = { total: 0, keys: [] };
-                rG[l.p2].total += o.r;
-                rG[l.p2].keys.push(rk);
+                rG[l.p2].total += o.r; rG[l.p2].keys.push(rk);
             }
         });
 
         for (let [upi, d] of Object.entries(rG)) {
             if(d.keys.every(k => paidSet.has(k))) continue;
             rc++;
-            rA.innerHTML += cardTemplate(upi, `${d.keys.length} Referrals`, d.total, JSON.stringify(d.keys));
+            rA.innerHTML += makeCard(upi, `${d.keys.length} REFERRALS`, d.total, JSON.stringify(d.keys));
         }
-
-        document.getElementById('t-count').innerText = tc;
-        document.getElementById('r-count').innerText = rc;
+        document.getElementById('tc').innerText = tc;
+        document.getElementById('rc').innerText = rc;
     }
 
-    function cardTemplate(upi, title, amt, key) {
+    function makeCard(upi, title, amt, key) {
         return `
             <div class="card" id="card-${key}">
-                <div class="upi-banner" onclick="handleApp('none', '${upi}')">${upi}</div>
-                <div class="details-row">
-                    <div style="font-size:12px; color:#888; font-weight:bold;">${title}</div>
-                    <div class="amt-txt">₹${amt}</div>
+                <div class="magic-banner" onclick="navigator.clipboard.writeText('${upi}')">
+                    <div class="upi-text">${upi}</div>
+                    <div class="tap-hint">TAP TO COPY UPI</div>
                 </div>
+
+                <div class="info-row">
+                    <div style="font-size:11px; color:#aaa; font-weight:bold;">${title}</div>
+                    <div class="amt-box">₹${amt}</div>
+                </div>
+
+                <div class="label-sec">FAMPAY OPTIONS (3 LINKS)</div>
                 <div class="app-grid">
-                    <div class="app-item" onclick="handleApp('fampay', '${upi}')">
-                        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRz-M8v1XpW5qXoY8yWzB-L-U0fO8i_X3lCjw&s">
-                        <div class="app-name">FAMPAY</div>
+                    <div class="app-btn fam-btn" onclick="openApp('fam_one', '${upi}', '${amt}')">
+                        <img src="https://img.icons8.com/color/48/wallet.png">
+                        <div class="app-name">FAM.ONE</div>
                     </div>
-                    <div class="app-item" onclick="handleApp('phonepe', '${upi}')">
-                        <img src="https://logowik.com/content/uploads/images/phonepe-icon9223.logowik.com.webp">
-                        <div class="app-name">PHONEPE</div>
+                    <div class="app-btn fam-btn" onclick="openApp('fam_app', '${upi}', '${amt}')">
+                        <img src="https://img.icons8.com/color/48/wallet.png">
+                        <div class="app-name">APP</div>
                     </div>
-                    <div class="app-item" onclick="handleApp('paytm', '${upi}')">
-                        <img src="https://cdn.iconscout.com/icon/free/png-256/free-paytm-226448.png">
-                        <div class="app-name">PAYTM</div>
+                    <div class="app-btn fam-btn" onclick="openApp('fam_pay', '${upi}', '${amt}')">
+                        <img src="https://img.icons8.com/color/48/wallet.png">
+                        <div class="app-name">PAY</div>
                     </div>
-                    <div class="app-item" onclick="handleApp('gpay', '${upi}')">
-                        <img src="https://www.vectorlogo.zone/logos/google_pay/google_pay-icon.svg">
-                        <div class="app-name">GPAY</div>
+                    <div class="app-btn" style="opacity:0; pointer-events:none;"></div>
+                </div>
+
+                <div class="label-sec">PHONEPE & PAYTM (2 LINKS EACH)</div>
+                <div class="app-grid">
+                    <div class="app-btn pe-btn" onclick="openApp('pe_app', '${upi}', '${amt}')">
+                        <img src="https://img.icons8.com/color/48/phone-pe.png">
+                        <div class="app-name">PE (APP)</div>
+                    </div>
+                    <div class="app-btn pe-btn" onclick="openApp('pe_pay', '${upi}', '${amt}')">
+                        <img src="https://img.icons8.com/color/48/phone-pe.png">
+                        <div class="app-name">PE (PAY)</div>
+                    </div>
+                    <div class="app-btn pay-btn" onclick="openApp('pay_app', '${upi}', '${amt}')">
+                        <img src="https://img.icons8.com/color/48/paytm.png">
+                        <div class="app-name">PTM (APP)</div>
+                    </div>
+                    <div class="app-btn pay-btn" onclick="openApp('pay_pay', '${upi}', '${amt}')">
+                        <img src="https://img.icons8.com/color/48/paytm.png">
+                        <div class="app-name">PTM (PAY)</div>
                     </div>
                 </div>
-                <button class="btn-paid" onclick="markPaid('${key}')">✅ MARK AS PAID</button>
-            </div>`;
+
+                <button class="btn-done" onclick="markPaid('${key}')">✅ THEEK HAI (DONE)</button>
+            </div>
+        `;
     }
 
     window.markPaid = function(key) {
-        if(confirm("Are you sure? This will update Google Sheets.")) {
+        if(confirm("Confirm Payment?")) {
+            document.getElementById(`card-${key}`).style.display = 'none';
             const kArr = key.startsWith('[') ? JSON.parse(key) : [key];
             kArr.forEach(k => fetch(SCRIPT_URL + `?action=pay&key=${encodeURIComponent(k)}`, { mode: 'no-cors' }));
-            alert("Updated Successfully! Refreshing...");
-            location.reload();
         }
     }
-
-    window.switchTab = function(tab) {
-        document.querySelectorAll('.tab-btn').forEach(t => t.classList.remove('active'));
+    
+    window.switchTab = function(t) {
+        document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
         event.target.classList.add('active');
         ['tasks-area','referrals-area','history-area'].forEach(id => document.getElementById(id).classList.add('hidden'));
-        document.getElementById(tab + '-area').classList.remove('hidden');
+        document.getElementById(t + '-area').classList.remove('hidden');
     }
 
-    init();
+    // LOAD DEFAULT
+    loadReport(1);
 </script>
 </body>
 </html>
