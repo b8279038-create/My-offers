@@ -2,91 +2,77 @@
 <html lang="en">
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Master Panel - Supabase</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <title>Master Panel - Fixed</title>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #0f0f0f; color: #e0e0e0; padding: 15px; margin: 0; }
-        .card { background: #1a1a1a; padding: 20px; border-radius: 12px; margin-bottom: 20px; border: 1px solid #333; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
-        h2 { color: #00d2ff; font-size: 20px; margin-top: 0; }
-        input { width: 100%; padding: 12px; margin: 8px 0; background: #262626; border: 1px solid #444; color: white; border-radius: 8px; box-sizing: border-box; outline: none; }
-        input:focus { border-color: #00d2ff; }
-        button { background: linear-gradient(45deg, #0072ff, #00d2ff); color: white; border: none; padding: 12px; width: 100%; border-radius: 8px; font-weight: bold; font-size: 16px; cursor: pointer; margin-top: 10px; }
-        .lead { background: #222; padding: 10px; border-radius: 8px; margin-bottom: 10px; border-left: 4px solid #00d2ff; display: flex; justify-content: space-between; align-items: center; }
-        .status { font-size: 12px; padding: 4px 8px; border-radius: 4px; text-transform: uppercase; font-weight: 800; }
+        body { font-family: sans-serif; background: #0f0f0f; color: #fff; padding: 20px; }
+        .card { background: #1a1a1a; padding: 20px; border-radius: 12px; border: 1px solid #333; margin-bottom: 20px; }
+        input { width: 100%; padding: 12px; margin: 10px 0; background: #222; border: 1px solid #444; color: #fff; border-radius: 8px; box-sizing: border-box; }
+        button { background: #0072ff; color: white; border: none; padding: 15px; width: 100%; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        button:disabled { background: #555; }
+        #status-msg { margin-top: 10px; font-size: 14px; text-align: center; }
     </style>
 </head>
 <body>
 
     <div class="card">
-        <h2>➕ Add New Offer</h2>
-        <input type="text" id="offTitle" placeholder="Offer Name (e.g. Incred)">
+        <h2>🚀 Add Offer</h2>
+        <input type="text" id="offTitle" placeholder="Offer Name">
         <input type="text" id="offCID" placeholder="Campaign ID (CID)">
-        <input type="text" id="offPayout" placeholder="User Payout (e.g. 20)">
+        <input type="text" id="offPayout" placeholder="User Payout">
         <button onclick="addOffer()" id="saveBtn">SAVE TO DATABASE</button>
-    </div>
-
-    <div class="card">
-        <h2>📊 Live Leads (Tracking)</h2>
-        <div id="leadsList">Searching for leads...</div>
+        <div id="status-msg"></div>
     </div>
 
     <script>
-        // तेरी जादुई चाबियाँ (Supabase Credentials)
         const URL = 'https://mwxmxhdsvtavwqqcllnj.supabase.co';
         const KEY = 'sb_publishable_GouMk9TXG7QwnkRHAE6pBw_9Ej9-vJL_';
-        const supabase = libsupabase.createClient(URL, KEY);
+        
+        // लाइब्रेरी को सही से चालू करना
+        const { createClient } = supabase;
+        const _supabase = createClient(URL, KEY);
 
-        // ऑफर को डेटाबेस में भेजने का फंक्शन
         async function addOffer() {
             const btn = document.getElementById('saveBtn');
+            const msg = document.getElementById('status-msg');
             const title = document.getElementById('offTitle').value;
             const cid = document.getElementById('offCID').value;
             const payout = document.getElementById('offPayout').value;
 
             if(!title || !cid) { alert("Bhai, details to bharo!"); return; }
             
-            btn.innerText = "Saving...";
+            btn.innerText = "Connecting...";
             btn.disabled = true;
+            msg.innerText = "Sending data to Supabase...";
 
-            const { error } = await supabase
-                .from('offers')
-                .insert([{ title, cid, user_payout: payout }]);
+            try {
+                const { data, error } = await _supabase
+                    .from('offers')
+                    .insert([{ 
+                        title: title, 
+                        cid: cid, 
+                        user_payout: payout 
+                    }]);
 
-            if (error) {
-                alert("Galti: " + error.message);
-                btn.innerText = "SAVE TO DATABASE";
+                if (error) {
+                    console.error(error);
+                    msg.innerHTML = "❌ Error: " + error.message;
+                    btn.innerText = "TRY AGAIN";
+                    btn.disabled = false;
+                } else {
+                    msg.innerHTML = "✅ SUCCESS! Offer saved.";
+                    alert("Success! Offer Database mein save ho gaya.");
+                    document.getElementById('offTitle').value = '';
+                    document.getElementById('offCID').value = '';
+                    document.getElementById('offPayout').value = '';
+                    btn.innerText = "SAVE TO DATABASE";
+                    btn.disabled = false;
+                }
+            } catch (err) {
+                msg.innerHTML = "❌ System Error: " + err.message;
                 btn.disabled = false;
-            } else {
-                alert("Success! Offer Database mein save ho gaya.");
-                location.reload();
             }
         }
-
-        // लीड्स देखने का फंक्शन
-        async function loadLeads() {
-            const { data, error } = await supabase
-                .from('leads')
-                .select('*')
-                .order('created_at', { ascending: false });
-
-            if (data) {
-                let html = '';
-                data.forEach(l => {
-                    const color = l.status === 'approved' ? '#2ecc71' : '#f1c40f';
-                    html += `
-                        <div class="lead">
-                            <div>
-                                <b>${l.upi_id}</b><br>
-                                <small>ID: ${l.offer_id}</small>
-                            </div>
-                            <span class="status" style="background:${color}; color:#000;">${l.status}</span>
-                        </div>`;
-                });
-                document.getElementById('leadsList').innerHTML = html || "No leads found yet.";
-            }
-        }
-
-        loadLeads();
     </script>
 </body>
 </html>
