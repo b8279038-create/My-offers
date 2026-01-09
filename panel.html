@@ -2,36 +2,31 @@
 <html lang="en">
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Master Panel - Fixed</title>
+    <title>Master Panel - Final Fix</title>
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <style>
         body { font-family: sans-serif; background: #0f0f0f; color: #fff; padding: 20px; }
         .card { background: #1a1a1a; padding: 20px; border-radius: 12px; border: 1px solid #333; margin-bottom: 20px; }
         input { width: 100%; padding: 12px; margin: 10px 0; background: #222; border: 1px solid #444; color: #fff; border-radius: 8px; box-sizing: border-box; }
         button { background: #0072ff; color: white; border: none; padding: 15px; width: 100%; border-radius: 8px; font-weight: bold; cursor: pointer; }
-        button:disabled { background: #555; }
-        #status-msg { margin-top: 10px; font-size: 14px; text-align: center; }
+        #status-msg { margin-top: 10px; font-size: 14px; text-align: center; color: #00d2ff; }
     </style>
 </head>
 <body>
 
     <div class="card">
-        <h2>🚀 Add Offer</h2>
+        <h2>🚀 Add New Offer</h2>
         <input type="text" id="offTitle" placeholder="Offer Name">
         <input type="text" id="offCID" placeholder="Campaign ID (CID)">
         <input type="text" id="offPayout" placeholder="User Payout">
         <button onclick="addOffer()" id="saveBtn">SAVE TO DATABASE</button>
-        <div id="status-msg"></div>
+        <div id="status-msg">Ready...</div>
     </div>
 
     <script>
         const URL = 'https://mwxmxhdsvtavwqqcllnj.supabase.co';
         const KEY = 'sb_publishable_GouMk9TXG7QwnkRHAE6pBw_9Ej9-vJL_';
         
-        // लाइब्रेरी को सही से चालू करना
-        const { createClient } = supabase;
-        const _supabase = createClient(URL, KEY);
-
         async function addOffer() {
             const btn = document.getElementById('saveBtn');
             const msg = document.getElementById('status-msg');
@@ -39,14 +34,17 @@
             const cid = document.getElementById('offCID').value;
             const payout = document.getElementById('offPayout').value;
 
-            if(!title || !cid) { alert("Bhai, details to bharo!"); return; }
+            if(!title || !cid) { alert("Bhai, details bharo!"); return; }
             
-            btn.innerText = "Connecting...";
+            btn.innerText = "Processing...";
             btn.disabled = true;
-            msg.innerText = "Sending data to Supabase...";
 
             try {
-                const { data, error } = await _supabase
+                // यहाँ हम लाइब्रेरी को इन्शियलाइज़ कर रहे हैं
+                const { createClient } = window.supabase;
+                const client = createClient(URL, KEY);
+
+                const { data, error } = await client
                     .from('offers')
                     .insert([{ 
                         title: title, 
@@ -55,21 +53,19 @@
                     }]);
 
                 if (error) {
-                    console.error(error);
                     msg.innerHTML = "❌ Error: " + error.message;
-                    btn.innerText = "TRY AGAIN";
-                    btn.disabled = false;
+                    btn.innerText = "SAVE AGAIN";
                 } else {
-                    msg.innerHTML = "✅ SUCCESS! Offer saved.";
+                    msg.innerHTML = "✅ SUCCESS! Saved to Supabase.";
                     alert("Success! Offer Database mein save ho gaya.");
                     document.getElementById('offTitle').value = '';
                     document.getElementById('offCID').value = '';
                     document.getElementById('offPayout').value = '';
                     btn.innerText = "SAVE TO DATABASE";
-                    btn.disabled = false;
                 }
             } catch (err) {
                 msg.innerHTML = "❌ System Error: " + err.message;
+            } finally {
                 btn.disabled = false;
             }
         }
