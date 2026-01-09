@@ -28,20 +28,20 @@
       "✅ Step 3 : Check Tracking <a href='track.html' style='color:blue;'>Click Here</a> if tracking done",
       "🎁Done : Rs. 8 Receive you with in 6 hours"
     ]
+  },
+  {
+    "id": "1594",
+    "cid": "1594",
+    "uid": "633",
+    "title": "Incred Money (Buy Gold)",
+    "image": "https://i.ibb.co/ynHkmbq2/incred-money.jpg",
+    "user_payout": "₹10",
+    "refer_payout": "₹7",
+    "steps": [
+      "✅ Step 1 : Submit UPI & Register",
+      "✅ Step 2 : Buy Gold",
+      "✅ Step 3 : Check Tracking <a href='track.html'>Click Here</a>",
+      "🎁 Done : Rs. 10 Receive within 1 hour in your UPI"
+    ]
   }
-],
-{
-  "id": "1594",
-  "cid": "1594",
-  "uid": "633",
-  "title": "Incred Money (Buy Gold)",
-  "image": "https://i.ibb.co/ynHkmbq2/incred-money.jpg",
-  "user_payout": "₹10",
-  "refer_payout": "₹7",
-  "steps": [
-    "✅ Step 1 : Submit UPI & Register",
-    "✅ Step 2 : Buy Gold",
-    "✅ Step 3 : Check Tracking <a href='track.html'>Click Here</a>",
-    "🎁 Done : Rs. 10 Receive within 1 hour in your UPI"
-  ]
-}
+]
