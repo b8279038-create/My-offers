@@ -14,9 +14,9 @@
         .btn { background: #0072ff; color: white; border: none; padding: 10px 25px; border-radius: 40px; font-weight: 800; cursor: pointer; font-size: 14px; }
         .result-area { display: none; text-align: left; animation: fadeInUp 0.5s; }
         .sec-title { font-size: 12px; color: #888; font-weight: 800; letter-spacing: 1px; margin: 20px 0 10px 0; border-bottom: 1px solid #222; padding-bottom: 5px; }
-        .task-card { background: rgba(0, 255, 0, 0.05); border: 1px solid #00ff00; padding: 12px; border-radius: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
-        .t-name { font-weight: 700; font-size: 14px; }
-        .t-status { background: #00ff00; color: black; padding: 2px 8px; border-radius: 5px; font-size: 10px; font-weight: 900; }
+        .task-card { background: rgba(255, 255, 255, 0.05); border: 1px solid #333; padding: 12px; border-radius: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+        .t-name { font-weight: 700; font-size: 13px; max-width: 70%; }
+        .t-status { padding: 3px 10px; border-radius: 5px; font-size: 10px; font-weight: 900; text-transform: uppercase; }
         .ref-summary-box { background: #121212; border: 1px solid #333; border-radius: 15px; padding: 15px; margin-bottom: 10px; text-align: center; }
         .ref-total { font-size: 32px; font-weight: 900; color: #00c6ff; }
         .ref-label { font-size: 12px; color: #888; margin-bottom: 15px; }
@@ -43,7 +43,7 @@
         <div id="loader-msg" class="status-msg"></div>
 
         <div class="result-area" id="results">
-            <div class="sec-title">✅ MY COMPLETED TASKS</div>
+            <div class="sec-title">✅ MY TASKS STATUS</div>
             <div id="myTaskList"></div>
 
             <div class="sec-title">👥 REFERRAL STATUS (LIVE)</div>
@@ -52,13 +52,13 @@
                 <div class="ref-label">Total Valid Referrals</div>
                 <div id="refBreakdown"></div>
             </div>
-            <p style="font-size: 10px; color: #555; text-align: center;">*Updates every 5-10 mins from server</p>
+            <p style="font-size: 10px; color: #555; text-align: center;">*Updates every 2 seconds via Multi-Proxy</p>
         </div>
     </div>
 
     <script>
-        // --- मल्टी-प्रॉक्सी सिस्टम ---
-        async function fetchWithInfiniteLoop(url) {
+        // --- अनलिमिटेड मल्टी-प्रॉक्सी स्विचिंग सिस्टम ---
+        async function fetchFromDualPanels(url) {
             const proxies = [
                 `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}&v=${Date.now()}`,
                 `https://corsproxy.io/?${encodeURIComponent(url)}`,
@@ -66,77 +66,86 @@
                 `https://thingproxy.freeboard.io/fetch/${url}`
             ];
 
-            let i = 0;
-            while (true) {
+            for (let i = 0; i < proxies.length; i++) {
                 try {
-                    document.getElementById('loader-msg').innerText = `🔄 Engine ${i + 1} Connecting...`;
                     const res = await fetch(proxies[i]);
                     if (res.ok) {
                         const json = await res.json();
                         return json.data || json;
                     }
                 } catch (e) {
-                    console.log(`Proxy ${i+1} failed`);
-                }
-
-                i = (i + 1) % proxies.length;
-                if (i === 0) {
-                    document.getElementById('loader-msg').innerText = "⏳ Traffic High... Retrying in 2s";
-                    await new Promise(r => setTimeout(r, 2000));
+                    console.warn(`Proxy ${i+1} failed, switching...`);
                 }
             }
+            throw new Error("All proxies busy");
         }
 
         async function startTracking() {
             let upiInput = document.getElementById('upi').value.trim().toLowerCase();
-            if(!upiInput) return;
+            if(!upiInput) { alert("UPI daalo!"); return; }
 
             document.getElementById('loader').style.display = 'block';
-            document.getElementById('loader-msg').style.display = 'block';
+            document.getElementById('loader-msg').innerText = "Connecting to Secure Engines...";
             document.getElementById('results').style.display = 'none';
             document.getElementById('checkBtn').disabled = true;
 
             try {
-                // 1. ऑफर्स डेटा
-                let offersRes = await fetch('offers.json');
-                let offersData = await offersRes.json();
+                // 1. ऑफर्स डेटा लोड करें
+                let offRes = await fetch('offers.json');
+                let offData = await offRes.json();
                 let nameMap = {};
-                offersData.forEach(o => nameMap[o.cid || o.id] = o.title);
+                offData.forEach(o => nameMap[o.cid || o.id] = o.title);
 
-                // 2. विजन कैंप डेटा (Infinite Loop Call)
-                const apiUrl = `https://panel.visioncamp.in/api.php?auth-token=8df0570da65f3a1798408c942b82839a&report=1`;
-                let leads = await fetchWithInfiniteLoop(apiUrl);
+                // 2. दोनों पैनल से डेटा मंगाएं
+                const apiVis = `https://panel.visioncamp.in/api.php?auth-token=8df0570da65f3a1798408c942b82839a&report=1`;
+                const apiHiq = `https://api.hiqmobi.com/api/conversion?api_token=4aexmy8vnpvtyf772lzrzskf8c4wavljf15f&page=1&limit=50`;
+
+                document.getElementById('loader-msg').innerText = "📡 Fetching Live Data...";
+                
+                const [d1, d2] = await Promise.all([
+                    fetchFromDualPanels(apiVis),
+                    fetchFromDualPanels(apiHiq)
+                ]);
+
+                let leads = [...(Array.isArray(d1) ? d1 : []), ...(Array.isArray(d2) ? d2 : [])];
 
                 let myTasksHtml = '';
                 let myRefers = {};
                 let totalRefCount = 0;
 
                 leads.forEach(lead => {
-                    if(lead.status.toLowerCase() !== 'approved') return;
+                    let status = (lead.status || "").toLowerCase();
+                    if(status !== 'approved' && status !== 'pending') return;
 
-                    // UPI डिकोडिंग हैंडलर (Security के लिए)
-                    let p1Raw = lead.p1.toLowerCase();
+                    let p1Raw = (lead.p1 || "").toLowerCase();
                     let p2Raw = (lead.p2 || "").toLowerCase();
 
-                    // डिकोडिंग चाबी (अगर P2 कोड में है)
+                    // Refer P2 Decoding
                     let p2Clean = p2Raw;
-                    try {
-                        if (p2Raw.includes('==') || p2Raw.length > 15) { p2Clean = atob(p2Raw).toLowerCase(); }
-                    } catch(e) {}
+                    try { if (p2Raw.length > 15) { p2Clean = atob(p2Raw).toLowerCase(); } } catch(e) {}
 
-                    // Check My Tasks
+                    // --- MY TASKS LOGIC ---
                     if(p1Raw === upiInput) {
-                        myTasksHtml += `<div class="task-card"><span class="t-name">${nameMap[lead.offerid] || 'Offer #'+lead.offerid}</span><span class="t-status">PASSED</span></div>`;
+                        let goal = lead.goalName ? ` [${lead.goalName}]` : '';
+                        let color = status === 'approved' ? '#00ff00' : '#ff9800';
+                        let border = status === 'approved' ? '1px solid #00ff00' : '1px solid #ff9800';
+                        let bg = status === 'approved' ? 'rgba(0, 255, 0, 0.05)' : 'rgba(255, 152, 0, 0.05)';
+
+                        myTasksHtml += `
+                            <div class="task-card" style="background:${bg}; border:${border};">
+                                <span class="t-name">${(nameMap[lead.offerid] || 'Offer #'+lead.offerid)}${goal}</span>
+                                <span class="t-status" style="background:${color}; color:black;">${status}</span>
+                            </div>`;
                     }
 
-                    // Check My Referrals
-                    if(p2Clean === upiInput || p2Raw === upiInput) {
+                    // --- REFERRAL LOGIC ---
+                    if(status === 'approved' && (p2Clean === upiInput || p2Raw === upiInput)) {
                         myRefers[lead.offerid] = (myRefers[lead.offerid] || 0) + 1;
                         totalRefCount++;
                     }
                 });
 
-                document.getElementById('myTaskList').innerHTML = myTasksHtml || '<div style="color:#555; font-size:12px; text-align:center;">No tasks found.</div>';
+                document.getElementById('myTaskList').innerHTML = myTasksHtml || '<div style="color:#555; font-size:12px; text-align:center;">No active tasks found.</div>';
                 document.getElementById('totalRefs').innerText = totalRefCount;
 
                 let refHtml = '';
@@ -146,12 +155,11 @@
                 document.getElementById('refBreakdown').innerHTML = refHtml || '<div style="color:#555; font-size:11px; text-align:center;">No referrals yet.</div>';
 
                 document.getElementById('loader').style.display = 'none';
-                document.getElementById('loader-msg').style.display = 'none';
                 document.getElementById('results').style.display = 'block';
                 document.getElementById('checkBtn').disabled = false;
 
             } catch (err) {
-                document.getElementById('loader-msg').innerText = "❌ Connection Failed. Try Again.";
+                document.getElementById('loader-msg').innerText = "❌ Engine Timeout. Click Check Again.";
                 document.getElementById('checkBtn').disabled = false;
             }
         }
