@@ -52,63 +52,56 @@
                 <div class="ref-label">Total Valid Referrals</div>
                 <div id="refBreakdown"></div>
             </div>
-            <p style="font-size: 10px; color: #555; text-align: center;">*Updates every 2 seconds via Multi-Proxy</p>
+            <p style="font-size: 10px; color: #555; text-align: center;">*Updates live via Multi-Proxy Engine</p>
         </div>
     </div>
 
     <script>
-        // --- अनलिमिटेड मल्टी-प्रॉक्सी स्विचिंग सिस्टम ---
         async function fetchFromDualPanels(url) {
             const proxies = [
                 `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}&v=${Date.now()}`,
                 `https://corsproxy.io/?${encodeURIComponent(url)}`,
-                `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
-                `https://thingproxy.freeboard.io/fetch/${url}`
+                `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`
             ];
 
             for (let i = 0; i < proxies.length; i++) {
                 try {
                     const res = await fetch(proxies[i]);
                     if (res.ok) {
-                        const json = await res.json();
-                        return json.data || json;
+                        const rawData = await res.json();
+                        // विजन कैंप डेटा .data में होता है, Hiqmobi का सीधा array या .data में हो सकता है
+                        return Array.isArray(rawData) ? rawData : (rawData.data || []);
                     }
-                } catch (e) {
-                    console.warn(`Proxy ${i+1} failed, switching...`);
-                }
+                } catch (e) { console.warn(`Proxy ${i+1} failed`); }
             }
-            throw new Error("All proxies busy");
+            return [];
         }
 
         async function startTracking() {
             let upiInput = document.getElementById('upi').value.trim().toLowerCase();
-            if(!upiInput) { alert("UPI daalo!"); return; }
+            if(!upiInput) { alert("UPI ID daalo bhai!"); return; }
 
             document.getElementById('loader').style.display = 'block';
-            document.getElementById('loader-msg').innerText = "Connecting to Secure Engines...";
+            document.getElementById('loader-msg').innerText = "Connecting Dual Engines...";
             document.getElementById('results').style.display = 'none';
             document.getElementById('checkBtn').disabled = true;
 
             try {
-                // 1. ऑफर्स डेटा लोड करें
                 let offRes = await fetch('offers.json');
                 let offData = await offRes.json();
                 let nameMap = {};
                 offData.forEach(o => nameMap[o.cid || o.id] = o.title);
 
-                // 2. दोनों पैनल से डेटा मंगाएं
                 const apiVis = `https://panel.visioncamp.in/api.php?auth-token=8df0570da65f3a1798408c942b82839a&report=1`;
                 const apiHiq = `https://api.hiqmobi.com/api/conversion?api_token=4aexmy8vnpvtyf772lzrzskf8c4wavljf15f&page=1&limit=50`;
 
-                document.getElementById('loader-msg').innerText = "📡 Fetching Live Data...";
-                
+                // दोनों को मंगाओ
                 const [d1, d2] = await Promise.all([
                     fetchFromDualPanels(apiVis),
                     fetchFromDualPanels(apiHiq)
                 ]);
 
-                let leads = [...(Array.isArray(d1) ? d1 : []), ...(Array.isArray(d2) ? d2 : [])];
-
+                let leads = [...d1, ...d2];
                 let myTasksHtml = '';
                 let myRefers = {};
                 let totalRefCount = 0;
@@ -119,12 +112,9 @@
 
                     let p1Raw = (lead.p1 || "").toLowerCase();
                     let p2Raw = (lead.p2 || "").toLowerCase();
-
-                    // Refer P2 Decoding
                     let p2Clean = p2Raw;
                     try { if (p2Raw.length > 15) { p2Clean = atob(p2Raw).toLowerCase(); } } catch(e) {}
 
-                    // --- MY TASKS LOGIC ---
                     if(p1Raw === upiInput) {
                         let goal = lead.goalName ? ` [${lead.goalName}]` : '';
                         let color = status === 'approved' ? '#00ff00' : '#ff9800';
@@ -138,7 +128,6 @@
                             </div>`;
                     }
 
-                    // --- REFERRAL LOGIC ---
                     if(status === 'approved' && (p2Clean === upiInput || p2Raw === upiInput)) {
                         myRefers[lead.offerid] = (myRefers[lead.offerid] || 0) + 1;
                         totalRefCount++;
@@ -159,7 +148,7 @@
                 document.getElementById('checkBtn').disabled = false;
 
             } catch (err) {
-                document.getElementById('loader-msg').innerText = "❌ Engine Timeout. Click Check Again.";
+                document.getElementById('loader-msg').innerText = "❌ Engine Timeout. Try again.";
                 document.getElementById('checkBtn').disabled = false;
             }
         }
