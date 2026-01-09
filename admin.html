@@ -2,66 +2,68 @@
 <html>
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🔥 PATHAK SECURE ADMIN</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&display=swap" rel="stylesheet">
+    <title>💎 PATHAK GOLD EDITION</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@500;900&display=swap" rel="stylesheet">
     <style>
-        body { margin: 0; background: #000; font-family: 'Roboto', sans-serif; color: white; padding-bottom: 60px; }
-        .container { max-width: 600px; margin: auto; padding: 5px; }
+        body { margin: 0; background: #000; font-family: 'Roboto', sans-serif; color: white; padding-bottom: 80px; }
+        .container { max-width: 600px; margin: auto; padding: 10px; }
         
-        .sticky-nav { position: sticky; top: 0; z-index: 99; background: #000; padding: 5px 0; border-bottom: 1px solid #222; }
+        /* HEADER SECTION */
+        .sticky-header { position: sticky; top: 0; z-index: 999; background: #000; border-bottom: 2px solid #333; padding-bottom: 10px; }
         
         /* FILTERS */
-        .filter-box { display: flex; gap: 5px; margin-bottom: 5px; padding: 0 5px; }
-        .filter-btn { flex: 1; padding: 10px; background: #111; color: #666; border: 1px solid #333; border-radius: 6px; font-weight: bold; font-size: 11px; cursor: pointer; }
-        .filter-btn.active { background: #00e5ff; color: #000; border-color: #00e5ff; }
+        .filter-row { display: flex; gap: 8px; padding: 10px 5px; }
+        .filter-btn { flex: 1; padding: 12px; background: #1a1a1a; color: #888; border: 1px solid #333; border-radius: 8px; font-weight: bold; font-size: 11px; cursor: pointer; }
+        .filter-btn.active { background: #00e5ff; color: #000; border-color: #00e5ff; box-shadow: 0 0 10px rgba(0,229,255,0.4); }
 
         /* TABS */
-        .tabs { display: flex; gap: 5px; background: #1a1a1a; padding: 5px; border-radius: 8px; margin: 0 5px; }
-        .tab { flex: 1; padding: 8px; text-align: center; font-weight: bold; font-size: 11px; color: #666; cursor: pointer; border-radius: 6px; }
+        .tabs { display: flex; gap: 5px; background: #111; padding: 5px; border-radius: 10px; margin: 0 5px; border: 1px solid #222; }
+        .tab { flex: 1; padding: 10px; text-align: center; font-weight: bold; font-size: 12px; color: #555; cursor: pointer; border-radius: 8px; }
         .tab.active { background: #fff; color: #000; }
 
-        /* CARD */
-        .card { background: #0f0f0f; border: 1px solid #222; border-radius: 12px; margin: 10px 5px; padding: 10px; }
+        /* MAIN CARD DESIGN */
+        .card { background: #0a0a0a; border: 1px solid #222; border-radius: 15px; margin-bottom: 15px; padding: 15px; position: relative; }
         
-        /* UPI STRIP */
-        .upi-strip { 
+        /* UPI BOX */
+        .upi-box { 
             background: linear-gradient(90deg, #111, #1a1a1a); 
-            padding: 10px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center;
-            border: 1px dashed #333; cursor: pointer; margin-bottom: 8px;
+            padding: 12px; border-radius: 8px; text-align: center; 
+            border: 1px dashed #444; cursor: pointer; margin-bottom: 12px;
         }
-        .upi-val { font-size: 14px; color: #00e5ff; font-weight: bold; }
-        .copy-hint { font-size: 9px; color: #555; font-weight: bold; }
+        .upi-text { font-size: 16px; color: #00e5ff; font-weight: 900; letter-spacing: 0.5px; }
+        .tap-msg { font-size: 9px; color: #666; margin-top: 4px; text-transform: uppercase; font-weight: bold; }
 
-        .info-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-        .offer-title { font-size: 10px; color: #888; }
-        .amt-tag { font-size: 22px; font-weight: 900; color: #fff; }
+        /* DETAILS */
+        .info-box { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding: 0 5px; }
+        .offer-name { font-size: 11px; color: #888; font-weight: bold; }
+        .amt-text { font-size: 26px; font-weight: 900; color: #fff; text-shadow: 0 0 10px rgba(255,255,255,0.1); }
 
-        /* ICONS GRID */
-        .app-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; margin-bottom: 10px; }
+        /* APP GRID */
+        .app-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 15px; }
         .app-btn { 
-            background: #181818; border: 1px solid #333; border-radius: 6px; padding: 8px 0; 
-            text-align: center; cursor: pointer; display: flex; flex-direction: column; align-items: center;
+            background: #151515; border: 1px solid #333; border-radius: 8px; padding: 10px 0; 
+            text-align: center; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center;
         }
-        .app-btn:active { background: #333; }
-        .app-btn img { width: 24px; height: 24px; margin-bottom: 3px; }
-        .app-lbl { font-size: 8px; font-weight: bold; color: #aaa; text-transform: uppercase; }
+        .app-btn:active { background: #333; transform: scale(0.98); }
+        .app-btn img { width: 28px; height: 28px; margin-bottom: 4px; }
+        .app-lbl { font-size: 9px; font-weight: 900; color: #aaa; text-transform: uppercase; }
 
-        .btn-done { width: 100%; background: #00e5ff; color: #000; border: none; padding: 12px; border-radius: 6px; font-weight: 900; cursor: pointer; font-size: 12px; }
-        
+        .btn-done { width: 100%; background: #00e5ff; color: #000; border: none; padding: 14px; border-radius: 10px; font-weight: 900; font-size: 14px; cursor: pointer; box-shadow: 0 4px 15px rgba(0,229,255,0.2); }
+
+        .loader { text-align: center; padding: 60px; color: #00e5ff; font-weight: bold; font-size: 12px; }
         .hidden { display: none !important; }
-        .loader { text-align: center; padding: 50px; color: #00e5ff; font-size: 12px; font-weight: bold; }
-        #toast { position: fixed; bottom: 50px; left: 50%; transform: translateX(-50%); background: #fff; color: #000; padding: 6px 15px; border-radius: 20px; font-size: 10px; font-weight: 900; display: none; z-index: 999; }
+        #toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: #fff; color: #000; padding: 8px 20px; border-radius: 30px; font-weight: 900; font-size: 10px; display: none; z-index: 9999; }
     </style>
 </head>
 <body>
 
 <div id="toast">COPIED</div>
 
-<div class="sticky-nav">
-    <div class="filter-box">
-        <button class="filter-btn" id="btn-1" onclick="changeReport(1)">TODAY</button>
-        <button class="filter-btn" id="btn-3" onclick="changeReport(3)">48 HRS</button>
-        <button class="filter-btn" id="btn-4" onclick="changeReport(4)">7 DAYS</button>
+<div class="sticky-header">
+    <div class="filter-row">
+        <button class="filter-btn" id="btn-1" onclick="loadReport(1)">TODAY</button>
+        <button class="filter-btn" id="btn-3" onclick="loadReport(3)">48 HRS</button>
+        <button class="filter-btn" id="btn-4" onclick="loadReport(4)">7 DAYS</button>
     </div>
 
     <div class="tabs">
@@ -72,67 +74,51 @@
 </div>
 
 <div class="container">
-    <div id="loader" class="loader">🔒 SECURE CHECK...</div>
+    <div id="loader" class="loader">🔒 SECURE LOADING...</div>
     <div id="tasks-area"></div>
     <div id="referrals-area" class="hidden"></div>
     <div id="history-area" class="hidden"></div>
 </div>
 
 <script>
-    // --- 1. SECURITY SYSTEM (5 MINUTE LOCK) ---
+    // --- 1. PASSWORD PROTECTION ---
     function checkSecurity() {
-        const lastLogin = localStorage.getItem('pathak_secure_time');
+        const last = localStorage.getItem('secure_login_ts');
         const now = Date.now();
-        // 5 Minutes = 300000 ms
-        if (!lastLogin || (now - lastLogin > 300000)) { 
-            const pass = prompt("🔐 ENTER ADMIN PASSWORD:");
-            if (pass === "1234") { // PASSWORD YAHAN HAI
-                localStorage.setItem('pathak_secure_time', now);
-            } else {
-                alert("❌ WRONG PASSWORD!");
-                location.reload(); // Reloads until correct
-                throw "Access Denied"; // Stops script
-            }
-        } else {
-            localStorage.setItem('pathak_secure_time', now); // Reset timer on activity
-        }
+        if(!last || (now - last > 300000)) { // 5 Minutes
+            if(prompt("ENTER PASSWORD:") === "1234") { localStorage.setItem('secure_login_ts', now); }
+            else { location.reload(); throw "Denied"; }
+        } else { localStorage.setItem('secure_login_ts', now); }
     }
-    checkSecurity(); // Run this first!
+    checkSecurity();
 
     // --- 2. CONFIG ---
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwfjyg_o0a_BUgiC0Iuoit3OTtzBHhkvVf8kg6XeI0DaCKVpBsbljCbpK-Tbb7uk-Dqvg/exec";
-    const AUTH = "8df0570da65f3a1798408c942b82839a";
+    const AUTH_TOKEN = "8df0570da65f3a1798408c942b82839a";
     
-    // --- 3. MEMORY SYSTEM (REMEMBER REPORT) ---
-    let currentReport = localStorage.getItem('last_report_id') || 1; 
+    // MEMORY FOR REPORT SELECTION
+    let currentReport = localStorage.getItem('last_rep_id') || 1;
     let paidSet = new Set(), leads = [], offers = {};
 
+    // --- 3. INIT ---
     init();
 
     async function init() {
-        updateBtnUI(currentReport);
-        loadData();
+        updateFilterUI(currentReport);
+        loadReport(currentReport);
     }
 
-    function changeReport(id) {
-        currentReport = id;
-        localStorage.setItem('last_report_id', id); // SAVE CHOICE
-        updateBtnUI(id);
-        loadData();
-    }
-
-    function updateBtnUI(id) {
-        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-        const btn = document.getElementById('btn-' + id);
-        if(btn) btn.classList.add('active');
-    }
-
-    async function loadData() {
+    // --- 4. DATA LOADING & FILTERING ---
+    async function loadReport(rid) {
+        currentReport = rid;
+        localStorage.setItem('last_rep_id', rid); // Save Report Choice
+        updateFilterUI(rid);
+        
         document.getElementById('loader').classList.remove('hidden');
-        document.getElementById('loader').innerText = "🔄 LOADING DATA...";
-        ['tasks-area','referrals-area','history-area'].forEach(id => document.getElementById(id).innerHTML = '');
-
+        document.getElementById('tasks-area').innerHTML = '';
+        
         try {
+            // Load Google Sheet Paid List + Offers (Once)
             if(Object.keys(offers).length === 0) {
                 const [rSheet, rOffer] = await Promise.all([fetch(SCRIPT_URL), fetch('offers.json')]);
                 const dSheet = await rSheet.json();
@@ -143,11 +129,11 @@
                 });
             }
 
-            const target = `https://panel.visioncamp.in/api.php?auth-token=${AUTH}&report=${currentReport}`;
+            // PROXY FETCH
+            const target = `https://panel.visioncamp.in/api.php?auth-token=${AUTH_TOKEN}&report=${currentReport}`;
             const proxies = [
                 `https://api.allorigins.win/raw?url=${encodeURIComponent(target)}`,
-                `https://corsproxy.io/?${encodeURIComponent(target)}`,
-                `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(target)}`
+                `https://corsproxy.io/?${encodeURIComponent(target)}`
             ];
 
             let success = false;
@@ -165,108 +151,132 @@
 
             document.getElementById('loader').classList.add('hidden');
             if(success) render();
+            else document.getElementById('loader').innerText = "DATA FAILED. REFRESH.";
 
         } catch(e) { console.log(e); }
     }
 
+    // --- 5. RENDER LOGIC (LOCAL LOCK INCLUDED) ---
     function render() {
         let tA = document.getElementById('tasks-area'), rA = document.getElementById('referrals-area'), hA = document.getElementById('history-area');
         let rG = {}, tc = 0, rc = 0;
+        
+        // Clear Areas
+        tA.innerHTML = ''; rA.innerHTML = ''; hA.innerHTML = '';
 
         [...leads].reverse().forEach(l => {
             if(l.status.toLowerCase() !== 'approved') return;
+            
             let o = offers[l.offerid] || { t: `Offer ${l.offerid}`, u: 6, r: 2 };
             let sk = `${l.p1}_${l.offerid}_SELF`;
             let rk = `${l.p2}_${l.offerid}_REF`;
 
-            if(paidSet.has(sk)) {
-                hA.innerHTML += `<div class="card" style="opacity:0.5; font-size:10px;">
-                    <div style="color:#00e5ff">${l.p1}</div><div>₹${o.u} Paid</div>
+            // CHECK BOTH: GOOGLE SHEET & LOCAL STORAGE LOCK
+            let isPaid = paidSet.has(sk) || localStorage.getItem('PAID_LOCK_' + sk);
+
+            if(isPaid) {
+                hA.innerHTML += `<div class="card" style="opacity:0.4; border:1px solid #333;">
+                    <div style="color:#00e5ff; font-weight:bold;">${l.p1}</div>
+                    <div style="font-size:10px;">PAID ₹${o.u}</div>
                 </div>`;
             } else {
                 tc++;
-                tA.innerHTML += makeCard(l.p1, o.t, o.u, sk);
+                tA.innerHTML += createCard(l.p1, o.t, o.u, sk);
             }
 
+            // REFERRAL LOGIC
             if(l.p2 && l.p2.length > 5) {
                 if(!rG[l.p2]) rG[l.p2] = { total: 0, keys: [] };
-                rG[l.p2].total += o.r; rG[l.p2].keys.push(rk);
+                rG[l.p2].total += o.r;
+                rG[l.p2].keys.push(rk);
             }
         });
 
+        // RENDER REFERRALS
         for (let [upi, d] of Object.entries(rG)) {
-            if(d.keys.every(k => paidSet.has(k))) continue;
+            // Check if ALL refer keys are paid/locked
+            let allPaid = d.keys.every(k => paidSet.has(k) || localStorage.getItem('PAID_LOCK_' + k));
+            
+            if(allPaid) continue; 
+            
             rc++;
-            rA.innerHTML += makeCard(upi, `${d.keys.length} REFERRALS`, d.total, JSON.stringify(d.keys));
+            rA.innerHTML += createCard(upi, `${d.keys.length} REFERRALS`, d.total, JSON.stringify(d.keys));
         }
 
         document.getElementById('tc').innerText = tc;
         document.getElementById('rc').innerText = rc;
     }
 
-    function makeCard(upi, title, amt, key) {
+    function createCard(upi, title, amt, key) {
         return `
-            <div class="card" id="card-${key}">
-                <div class="upi-strip" onclick="copyUPI('${upi}')">
-                    <div class="upi-val">${upi}</div>
-                    <div class="copy-hint">TAP COPY</div>
+            <div class="card" id="card-${key.replace(/[^a-zA-Z0-9]/g, '')}">
+                <div class="upi-box" onclick="copyUPI('${upi}')">
+                    <div class="upi-text">${upi}</div>
+                    <div class="tap-msg">TAP TO COPY</div>
                 </div>
-                
-                <div class="info-row">
-                    <div class="offer-title">${title}</div>
-                    <div class="amt-tag">₹${amt}</div>
+
+                <div class="info-box">
+                    <div class="offer-name">${title}</div>
+                    <div class="amt-text">₹${amt}</div>
                 </div>
 
                 <div class="app-grid">
-                    <div class="app-btn" onclick="openApp('fam_one', '${upi}')">
-                        <img src="https://img.icons8.com/color/48/wallet.png"><div class="app-lbl">FAM.1</div>
+                    <div class="app-btn" onclick="openLink('https://fam.one/${upi}')">
+                        <img src="https://img.icons8.com/color/48/wallet.png">
+                        <div class="app-lbl">FAM WEB</div>
                     </div>
-                    <div class="app-btn" onclick="openApp('fam_app', '${upi}')">
-                        <img src="https://img.icons8.com/color/48/wallet.png"><div class="app-lbl">FAM APP</div>
+                    <div class="app-btn" onclick="openLink('fampay://')">
+                        <img src="https://img.icons8.com/color/48/wallet.png">
+                        <div class="app-lbl">FAM APP</div>
                     </div>
-                    <div class="app-btn" onclick="openApp('pe_app', '${upi}')">
-                        <img src="https://img.icons8.com/color/48/phone-pe.png"><div class="app-lbl">PE APP</div>
+                    
+                    <div class="app-btn" onclick="openLink('phonepe://')">
+                        <img src="https://img.icons8.com/color/48/phone-pe.png">
+                        <div class="app-lbl">PE APP</div>
                     </div>
-                    <div class="app-btn" onclick="openApp('pe_pay', '${upi}', '${amt}')">
-                        <img src="https://img.icons8.com/color/48/phone-pe.png"><div class="app-lbl">PE PAY</div>
+                    
+                    <div class="app-btn" onclick="openLink('paytmmp://')">
+                        <img src="https://img.icons8.com/color/48/paytm.png">
+                        <div class="app-lbl">PTM APP</div>
                     </div>
-                    <div class="app-btn" onclick="openApp('pay_app', '${upi}')">
-                        <img src="https://img.icons8.com/color/48/paytm.png"><div class="app-lbl">PTM APP</div>
-                    </div>
-                    <div class="app-btn" onclick="openApp('pay_scan', '${upi}')">
-                        <img src="https://img.icons8.com/color/48/paytm.png"><div class="app-lbl">PTM PAY</div>
+
+                    <div class="app-btn" onclick="openLink('upi://pay?pa=${upi}&pn=User&am=${amt}&cu=INR')">
+                        <img src="https://img.icons8.com/fluency/48/bhim.png">
+                        <div class="app-lbl">ANY PAY</div>
                     </div>
                 </div>
 
-                <button class="btn-done" onclick="markPaid('${key}')">✅ MARK DONE</button>
-            </div>`;
+                <button class="btn-done" onclick="markPaid('${key}')">✅ MARK AS PAID</button>
+            </div>
+        `;
     }
 
-    function openApp(app, upi, amt) {
-        navigator.clipboard.writeText(upi);
-        const t = document.getElementById('toast');
-        t.innerText = "COPIED"; t.style.display = 'block'; setTimeout(() => t.style.display = 'none', 1000);
-        
-        setTimeout(() => {
-            if(app === 'fam_one') window.location.href = `https://fam.one/${upi}`;
-            if(app === 'fam_app') window.location.href = "fampay://";
-            if(app === 'pe_app') window.location.href = "phonepe://";
-            if(app === 'pe_pay') window.location.href = `phonepe://pay?pa=${upi}&pn=User&am=${amt}&cu=INR`;
-            if(app === 'pay_app') window.location.href = "paytmmp://";
-            if(app === 'pay_scan') window.location.href = "paytmmp://pay?pa=" + upi;
-        }, 300);
+    // --- 6. ACTIONS ---
+    function openLink(url) {
+        window.location.href = url;
     }
 
     function copyUPI(txt) {
         navigator.clipboard.writeText(txt);
-        document.getElementById('toast').style.display = 'block'; setTimeout(() => document.getElementById('toast').style.display = 'none', 1000);
+        const t = document.getElementById('toast');
+        t.style.display = 'block'; setTimeout(() => t.style.display = 'none', 1000);
     }
 
     function markPaid(key) {
-        if(confirm("Paid?")) {
-            document.getElementById(`card-${key}`).style.display = 'none';
+        if(confirm("Confirm Paid?")) {
+            const safeId = key.replace(/[^a-zA-Z0-9]/g, '');
+            
+            // 1. HIDE INSTANTLY
+            const el = document.getElementById(`card-${safeId}`);
+            if(el) el.style.display = 'none';
+
+            // 2. LOCK LOCALLY (PERMANENT FIX FOR REFRESH)
             const kArr = key.startsWith('[') ? JSON.parse(key) : [key];
-            kArr.forEach(k => fetch(SCRIPT_URL + `?action=pay&key=${encodeURIComponent(k)}`, { mode: 'no-cors' }));
+            kArr.forEach(k => {
+                localStorage.setItem('PAID_LOCK_' + k, 'true'); // Save to phone memory
+                // 3. SEND TO SERVER
+                fetch(SCRIPT_URL + `?action=pay&key=${encodeURIComponent(k)}`, { mode: 'no-cors' });
+            });
         }
     }
 
@@ -275,6 +285,12 @@
         event.target.classList.add('active');
         ['tasks-area','referrals-area','history-area'].forEach(id => document.getElementById(id).classList.add('hidden'));
         document.getElementById(t + '-area').classList.remove('hidden');
+    }
+
+    function updateFilterUI(id) {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        const btn = document.getElementById('btn-' + id);
+        if(btn) btn.classList.add('active');
     }
 </script>
 </body>
