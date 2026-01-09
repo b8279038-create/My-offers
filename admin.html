@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>⚡ PATHAK MEMORY ADMIN</title>
+    <title>🔥 PATHAK SECURE ADMIN</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         body { margin: 0; background: #000; font-family: 'Roboto', sans-serif; color: white; padding-bottom: 60px; }
@@ -72,32 +72,51 @@
 </div>
 
 <div class="container">
-    <div id="loader" class="loader">LOADING...</div>
+    <div id="loader" class="loader">🔒 SECURE CHECK...</div>
     <div id="tasks-area"></div>
     <div id="referrals-area" class="hidden"></div>
     <div id="history-area" class="hidden"></div>
 </div>
 
 <script>
+    // --- 1. SECURITY SYSTEM (5 MINUTE LOCK) ---
+    function checkSecurity() {
+        const lastLogin = localStorage.getItem('pathak_secure_time');
+        const now = Date.now();
+        // 5 Minutes = 300000 ms
+        if (!lastLogin || (now - lastLogin > 300000)) { 
+            const pass = prompt("🔐 ENTER ADMIN PASSWORD:");
+            if (pass === "1234") { // PASSWORD YAHAN HAI
+                localStorage.setItem('pathak_secure_time', now);
+            } else {
+                alert("❌ WRONG PASSWORD!");
+                location.reload(); // Reloads until correct
+                throw "Access Denied"; // Stops script
+            }
+        } else {
+            localStorage.setItem('pathak_secure_time', now); // Reset timer on activity
+        }
+    }
+    checkSecurity(); // Run this first!
+
+    // --- 2. CONFIG ---
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwfjyg_o0a_BUgiC0Iuoit3OTtzBHhkvVf8kg6XeI0DaCKVpBsbljCbpK-Tbb7uk-Dqvg/exec";
     const AUTH = "8df0570da65f3a1798408c942b82839a";
     
-    // --- MEMORY SYSTEM: YAAD RAKHEGA LAST OPTION ---
+    // --- 3. MEMORY SYSTEM (REMEMBER REPORT) ---
     let currentReport = localStorage.getItem('last_report_id') || 1; 
     let paidSet = new Set(), leads = [], offers = {};
 
-    // Start
     init();
 
     async function init() {
-        // Highlight Saved Button Immediately
         updateBtnUI(currentReport);
         loadData();
     }
 
     function changeReport(id) {
         currentReport = id;
-        localStorage.setItem('last_report_id', id); // SAVE TO MEMORY
+        localStorage.setItem('last_report_id', id); // SAVE CHOICE
         updateBtnUI(id);
         loadData();
     }
@@ -110,6 +129,7 @@
 
     async function loadData() {
         document.getElementById('loader').classList.remove('hidden');
+        document.getElementById('loader').innerText = "🔄 LOADING DATA...";
         ['tasks-area','referrals-area','history-area'].forEach(id => document.getElementById(id).innerHTML = '');
 
         try {
